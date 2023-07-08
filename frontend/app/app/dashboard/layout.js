@@ -54,7 +54,7 @@ export default function DashboardLayout({ children, window, access_token }) {
     if (status === "authenticated") {
       setupTokens(session);
     }
-  }, []);
+  });
 
   const logout = () => {
     // blacklist tokens in database and remove from local storage

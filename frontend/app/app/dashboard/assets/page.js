@@ -13,6 +13,7 @@ import Button from "@mui/material/Button";
 import ButtonGroup from "@mui/material/ButtonGroup";
 import CssBaseline from "@mui/material/CssBaseline";
 import Skeleton from "@mui/material/Skeleton";
+import Chip from "@mui/material/Chip";
 import Paper from "@mui/material/Paper";
 import Grid from "@mui/material/Grid";
 import Fab from "@mui/material/Fab";
@@ -46,7 +47,7 @@ export default function Assets() {
 
   useEffect(() => {
     if (data !== undefined) setOptions([...data]);
-  }, []);
+  });
 
   useEffect(() => {
     if (!open) {
