@@ -17,7 +17,8 @@ export const authOptions = {
       authorize: async (credentials) => {
         // Add logic here to look up the user from the credentials supplied
 
-        const response = await fetch(process.env.API_URL + "token/", {
+        //const response = await fetch(process.env.API_URL + "token/", {
+        const response = await fetch("http://13.211.204.121/token/", {
           method: "POST",
           body: JSON.stringify(credentials),
           headers: { "Content-Type": "application/json" },
