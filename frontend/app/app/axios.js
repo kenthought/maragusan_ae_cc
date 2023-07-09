@@ -2,7 +2,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { signOut } from "next-auth/react";
 
-const baseURL = "https://13.211.204.121/api/";
+const baseURL = "http://13.211.204.121/api/";
 
 const axiosInstance = axios.create({
   baseURL: baseURL,
