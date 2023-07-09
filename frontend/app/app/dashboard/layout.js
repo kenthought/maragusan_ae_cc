@@ -45,7 +45,7 @@ const setupTokens = (session) => {
   Cookies.set("refresh_token", splitToken[2], { expires: 7 });
 };
 
-export default function DashboardLayout({ children, window, access_token }) {
+export default function DashboardLayout({ children, window }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { data: session, status } = useSession();
   const [open, setOpen] = useState(false);

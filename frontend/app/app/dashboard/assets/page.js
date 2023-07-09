@@ -46,10 +46,6 @@ export default function Assets() {
   const [selected, setSelected] = useState(null);
 
   useEffect(() => {
-    if (data !== undefined) setOptions([...data]);
-  });
-
-  useEffect(() => {
     if (!open) {
       setOptions([]);
     } else {
