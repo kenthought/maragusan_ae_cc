@@ -87,7 +87,7 @@ export default function AssetDialog({
     //     });
   };
 
-  if (asset_type_isLoading) return <div>Loading...</div>;
+  if (asset_type_isLoading) return;
 
   return (
     <Dialog open={openAssetDialog} onClose={handleClose} fullWidth>
