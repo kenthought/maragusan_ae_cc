@@ -34,14 +34,15 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
   },
 }));
 
-export default function AssetCreditDialog({
-  openAssetCreditDialog,
-  setOpenAssetCreditDialog,
-  selected,
-  mutate,
-  setIsSuccess,
-  setSuccessText,
-}) {
+export default function AssetCreditDialog(props) {
+  const {
+    openAssetCreditDialog,
+    setOpenAssetCreditDialog,
+    selected,
+    mutate,
+    setIsSuccess,
+    setSuccessText,
+  } = props;
   const [rows, setRows] = useState([]);
   const [post, setPost] = useState();
   const { data: session } = useSession();

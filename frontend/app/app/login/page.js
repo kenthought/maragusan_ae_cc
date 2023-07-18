@@ -17,7 +17,7 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter, redirect } from "next/navigation";
 
-function Copyright(props) {
+const Copyright = (props) => {
   return (
     <Typography
       variant="body2"
@@ -33,7 +33,7 @@ function Copyright(props) {
       {"."}
     </Typography>
   );
-}
+};
 
 // TODO remove, this demo shouldn't need to reset the theme.
 

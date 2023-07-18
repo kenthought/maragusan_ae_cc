@@ -12,20 +12,31 @@ import PropTypes from "prop-types";
 import axiosInstance from "@/app/axios";
 import { useSession } from "next-auth/react";
 
-export default function AssetTypeDialog({
-  openAssetTypeDialog,
-  setOpenAssetTypeDialog,
-  setIsSuccess,
-  setSuccessText,
-  mutate,
-  isEditing,
-  setIsEditing,
-  editData,
-  setSelected,
-}) {
+export default function AssetTypeDialog(props) {
+  const {
+    openAssetTypeDialog,
+    setOpenAssetTypeDialog,
+    setIsSuccess,
+    setSuccessText,
+    mutate,
+    isEditing,
+    setIsEditing,
+    editData,
+    setSelected,
+  } = props;
   const [isError, setIsError] = useState(false);
   const [errorText, setErrorText] = useState(false);
   const { data: session } = useSession();
+  const [newData, setNewData] = useState({});
+
+  useEffect(() => {
+    setNewData(editData);
+  }, [editData]);
+
+  const handleEditChange = (event) => {
+    const value = event.target.value;
+    setNewData({ ...newData, [event.target.name]: value });
+  };
 
   const handleClose = () => {
     setOpenAssetTypeDialog(false);
@@ -61,7 +72,11 @@ export default function AssetTypeDialog({
         .catch((response) => {
           console.log(response);
           setIsError(true);
-          setErrorText(response.message);
+          setErrorText(
+            response.message +
+              " - " +
+              response.request.responseText.match(/\[(.*?)\]/)[1]
+          );
         });
     else
       axiosInstance
@@ -73,7 +88,11 @@ export default function AssetTypeDialog({
         .catch((response) => {
           console.log(response);
           setIsError(true);
-          setErrorText(response.message);
+          setErrorText(
+            response.message +
+              " - " +
+              response.request.responseText.match(/\[(.*?)\]/)[1]
+          );
         });
   };
 
@@ -85,21 +104,34 @@ export default function AssetTypeDialog({
       <Box component="form" onSubmit={handleSubmit}>
         <DialogContent>
           <Typography color="primary">Asset Information</Typography>
-          <TextField
-            margin="normal"
-            required
-            autoFocus
-            fullWidth
-            id="asset_type"
-            label={
-              !isEditing
-                ? "Asset Type"
-                : "Edit new value for " + editData.asset_type
-            }
-            name="asset_type"
-            type="text"
-            size="small"
-          />
+          {!isEditing ? (
+            <TextField
+              margin="normal"
+              required
+              autoFocus
+              fullWidth
+              id="asset_type"
+              label="Asset Type"
+              name="asset_type"
+              type="text"
+              size="small"
+            />
+          ) : (
+            <TextField
+              margin="normal"
+              required
+              autoFocus
+              fullWidth
+              id="asset_type"
+              label="Asset Type"
+              name="asset_type"
+              value={newData.asset_type || ""}
+              onChange={handleEditChange}
+              type="text"
+              size="small"
+            />
+          )}
+
           {isError ? <Alert severity="error">{errorText}</Alert> : <></>}
         </DialogContent>
         <DialogActions>

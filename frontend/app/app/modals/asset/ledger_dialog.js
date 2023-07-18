@@ -24,7 +24,7 @@ import TextField from "@mui/material/TextField";
 import Box from "@mui/material/Box";
 import { styled } from "@mui/material/styles";
 import axiosInstance from "@/app/axios";
-import Success from "../utils/success";
+import Success from "../../utils/success";
 import AssetDebitDialog from "./asset_debit_dialog";
 import useSWR from "swr";
 import AssetCreditDialog from "./asset_credit_dialog";
@@ -45,23 +45,8 @@ const Transition = forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
-function createData(name, calories, fat, carbs, protein) {
-  return { name, calories, fat, carbs, protein };
-}
-
-const rows = [
-  createData("Frozen yoghurt", 159, 6.0, 24, 4.0),
-  createData("Ice cream sandwich", 237, 9.0, 37, 4.3),
-  createData("Eclair", 262, 16.0, 24, 6.0),
-  createData("Cupcake", 305, 3.7, 67, 4.3),
-  createData("Gingerbread", 356, 16.0, 49, 3.9),
-];
-
-export default function LedgerDialog({
-  openLedgerDialog,
-  setOpenLedgerDialog,
-  selected,
-}) {
+export default function LedgerDialog(props) {
+  const { dialogName, openLedgerDialog, setOpenLedgerDialog, selected } = props;
   const {
     data: ledger,
     error: ledger_error,
@@ -100,7 +85,7 @@ export default function LedgerDialog({
               <CloseIcon />
             </IconButton>
             <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
-              Asset Ledger
+              {dialogName}
             </Typography>
           </Toolbar>
         </AppBar>
@@ -183,14 +168,8 @@ export default function LedgerDialog({
                 <TableFooter>
                   <TableRow>
                     <TableCell colSpan={9} align="right">
-                      <Typography component="div">
-                        Balance:
-                        <TextField
-                          size="small"
-                          value={ledger[ledger.length - 1].balance}
-                          sx={{ width: "120px", marginLeft: 2 }}
-                          readOnly
-                        />
+                      <Typography component="div" padding={2}>
+                        Balance: {ledger[ledger.length - 1].balance}
                       </Typography>
                     </TableCell>
                   </TableRow>
@@ -223,7 +202,7 @@ export default function LedgerDialog({
           </Button>
         </DialogActions>
       </Dialog>
-      {selected != null ? (
+      {selected != null && (
         <>
           <AssetDebitDialog
             openAssetDebitDialog={openAssetDebitDialog}
@@ -242,8 +221,6 @@ export default function LedgerDialog({
             setSuccessText={setSuccessText}
           />
         </>
-      ) : (
-        <></>
       )}
     </>
   );

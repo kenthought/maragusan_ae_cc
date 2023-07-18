@@ -28,6 +28,7 @@ import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
+import AddLocationAltIcon from "@mui/icons-material/AddLocationAlt";
 import CircularProgress from "@mui/material/CircularProgress";
 import axiosInstance from "../axios";
 import Container from "@mui/material/Container";
@@ -79,6 +80,7 @@ export default function DashboardLayout({ children, window }) {
   const menuitems = [
     { id: 0, label: "Assets", path: "assets" },
     { id: 1, label: "Bank Account", path: "bank_account" },
+    { id: 2, label: "Owners Equity", path: "owners_equity" },
   ];
 
   const drawer = (
@@ -112,6 +114,10 @@ export default function DashboardLayout({ children, window }) {
             </ListItemButton>
           </ListItem>
         ))}
+      </List>
+
+      <Divider />
+      <List>
         {/* components */}
         <ListItemButton onClick={handleClick}>
           <ListItemIcon>
@@ -131,6 +137,18 @@ export default function DashboardLayout({ children, window }) {
                 <InboxIcon />
               </ListItemIcon>
               <ListItemText primary="Asset types" />
+            </ListItemButton>
+          </List>
+          <List component="div" disablePadding>
+            <ListItemButton
+              href={"/dashboard/components/address"}
+              LinkComponent={Link}
+              sx={{ pl: 4 }}
+            >
+              <ListItemIcon>
+                <AddLocationAltIcon />
+              </ListItemIcon>
+              <ListItemText primary="Address" />
             </ListItemButton>
           </List>
           <List component="div" disablePadding>

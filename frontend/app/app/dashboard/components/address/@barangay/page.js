@@ -32,7 +32,7 @@ import Switch from "@mui/material/Switch";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { styled } from "@mui/material/styles";
 import { visuallyHidden } from "@mui/utils";
-import AssetTypeDialog from "@/app/modals/components/asset_type_dialog";
+import BarangayDialog from "@/app/modals/components/barangay_dialog";
 import Success from "@/app/utils/success";
 import axiosInstance from "@/app/axios";
 import useSWR from "swr";
@@ -73,10 +73,10 @@ function stableSort(array, comparator) {
 
 const headCells = [
   {
-    id: "asset_type",
+    id: "barangay",
     numeric: false,
     disablePadding: true,
-    label: "Asset Type",
+    label: "Barangay",
   },
 ];
 
@@ -103,7 +103,7 @@ function EnhancedTableHead(props) {
             checked={rowCount > 0 && numSelected === rowCount}
             onChange={onSelectAllClick}
             inputProps={{
-              "aria-label": "select all asset types",
+              "aria-label": "select all barangay",
             }}
           />
         </StyledTableCell>
@@ -158,14 +158,14 @@ function Search(props) {
         }}
         size="small"
         isOptionEqualToValue={(option, value) =>
-          option.asset_type === value.title
+          option.barangay === value.title
         }
-        getOptionLabel={(option) => option.asset_type}
+        getOptionLabel={(option) => option.barangay}
         options={options}
         renderOption={(props, option) => {
           return (
             <li {...props} key={option.id}>
-              {option.asset_type}
+              {option.barangay}
             </li>
           );
         }}
@@ -214,7 +214,7 @@ function EnhancedTableToolbar(props) {
     setOpen,
     options,
     loading,
-    setOpenAssetTypeDialog,
+    setOpenBarangayDialog,
     setIsSuccess,
     setSuccessText,
     setSelected,
@@ -231,9 +231,6 @@ function EnhancedTableToolbar(props) {
 
   return (
     <>
-      <Typography component="h2" variant="h6" color="primary" margin={2}>
-        Asset types
-      </Typography>
       <Toolbar
         sx={{
           pl: { sm: 2 },
@@ -274,7 +271,7 @@ function EnhancedTableToolbar(props) {
                   onClick={() => {
                     setEditData(selected[0]);
                     setIsEditing(true);
-                    setOpenAssetTypeDialog(true);
+                    setOpenBarangayDialog(true);
                   }}
                 >
                   <EditIcon />
@@ -293,7 +290,7 @@ function EnhancedTableToolbar(props) {
                       (numSelected - 1 == i ? "" : ",");
                   }
 
-                  axiosInstance.delete("asset_type/" + str).then((response) => {
+                  axiosInstance.delete("barangay/" + str).then((response) => {
                     handleSuccessful(
                       true,
                       "Deleted " +
@@ -315,7 +312,7 @@ function EnhancedTableToolbar(props) {
               size="small"
               aria-label="add"
               sx={{ ml: 2 }}
-              onClick={() => setOpenAssetTypeDialog(true)}
+              onClick={() => setOpenBarangayDialog(true)}
             >
               <AddIcon />
             </Fab>
@@ -333,7 +330,7 @@ EnhancedTableToolbar.propTypes = {
   setOpen: PropTypes.func.isRequired,
   options: PropTypes.array.isRequired,
   loading: PropTypes.bool.isRequired,
-  setOpenAssetTypeDialog: PropTypes.func.isRequired,
+  setOpenBarangayDialog: PropTypes.func.isRequired,
   setIsSuccess: PropTypes.func.isRequired,
   setSuccessText: PropTypes.func.isRequired,
   setSelected: PropTypes.func.isRequired,
@@ -344,8 +341,8 @@ EnhancedTableToolbar.propTypes = {
 
 const fetcher = (url) => axiosInstance.get(url).then((res) => res.data);
 
-export default function AssetTypes() {
-  const { data, error, isLoading, mutate } = useSWR("/asset_type", fetcher);
+export default function Barangay() {
+  const { data, error, isLoading, mutate } = useSWR("/barangay", fetcher);
   // const { mutate } = useSWRConfig();
   const [open, setOpen] = useState(false);
   const [options, setOptions] = useState([]);
@@ -356,7 +353,7 @@ export default function AssetTypes() {
   const [page, setPage] = useState(0);
   const [dense, setDense] = useState(false);
   const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [openAssetTypeDialog, setOpenAssetTypeDialog] = useState(false);
+  const [openBarangayDialog, setOpenBarangayDialog] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [successText, setSuccessText] = useState("");
   const [isEditing, setIsEditing] = useState(false);
@@ -453,7 +450,7 @@ export default function AssetTypes() {
               loading={loading}
               setIsSuccess={setIsSuccess}
               setSuccessText={setSuccessText}
-              setOpenAssetTypeDialog={setOpenAssetTypeDialog}
+              setOpenBarangayDialog={setOpenBarangayDialog}
               setSelected={setSelected}
               setEditData={setEditData}
               setIsEditing={setIsEditing}
@@ -504,7 +501,7 @@ export default function AssetTypes() {
                           scope="row"
                           padding="none"
                         >
-                          {row.asset_type}
+                          {row.barangay}
                         </TableCell>
                         {/* Add additional cell if there are more data */}
                       </TableRow>
@@ -541,9 +538,9 @@ export default function AssetTypes() {
           </Paper>
         </Box>
       </Box>
-      <AssetTypeDialog
-        openAssetTypeDialog={openAssetTypeDialog}
-        setOpenAssetTypeDialog={setOpenAssetTypeDialog}
+      <BarangayDialog
+        openBarangayDialog={openBarangayDialog}
+        setOpenBarangayDialog={setOpenBarangayDialog}
         setSuccessText={setSuccessText}
         setIsSuccess={setIsSuccess}
         mutate={mutate}

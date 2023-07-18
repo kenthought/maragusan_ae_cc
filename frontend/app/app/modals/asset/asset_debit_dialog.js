@@ -34,23 +34,30 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
   },
 }));
 
-export default function AssetDebitDialog({
-  openAssetDebitDialog,
-  setOpenAssetDebitDialog,
-  selected,
-  mutate,
-  setIsSuccess,
-  setSuccessText,
-}) {
+export default function AssetDebitDialog(props) {
+  const {
+    openAssetDebitDialog,
+    setOpenAssetDebitDialog,
+    selected,
+    mutate,
+    setIsSuccess,
+    setSuccessText,
+  } = props;
   const [rows, setRows] = useState([]);
-  const [post, setPost] = useState();
   const { data: session } = useSession();
   const [isError, setIsError] = useState(false);
   const [errorText, setErrorText] = useState(false);
+  const [openAssetTransactionTable, setOpenAssetTransactionTable] =
+    useState(false);
 
   const handleClose = () => {
     setOpenAssetDebitDialog(false);
     setRows([]);
+  };
+
+  const handleCloseAssetTransactionTable = () => {
+    setIsError(false);
+    setOpenAssetTransactionTable(false);
   };
 
   const handleSuccessful = (bool, text) => {
@@ -58,36 +65,55 @@ export default function AssetDebitDialog({
     setIsSuccess(bool);
     setSuccessText(text);
     mutate();
+    handleCloseAssetTransactionTable();
     handleClose();
   };
 
-  const handleSubmit = (event) => {
+  const handleGenerate = (event) => {
     event.preventDefault();
+    setRows([]);
     const data = new FormData(event.currentTarget);
-    console.log(selected);
-    const postData = {
-      post: post,
-      invoice_number: data.get("invoice_number"),
-      term: data.get("depreciation_term"),
-      particulars: data.get("particulars"),
-      debit: parseInt(data.get("amount")),
-      control_number: selected.control_number,
-      asset: selected.id,
-      user: session.user.name[1],
-    };
-    // setRows((array) => {
-    //   const temp = [...array];
-    //   temp.push(postData);
+    var amount = parseInt(data.get("amount"));
 
-    //   return temp;
-    // });
-    setRows([postData]);
-    console.log("rows:", rows);
+    for (var i = 0; i <= data.get("depreciation_term"); i++) {
+      const postData = {
+        post: i == 0 ? 1 : 2,
+        depreciation_date:
+          i == 0
+            ? new Date().toDateString()
+            : new Date(
+                new Date(
+                  new Date().setMonth(new Date().getMonth() + i)
+                ).getFullYear(),
+                new Date(
+                  new Date().setMonth(new Date().getMonth() + i)
+                ).getMonth(),
+                0
+              ).toDateString(),
+        invoice_number: data.get("invoice_number"),
+        term: data.get("depreciation_term") - i,
+        particulars: data.get("particulars"),
+        debit: i == 0 ? amount.toString() : 0,
+        credit: i > 0 ? (amount / data.get("depreciation_term")).toString() : 0,
+        control_number: selected.control_number,
+        asset: selected.id,
+        user: session.user.name[1],
+      };
+
+      setRows((array) => {
+        const temp = [...array];
+        temp.push(postData);
+
+        return temp;
+      });
+    }
+
+    setOpenAssetTransactionTable(true);
   };
 
-  const handleSubmitDebit = (postData) => {
+  const handleSubmit = (rows) => {
     axiosInstance
-      .post("ledger/", postData)
+      .post("ledger/", rows)
       .then((response) => {
         handleSuccessful(true, "Ledger posted successfully!");
         console.log(response);
@@ -99,6 +125,89 @@ export default function AssetDebitDialog({
       });
   };
 
+  const AssetTranscactionTable = () => (
+    <Dialog
+      open={openAssetTransactionTable}
+      onClose={handleCloseAssetTransactionTable}
+      fullWidth
+      maxWidth="md"
+    >
+      <DialogTitle>Asset Transaction Table</DialogTitle>
+      <DialogContent>
+        {isError ? (
+          <Alert severity="error" sx={{ marginBottom: 2 }}>
+            {errorText}
+          </Alert>
+        ) : null}
+        <TableContainer component={Paper}>
+          <Table sx={{ minWidth: 780 }} aria-label="simple table" size="small">
+            <TableHead>
+              <TableRow>
+                <StyledTableCell>Depreciation Date</StyledTableCell>
+                <StyledTableCell align="right">Term</StyledTableCell>
+                <StyledTableCell align="right">Particulars</StyledTableCell>
+                <StyledTableCell align="right">Debit</StyledTableCell>
+                <StyledTableCell align="right">Credit</StyledTableCell>
+                <StyledTableCell align="right">Balance</StyledTableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {rows.map((row, index) => (
+                <TableRow
+                  key={index}
+                  sx={{
+                    "&:last-child td, &:last-child th": {
+                      border: 0,
+                    },
+                  }}
+                >
+                  <TableCell component="th" scope="row">
+                    {row.depreciation_date}
+                  </TableCell>
+                  <TableCell align="right">{row.term}</TableCell>
+                  <TableCell align="right">
+                    {row.post == 1
+                      ? "Asset purchase value"
+                      : "Depreciation Schedule"}
+                  </TableCell>
+                  <TableCell align="right">{row.debit}</TableCell>
+                  <TableCell align="right">{row.credit}</TableCell>
+                  <TableCell align="right">
+                    {index == 0
+                      ? row.debit - row.credit
+                      : rows[0].debit - row.credit * index}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </DialogContent>
+      <DialogActions>
+        {rows.length != 0 ? (
+          <Button
+            variant="contained"
+            color="success"
+            onClick={() => handleSubmit(rows)}
+            id="post_data"
+            name="post_data"
+          >
+            Post
+          </Button>
+        ) : (
+          <></>
+        )}
+        <Button
+          onClick={handleCloseAssetTransactionTable}
+          variant="contained"
+          color="error"
+        >
+          Close
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+
   if (selected === null) return;
 
   return (
@@ -109,9 +218,8 @@ export default function AssetDebitDialog({
       maxWidth="lg"
     >
       <DialogTitle>Debit</DialogTitle>
-      <Box component="form" onSubmit={handleSubmit}>
+      <Box component="form" onSubmit={handleGenerate}>
         <DialogContent>
-          {isError ? <Alert severity="error">{errorText}</Alert> : <></>}
           <Grid container spacing={2} marginBottom={1}>
             <Grid item xs={12}>
               <TextField
@@ -206,95 +314,18 @@ export default function AssetDebitDialog({
                   marginTop: 2,
                   textAlign: "right",
                 }}
-              >
-                <ButtonGroup>
-                  <Button
-                    variant="contained"
-                    onClick={() => setPost(1)}
-                    type="submit"
-                  >
-                    Post Purchase Value
-                  </Button>
-                  <Button
-                    variant="contained"
-                    onClick={() => setPost(2)}
-                    type="submit"
-                  >
-                    Post Depreciation
-                  </Button>
-                </ButtonGroup>
-              </Box>
+              ></Box>
             </Grid>
             <Grid item xs={12}>
               <Divider />
               {rows.length != 0 ? (
-                <Fade in={true}>
-                  <Box sx={{ padding: 1 }}>
-                    <TableContainer component={Paper}>
-                      <Table
-                        sx={{ minWidth: 780 }}
-                        aria-label="simple table"
-                        size="small"
-                      >
-                        <TableHead>
-                          <TableRow>
-                            <StyledTableCell>Date</StyledTableCell>
-                            <StyledTableCell align="right">
-                              Depreciation Date
-                            </StyledTableCell>
-                            <StyledTableCell align="right">
-                              Term
-                            </StyledTableCell>
-                            <StyledTableCell align="right">
-                              Particulars
-                            </StyledTableCell>
-                            <StyledTableCell align="right">
-                              Debit
-                            </StyledTableCell>
-                            <StyledTableCell align="right">
-                              Credit
-                            </StyledTableCell>
-                            <StyledTableCell align="right">
-                              Balance
-                            </StyledTableCell>
-                          </TableRow>
-                        </TableHead>
-                        <TableBody>
-                          {rows.map((row, index) => (
-                            <TableRow
-                              key={index}
-                              sx={{
-                                "&:last-child td, &:last-child th": {
-                                  border: 0,
-                                },
-                              }}
-                            >
-                              <TableCell component="th" scope="row">
-                                {new Date().toDateString()}
-                              </TableCell>
-                              <TableCell align="right">
-                                {new Date().toDateString()}
-                              </TableCell>
-                              <TableCell align="right">{row.term}</TableCell>
-                              <TableCell align="right">
-                                {row.post == 1
-                                  ? "Asset purchase value"
-                                  : "Depreciation Schedule"}
-                              </TableCell>
-                              <TableCell align="right">
-                                {row.post == 2 ? row.debit : 0}
-                              </TableCell>
-                              <TableCell align="right">
-                                {row.post == 1 ? row.debit : 0}
-                              </TableCell>
-                              <TableCell align="right">{row.debit}</TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </TableContainer>
-                  </Box>
-                </Fade>
+                <Box sx={{ padding: 1 }}>
+                  <AssetTranscactionTable
+                    rows={rows}
+                    open={openAssetTransactionTable}
+                    onClose={handleCloseAssetTransactionTable}
+                  />
+                </Box>
               ) : (
                 <></>
               )}
@@ -302,19 +333,9 @@ export default function AssetDebitDialog({
           </Grid>
         </DialogContent>
         <DialogActions>
-          {rows.length != 0 ? (
-            <Button
-              variant="contained"
-              color="success"
-              onClick={() => handleSubmitDebit(rows[0])}
-              id="post_data"
-              name="post_data"
-            >
-              Post
-            </Button>
-          ) : (
-            <></>
-          )}
+          <Button variant="contained" type="submit">
+            Generate
+          </Button>
           <Button onClick={handleClose} variant="contained" color="error">
             Close
           </Button>

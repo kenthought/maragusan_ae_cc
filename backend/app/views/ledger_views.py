@@ -1,5 +1,9 @@
 from app.models import Ledger
-from app.serializers import LedgerViewSerializer, LedgerWriteSerializer
+from app.serializers import (
+    LedgerViewSerializer,
+    LedgerWriteSerializer,
+    DepreciationLedgerWriteSerializer,
+)
 from django.http import Http404
 from django.db.models import F
 from rest_framework.views import APIView
@@ -16,11 +20,29 @@ class LedgerList(APIView):
         return Response(serializer.data)
 
     def post(self, request, format=None):
-        serializer = LedgerWriteSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        ledger_serializer = LedgerWriteSerializer(data=request.data[0])
+
+        if ledger_serializer.is_valid():
+            ledger_serializer.save()
+
+            for item in request.data:
+                obj = item
+                depcreciation_ledger_serializer = DepreciationLedgerWriteSerializer(
+                    data=obj
+                )
+
+                if depcreciation_ledger_serializer.is_valid():
+                    depcreciation_ledger_serializer.save()
+
+                else:
+                    return Response(
+                        depcreciation_ledger_serializer.errors,
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+
+            return Response(ledger_serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(ledger_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class LedgerDetail(APIView):

@@ -22,7 +22,7 @@ import Tooltip from "@mui/material/Tooltip";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import SearchIcon from "@mui/icons-material/Search";
-import AssetDialog from "@/app/modals/asset/asset_dialog";
+import OwnersEquityDialog from "@/app/modals/owners_equity/owners_equity_dialog";
 import LedgerDialog from "@/app/modals/asset/ledger_dialog";
 import DepreciationLedgerDialog from "@/app/modals/asset/depreciation_ledger_dialog";
 import Success from "@/app/utils/success";
@@ -32,15 +32,18 @@ import PropTypes from "prop-types";
 
 const fetcher = (url) => axiosInstance.get(url).then((res) => res.data);
 
-const AssetInformation = (props) => {
+const OwnersEquityInformation = (props) => {
   const {
     id,
     setEditData,
     setIsEditing,
-    setAssetInfoMutate,
-    setOpenAssetDialog,
+    setOwnersEquityInfoMutate,
+    setOpenOwnersEquityDialog,
   } = props;
-  const { data, error, isLoading, mutate } = useSWR("/asset/" + id, fetcher);
+  const { data, error, isLoading, mutate } = useSWR(
+    "/owners_equity/" + id,
+    fetcher
+  );
   const [accountStatus] = useState([
     { id: 1, label: "Active", value: true },
     { id: 2, label: "Inactive", value: false },
@@ -54,7 +57,7 @@ const AssetInformation = (props) => {
   return (
     <Card sx={{ padding: 2, position: "relative" }}>
       <Typography component="h2" variant="h6" color="primary" margin={1}>
-        Asset Information
+        Owners Equity Information
         <Fab
           color="secondary"
           size="small"
@@ -68,8 +71,8 @@ const AssetInformation = (props) => {
               onClick={() => {
                 setEditData(data);
                 setIsEditing(true);
-                setAssetInfoMutate(() => mutate);
-                setOpenAssetDialog(true);
+                setOwnersEquityInfoMutate(() => mutate);
+                setOpenOwnersEquityDialog(true);
               }}
             />
           </Tooltip>
@@ -97,16 +100,28 @@ const AssetInformation = (props) => {
             <Typography>{data.account_name}</Typography>
           </Grid>
           <Grid item xs={4}>
-            <Typography>Asset description:</Typography>
+            <Typography>Purok/Street:</Typography>
           </Grid>
           <Grid item xs={8}>
-            <Typography>{data.asset_description}</Typography>
+            <Typography>{data.purok_street}</Typography>
           </Grid>
           <Grid item xs={4}>
-            <Typography>Asset type:</Typography>
+            <Typography>Barangay:</Typography>
           </Grid>
           <Grid item xs={8}>
-            <Typography>{data.asset_type.asset_type}</Typography>
+            <Typography>{data.barangay.barangay}</Typography>
+          </Grid>
+          <Grid item xs={4}>
+            <Typography>Municipality:</Typography>
+          </Grid>
+          <Grid item xs={8}>
+            <Typography>{data.municipality.municipality}</Typography>
+          </Grid>
+          <Grid item xs={4}>
+            <Typography>Province:</Typography>
+          </Grid>
+          <Grid item xs={8}>
+            <Typography>{data.province.province}</Typography>
           </Grid>
           <Grid item xs={4}>
             <Typography>Account status:</Typography>
@@ -137,29 +152,19 @@ const AssetInformation = (props) => {
   );
 };
 
-AssetInformation.propTypes = {
-  id: PropTypes.number.isRequired,
-  setEditData: PropTypes.func.isRequired,
-  setIsEditing: PropTypes.func.isRequired,
-  setAssetInfoMutate: PropTypes.func.isRequired,
-  setOpenAssetDialog: PropTypes.func.isRequired,
-};
-
-export default function Assets() {
+export default function OwnersEquity() {
   const [open, setOpen] = useState(false);
   const [options, setOptions] = useState([]);
-  const { data, error, isLoading, mutate } = useSWR("/asset", fetcher);
-  const [openAssetDialog, setOpenAssetDialog] = useState(false);
+  const { data, error, isLoading, mutate } = useSWR("/owners_equity", fetcher);
+  const [openOwnersEquityDialog, setOpenOwnersEquityDialog] = useState(false);
   const [openLedgerDialog, setOpenLedgerDialog] = useState(false);
-  const [openDepreciationLedgerDialog, setOpenDepreciationLedgerDialog] =
-    useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [successText, setSuccessText] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({});
   const loading = open && options.length === 0;
   const [selected, setSelected] = useState(null);
-  const [assetInfoMutate, setAssetInfoMutate] = useState();
+  const [ownersEquityInfoMutate, setOwnersEquityInfoMutate] = useState();
 
   useEffect(() => {
     if (!open) {
@@ -227,23 +232,16 @@ export default function Assets() {
   );
 
   const buttons = [
-    <Button key="one" onClick={() => setOpenDepreciationLedgerDialog(true)}>
-      Depreciation Ledger
-    </Button>,
     <Button key="two" onClick={() => setOpenLedgerDialog(true)}>
       Ledger
     </Button>,
     <Button key="three">Summary</Button>,
   ];
 
-  if (isLoading) return <div>Loading...</div>;
-
-  if (error) return <div>Error occured while fetching Data!</div>;
-
   return (
     <>
-      <Typography component="h2" variant="h5" color="primary">
-        Assets
+      <Typography component="h2" variant="h5" color="primary" gutterBottom>
+        Owner's Equity
       </Typography>
       <Divider />
       <Box elevation={0} sx={{ padding: 2 }}>
@@ -262,7 +260,7 @@ export default function Assets() {
                 color="primary"
                 size="small"
                 aria-label="add"
-                onClick={() => setOpenAssetDialog(true)}
+                onClick={() => setOpenOwnersEquityDialog(true)}
               >
                 <Tooltip title="Add">
                   <AddIcon />
@@ -283,43 +281,28 @@ export default function Assets() {
                 >
                   {buttons}
                 </ButtonGroup>
-                <AssetInformation
+                <OwnersEquityInformation
                   id={selected.id}
                   setEditData={setEditData}
                   setIsEditing={setIsEditing}
-                  setAssetInfoMutate={setAssetInfoMutate}
-                  setOpenAssetDialog={setOpenAssetDialog}
+                  setOwnersEquityInfoMutate={setOwnersEquityInfoMutate}
+                  setOpenOwnersEquityDialog={setOpenOwnersEquityDialog}
                 />
               </Box>
             </Fade>
           )}
         </Box>
       </Box>
-      <AssetDialog
-        openAssetDialog={openAssetDialog}
-        setOpenAssetDialog={setOpenAssetDialog}
+      <OwnersEquityDialog
+        openOwnersEquityDialog={openOwnersEquityDialog}
+        setOpenOwnersEquityDialog={setOpenOwnersEquityDialog}
         setIsSuccess={setIsSuccess}
         setSuccessText={setSuccessText}
-        mutate={!isEditing ? mutate : assetInfoMutate}
+        mutate={!isEditing ? mutate : ownersEquityInfoMutate}
         isEditing={isEditing}
         setIsEditing={setIsEditing}
         editData={editData}
       />
-      {selected && (
-        <>
-          <LedgerDialog
-            openLedgerDialog={openLedgerDialog}
-            setOpenLedgerDialog={setOpenLedgerDialog}
-            selected={selected}
-            dialogName="Asset Ledger"
-          />
-          <DepreciationLedgerDialog
-            openDepreciationLedgerDialog={openDepreciationLedgerDialog}
-            setOpenDepreciationLedgerDialog={setOpenDepreciationLedgerDialog}
-            selected={selected}
-          />
-        </>
-      )}
     </>
   );
 }

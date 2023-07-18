@@ -1,6 +1,6 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-// import Cookies from "js-cookie";
+import Cookies from "js-cookie";
 
 export const authOptions = {
   // Configure one or more authentication providers
@@ -18,7 +18,7 @@ export const authOptions = {
         // Add logic here to look up the user from the credentials supplied
 
         //const response = await fetch(process.env.API_URL + "token/", {
-        const response = await fetch("http://13.211.204.121/api/token/", {
+        const response = await fetch("http://127.0.0.1:8000/api/token/", {
           method: "POST",
           body: JSON.stringify(credentials),
           headers: { "Content-Type": "application/json" },
@@ -34,18 +34,18 @@ export const authOptions = {
         // const cookies = new Cookies();
         // If no error and we have user data, return it
         if (response.ok && user) {
-          // Cookies.set("access_token", user.access, {
-          //   domain: "http://localhost:3000",
-          //   httpOnly: true,
-          //   path: "/",
-          //   sameSite: "strict",
-          // });
-          // Cookies.set("refresh_token", user.refresh, {
-          //   domain: "http://localhost:3000",
-          //   httpOnly: true,
-          //   path: "/",
-          //   sameSite: "strict",
-          // });
+          Cookies.set("access_token", user.access, {
+            domain: "http://localhost:3000",
+            httpOnly: true,
+            path: "/",
+            sameSite: "strict",
+          });
+          Cookies.set("refresh_token", user.refresh, {
+            domain: "http://localhost:3000",
+            httpOnly: true,
+            path: "/",
+            sameSite: "strict",
+          });
 
           const tokenParts = JSON.parse(atob(user.refresh.split(".")[1]));
 
