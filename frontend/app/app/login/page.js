@@ -13,6 +13,7 @@ import Container from "@mui/material/Container";
 import Alert from "@mui/material/Alert";
 import Slide from "@mui/material/Slide";
 import CircularProgress from "@mui/material/CircularProgress";
+import Loading from "../utils/loading";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter, redirect } from "next/navigation";
@@ -80,22 +81,7 @@ export default function SignIn() {
       });
   };
 
-  if (status === "loading")
-    return (
-      <Container component="main" maxWidth="xs">
-        <CssBaseline />
-        <Box
-          sx={{
-            marginTop: 8,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-          }}
-        >
-          <CircularProgress />
-        </Box>
-      </Container>
-    );
+  if (status === "loading") return <Loading />;
 
   return (
     <ThemeProvider theme={defaultTheme}>

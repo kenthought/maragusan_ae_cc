@@ -25,6 +25,7 @@ import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import Paper from "@mui/material/Paper";
 import Checkbox from "@mui/material/Checkbox";
+import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
 import FormControlLabel from "@mui/material/FormControlLabel";
@@ -34,6 +35,7 @@ import { styled } from "@mui/material/styles";
 import { visuallyHidden } from "@mui/utils";
 import MunicipalityDialog from "@/app/modals/components/municipality_dialog";
 import Success from "@/app/utils/success";
+import Loading from "@/app/utils/loading";
 import axiosInstance from "@/app/axios";
 import useSWR from "swr";
 
@@ -263,7 +265,7 @@ function EnhancedTableToolbar(props) {
           />
         )}
 
-        {numSelected > 0 ? (
+        {numSelected > 0 && (
           <>
             {numSelected === 1 ? (
               <Tooltip title="Edit">
@@ -307,18 +309,6 @@ function EnhancedTableToolbar(props) {
               </IconButton>
             </Tooltip>
           </>
-        ) : (
-          <Tooltip title="Add">
-            <Fab
-              color="primary"
-              size="small"
-              aria-label="add"
-              sx={{ ml: 2 }}
-              onClick={() => setOpenMunicipalityDialog(true)}
-            >
-              <AddIcon />
-            </Fab>
-          </Tooltip>
         )}
       </Toolbar>
     </>
@@ -428,7 +418,7 @@ export default function Municipality() {
     }
   }, [open]);
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <Loading />;
 
   if (error) return <div>Error occured while fetching Data!</div>;
 
@@ -438,6 +428,16 @@ export default function Municipality() {
         {/* table */}
         <Box sx={{ width: "100%" }}>
           <Paper sx={{ width: "100%", mb: 2 }}>
+            <Box sx={{ padding: 2 }}>
+              <Button
+                variant="outlined"
+                startIcon={<AddIcon />}
+                onClick={() => setOpenMunicipalityDialog(true)}
+                color="primary"
+              >
+                Add
+              </Button>
+            </Box>
             <Success
               isSuccess={isSuccess}
               setIsSuccess={setIsSuccess}

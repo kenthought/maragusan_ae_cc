@@ -34,10 +34,10 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
   },
 }));
 
-export default function AssetDebitDialog(props) {
+export default function DebitDialog(props) {
   const {
-    openAssetDebitDialog,
-    setOpenAssetDebitDialog,
+    openDebitDialog,
+    setOpenDebitDialog,
     selected,
     mutate,
     setIsSuccess,
@@ -51,7 +51,7 @@ export default function AssetDebitDialog(props) {
     useState(false);
 
   const handleClose = () => {
-    setOpenAssetDebitDialog(false);
+    setOpenDebitDialog(false);
     setRows([]);
   };
 
@@ -212,7 +212,7 @@ export default function AssetDebitDialog(props) {
 
   return (
     <Dialog
-      open={openAssetDebitDialog}
+      open={openDebitDialog}
       onClose={handleClose}
       fullWidth
       maxWidth="lg"
@@ -345,9 +345,9 @@ export default function AssetDebitDialog(props) {
   );
 }
 
-AssetDebitDialog.propTypes = {
-  openAssetDebitDialog: PropTypes.bool.isRequired,
-  setOpenAssetDebitDialog: PropTypes.func.isRequired,
+DebitDialog.propTypes = {
+  openDebitDialog: PropTypes.bool.isRequired,
+  setOpenDebitDialog: PropTypes.func.isRequired,
   selected: PropTypes.object,
   mutate: PropTypes.func.isRequired,
   setIsSuccess: PropTypes.func.isRequired,

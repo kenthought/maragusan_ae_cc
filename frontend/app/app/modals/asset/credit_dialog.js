@@ -34,10 +34,10 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
   },
 }));
 
-export default function AssetCreditDialog(props) {
+export default function CreditDialog(props) {
   const {
-    openAssetCreditDialog,
-    setOpenAssetCreditDialog,
+    openCreditDialog,
+    setOpenCreditDialog,
     selected,
     mutate,
     setIsSuccess,
@@ -50,7 +50,7 @@ export default function AssetCreditDialog(props) {
   const [errorText, setErrorText] = useState(false);
 
   const handleClose = () => {
-    setOpenAssetCreditDialog(false);
+    setOpenCreditDialog(false);
     setRows([]);
   };
 
@@ -94,7 +94,7 @@ export default function AssetCreditDialog(props) {
 
   return (
     <Dialog
-      open={openAssetCreditDialog}
+      open={openCreditDialog}
       onClose={handleClose}
       fullWidth
       maxWidth="lg"
@@ -211,9 +211,9 @@ export default function AssetCreditDialog(props) {
   );
 }
 
-AssetCreditDialog.propTypes = {
-  openAssetCreditDialog: PropTypes.bool.isRequired,
-  setOpenAssetCreditDialog: PropTypes.func.isRequired,
+CreditDialog.propTypes = {
+  openCreditDialog: PropTypes.bool.isRequired,
+  setOpenCreditDialog: PropTypes.func.isRequired,
   selected: PropTypes.object,
   mutate: PropTypes.func.isRequired,
   setIsSuccess: PropTypes.func.isRequired,

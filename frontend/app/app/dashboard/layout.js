@@ -34,6 +34,7 @@ import axiosInstance from "../axios";
 import Container from "@mui/material/Container";
 import Link from "next/link";
 import Cookies from "js-cookie";
+import Loading from "../utils/loading";
 
 const drawerWidth = 240;
 
@@ -182,22 +183,7 @@ export default function DashboardLayout({ children, window }) {
   const container =
     window !== undefined ? () => window().document.body : undefined;
 
-  if (status === "loading")
-    return (
-      <Container component="main" maxWidth="xs">
-        <CssBaseline />
-        <Box
-          sx={{
-            marginTop: 8,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-          }}
-        >
-          <CircularProgress />
-        </Box>
-      </Container>
-    );
+  if (status === "loading") return <Loading />;
 
   if (status === "unauthenticated") return redirect("/api/auth/signin");
 
