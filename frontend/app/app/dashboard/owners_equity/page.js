@@ -74,7 +74,7 @@ const OwnersEquityInformation = (props) => {
 
   if (isLoading) return <Loading />;
 
-  if (error) return <div>Unable to fetch data!</div>;
+  if (error) return <Typography>Unable to fetch data!</Typography>;
 
   return (
     <Card sx={{ padding: 2, position: "relative" }}>
@@ -156,18 +156,16 @@ const OwnersEquityInformation = (props) => {
             <Typography>Account status:</Typography>
           </Grid>
           <Grid item xs={12} md={8}>
-            <Typography>
-              <Chip
-                label={accountStatus[data.account_status - 1].label}
-                color={
-                  accountStatus[data.account_status - 1].id == 1
-                    ? "success"
-                    : accountStatus[data.account_status - 1].id == 2
-                    ? "error"
-                    : "secondary"
-                }
-              />
-            </Typography>
+            <Chip
+              label={accountStatus[data.account_status - 1].label}
+              color={
+                accountStatus[data.account_status - 1].id == 1
+                  ? "success"
+                  : accountStatus[data.account_status - 1].id == 2
+                  ? "error"
+                  : "secondary"
+              }
+            />
           </Grid>
           <Grid item xs={12}>
             <Divider />
@@ -177,6 +175,9 @@ const OwnersEquityInformation = (props) => {
           </Grid>
           <Grid item xs={8}>
             <Typography>{data.created_at.split("T")[0]}</Typography>
+          </Grid>
+          <Grid item xs={12}>
+            <Divider />
           </Grid>
         </Grid>
       </Box>

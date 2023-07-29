@@ -292,15 +292,17 @@ function EnhancedTableToolbar(props) {
                       (numSelected - 1 == i ? "" : ",");
                   }
 
-                  axiosInstance.delete("barangay/" + str).then((response) => {
-                    handleSuccessful(
-                      true,
-                      "Deleted " +
-                        (numSelected === 1 ? " " : numSelected + " items ") +
-                        "successfully!"
-                    );
-                    mutate();
-                  });
+                  axiosInstance
+                    .delete("components/barangay/" + str)
+                    .then((response) => {
+                      handleSuccessful(
+                        true,
+                        "Deleted " +
+                          (numSelected === 1 ? " " : numSelected + " items ") +
+                          "successfully!"
+                      );
+                      mutate();
+                    });
                 }}
               >
                 <DeleteIcon />
@@ -332,7 +334,10 @@ EnhancedTableToolbar.propTypes = {
 const fetcher = (url) => axiosInstance.get(url).then((res) => res.data);
 
 export default function Barangay() {
-  const { data, error, isLoading, mutate } = useSWR("/barangay", fetcher);
+  const { data, error, isLoading, mutate } = useSWR(
+    "components/barangay",
+    fetcher
+  );
   // const { mutate } = useSWRConfig();
   const [open, setOpen] = useState(false);
   const [options, setOptions] = useState([]);
@@ -418,7 +423,7 @@ export default function Barangay() {
 
   if (isLoading) return <Loading />;
 
-  if (error) return <div>Error occured while fetching Data!</div>;
+  if (error) return <Typography>Error occured while fetching Data!</Typography>;
 
   return (
     <>

@@ -24,16 +24,6 @@ import Typography from "@mui/material/Typography";
 import useSWR from "swr";
 import { ButtonGroup, Divider, Fade } from "@mui/material";
 
-const StyledTableCell = styled(TableCell)(({ theme }) => ({
-  [`&.${tableCellClasses.head}`]: {
-    backgroundColor: "grey",
-    color: theme.palette.common.white,
-  },
-  [`&.${tableCellClasses.body}`]: {
-    fontSize: 14,
-  },
-}));
-
 export default function CreditDialog(props) {
   const {
     openCreditDialog,
@@ -66,19 +56,21 @@ export default function CreditDialog(props) {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     console.log(selected);
-    const postData = {
-      post: post,
-      invoice_number: data.get("invoice_number"),
-      term: data.get("depreciation_term"),
-      particulars: data.get("particulars"),
-      credit: parseInt(data.get("amount")),
-      control_number: selected.control_number,
-      asset: selected.id,
-      user: session.user.name[1],
-    };
+    const postData = [
+      {
+        post: post,
+        invoice_number: data.get("invoice_number"),
+        particulars: data.get("particulars"),
+        credit: parseInt(data.get("amount")),
+        term: 0,
+        control_number: selected.control_number,
+        asset: selected.id,
+        user: session.user.name[1],
+      },
+    ];
 
     axiosInstance
-      .post("ledger/", postData)
+      .post("assets/ledger/", postData)
       .then((response) => {
         handleSuccessful(true, "Ledger posted successfully!");
         console.log(response);
@@ -117,7 +109,7 @@ export default function CreditDialog(props) {
                 readOnly
               />
             </Grid>
-            <Grid item xs={6}>
+            <Grid item xs={12}>
               <Box paddingRight={1}>
                 <TextField
                   margin="dense"
@@ -128,20 +120,6 @@ export default function CreditDialog(props) {
                   id="invoice_number"
                   name="invoice_number"
                   type="text"
-                  size="small"
-                />
-              </Box>
-            </Grid>
-            <Grid item xs={6}>
-              <Box>
-                <TextField
-                  margin="dense"
-                  fullWidth
-                  required
-                  label="Depreciation Term (Number of months)"
-                  id="depreciation_term"
-                  name="depreciation_term"
-                  type="number"
                   size="small"
                 />
               </Box>

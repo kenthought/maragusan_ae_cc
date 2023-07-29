@@ -37,6 +37,7 @@ import AssetTypeDialog from "@/app/modals/components/asset_type_dialog";
 import Success from "@/app/utils/success";
 import axiosInstance from "@/app/axios";
 import useSWR from "swr";
+import Loading from "@/app/utils/loading";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -343,7 +344,10 @@ EnhancedTableToolbar.propTypes = {
 const fetcher = (url) => axiosInstance.get(url).then((res) => res.data);
 
 export default function AssetTypes() {
-  const { data, error, isLoading, mutate } = useSWR("/asset_type", fetcher);
+  const { data, error, isLoading, mutate } = useSWR(
+    "components/asset_type",
+    fetcher
+  );
   // const { mutate } = useSWRConfig();
   const [open, setOpen] = useState(false);
   const [options, setOptions] = useState([]);
@@ -427,9 +431,9 @@ export default function AssetTypes() {
     }
   }, [open]);
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <Loading />;
 
-  if (error) return <div>Error occured while fetching Data!</div>;
+  if (error) return <Typography>Error occured while fetching Data!</Typography>;
 
   return (
     <>

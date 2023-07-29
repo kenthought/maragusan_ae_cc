@@ -32,7 +32,10 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    "app",
+    "assets",
+    "bank_accounts",
+    "owners_equity",
+    "components",
     "rest_framework",
     "users",
     "corsheaders",
@@ -161,10 +164,6 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Custom User
 AUTH_USER_MODEL = "users.UserData"
-
-
-# Custom User
-ASSET_TYPE_MODEL = "app.AssetType"
 
 
 # JWT Settings

@@ -293,7 +293,7 @@ function EnhancedTableToolbar(props) {
                   }
 
                   axiosInstance
-                    .delete("municipality/" + str)
+                    .delete("components/municipality/" + str)
                     .then((response) => {
                       handleSuccessful(
                         true,
@@ -334,7 +334,10 @@ EnhancedTableToolbar.propTypes = {
 const fetcher = (url) => axiosInstance.get(url).then((res) => res.data);
 
 export default function Municipality() {
-  const { data, error, isLoading, mutate } = useSWR("/municipality", fetcher);
+  const { data, error, isLoading, mutate } = useSWR(
+    "components/municipality",
+    fetcher
+  );
   // const { mutate } = useSWRConfig();
   const [open, setOpen] = useState(false);
   const [options, setOptions] = useState([]);
@@ -420,7 +423,7 @@ export default function Municipality() {
 
   if (isLoading) return <Loading />;
 
-  if (error) return <div>Error occured while fetching Data!</div>;
+  if (error) return <Typography>Error occured while fetching Data!</Typography>;
 
   return (
     <>

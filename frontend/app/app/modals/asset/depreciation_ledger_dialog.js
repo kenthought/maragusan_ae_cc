@@ -54,7 +54,7 @@ export default function DepreciationLedgerDialog(props) {
     error: depreciation_ledger_error,
     isLoading: depreciation_ledger_isLoading,
     mutate,
-  } = useSWR("/depreciation_ledger/" + selected.id, fetcher);
+  } = useSWR("assets/depreciation_ledger/" + selected.id, fetcher);
 
   const [isSuccess, setIsSuccess] = useState(false);
   const [successText, setSuccessText] = useState("");
@@ -84,12 +84,19 @@ export default function DepreciationLedgerDialog(props) {
             >
               <CloseIcon />
             </IconButton>
-            <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
+            <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="h2">
               Depreciation Ledger
             </Typography>
           </Toolbar>
         </AppBar>
         <DialogContent>
+          <Typography
+            sx={{ mt: 1, mb: 1, flex: 1 }}
+            variant="h6"
+            component="h2"
+          >
+            Depreciation Schedule
+          </Typography>
           <Success
             isSuccess={isSuccess}
             setIsSuccess={setIsSuccess}

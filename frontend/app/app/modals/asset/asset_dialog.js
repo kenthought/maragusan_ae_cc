@@ -13,6 +13,7 @@ import axiosInstance from "@/app/axios";
 import { useSession } from "next-auth/react";
 import Typography from "@mui/material/Typography";
 import useSWR from "swr";
+import Loading from "@/app/utils/loading";
 
 const fetcher = (url) => axiosInstance.get(url).then((res) => res.data);
 
@@ -31,7 +32,7 @@ export default function AssetDialog(props) {
     data: asset_type,
     error: asset_type_error,
     isLoading: asset_type_isLoading,
-  } = useSWR("/asset_type", fetcher);
+  } = useSWR("/components/asset_type", fetcher);
   const [isError, setIsError] = useState(false);
   const [errorText, setErrorText] = useState(false);
   const { data: session } = useSession();
@@ -79,7 +80,7 @@ export default function AssetDialog(props) {
       account_name: data.get("account_name"),
       asset_description: data.get("asset_description"),
       asset_type: data.get("asset_type"),
-      account_status: data.get("account_status"),
+      account_status: !isEditing ? 1 : data.get("account_status"),
       user: session.user.name[1],
     };
 
@@ -87,7 +88,7 @@ export default function AssetDialog(props) {
 
     if (!isEditing)
       axiosInstance
-        .post("asset/", postData)
+        .post("assets/", postData)
         .then((response) => {
           handleSuccessful(true, "Asset added successfully!");
           console.log(response);
@@ -99,7 +100,7 @@ export default function AssetDialog(props) {
         });
     else
       axiosInstance
-        .put("asset/" + editData.id + "/", postData)
+        .put("assets/" + editData.id + "/", postData)
         .then((response) => {
           handleSuccessful(true, "Asset edited successfully!");
           console.log(response);
@@ -111,7 +112,7 @@ export default function AssetDialog(props) {
         });
   };
 
-  if (asset_type_isLoading) return;
+  if (asset_type_isLoading) return <Loading />;
 
   return (
     <Dialog open={openAssetDialog} onClose={handleClose} fullWidth>
@@ -256,7 +257,6 @@ export default function AssetDialog(props) {
           {isEditing && (
             <TextField
               margin="normal"
-              required
               fullWidth
               id="account_status"
               name="account_status"

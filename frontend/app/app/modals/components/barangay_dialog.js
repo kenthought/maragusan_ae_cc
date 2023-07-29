@@ -64,7 +64,7 @@ export default function BarangayDialog(props) {
 
     if (!isEditing)
       axiosInstance
-        .post("barangay/", postData)
+        .post("components/barangay/", postData)
         .then((response) => {
           handleSuccessful(true, "Barangay added successfully!");
           console.log(response);
@@ -80,7 +80,7 @@ export default function BarangayDialog(props) {
         });
     else
       axiosInstance
-        .put("barangay/" + editData.id + "/", postData)
+        .put("components/barangay/" + editData.id + "/", postData)
         .then((response) => {
           handleSuccessful(true, "Barangay edited successfully!");
           console.log(response);

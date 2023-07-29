@@ -113,7 +113,7 @@ export default function DebitDialog(props) {
 
   const handleSubmit = (rows) => {
     axiosInstance
-      .post("ledger/", rows)
+      .post("assets/ledger/", rows)
       .then((response) => {
         handleSuccessful(true, "Ledger posted successfully!");
         console.log(response);

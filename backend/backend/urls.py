@@ -20,11 +20,19 @@ from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
+from .views import *
 
 urlpatterns = [
     # path("", include(router.urls)), change for a default view
     path("admin/", admin.site.urls),
-    path("api/", include("app.urls")),
+    path("api/assets/", include("assets.urls")),
+    path("api/owners_equity/", include("owners_equity.urls")),
+    path("api/bank_account/", include("bank_accounts.urls")),
+    path("api/components/", include("components.urls")),
+    path(
+        "api/dailyClosingToday/<int:user_id>/<int:year>/<int:month>/<int:date>",
+        DailyClosingToday.as_view(),
+    ),
     path("api/users/", include("users.urls")),
     path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),

@@ -24,7 +24,8 @@ import TextField from "@mui/material/TextField";
 import Box from "@mui/material/Box";
 import { styled } from "@mui/material/styles";
 import axiosInstance from "@/app/axios";
-import Success from "../../utils/success";
+import Success from "@/app//utils/success";
+import Loading from "@/app/utils/loading";
 import DebitDialog from "./debit_dialog";
 import useSWR from "swr";
 import CreditDialog from "./credit_dialog";
@@ -52,7 +53,7 @@ export default function LedgerDialog(props) {
     error: ledger_error,
     isLoading: ledger_isLoading,
     mutate,
-  } = useSWR("/ledger/" + selected.id, fetcher);
+  } = useSWR("assets/ledger/" + selected.id, fetcher);
 
   const [openDebitDialog, setOpenDebitDialog] = useState(false);
   const [openCreditDialog, setOpenCreditDialog] = useState(false);
@@ -64,7 +65,7 @@ export default function LedgerDialog(props) {
     setOpenLedgerDialog(false);
   };
 
-  if (ledger_isLoading) return;
+  if (ledger_isLoading) return <Loading />;
 
   return (
     <>
@@ -84,7 +85,7 @@ export default function LedgerDialog(props) {
             >
               <CloseIcon />
             </IconButton>
-            <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
+            <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="h2">
               {dialogName}
             </Typography>
           </Toolbar>

@@ -43,7 +43,7 @@ const AssetInformation = (props) => {
     setOpenDepreciationLedgerDialog,
     setOpenLedgerDialog,
   } = props;
-  const { data, error, isLoading, mutate } = useSWR("/asset/" + id, fetcher);
+  const { data, error, isLoading, mutate } = useSWR("/assets/" + id, fetcher);
   const [accountStatus] = useState([
     { id: 1, label: "Active", value: true },
     { id: 2, label: "Inactive", value: false },
@@ -72,9 +72,9 @@ const AssetInformation = (props) => {
     </Button>,
   ];
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <Loading />;
 
-  if (error) return <div>Unable to fetch data!</div>;
+  if (error) return <Typography>Unable to fetch data!</Typography>;
 
   return (
     <Card sx={{ padding: 2, position: "relative" }}>
@@ -139,18 +139,16 @@ const AssetInformation = (props) => {
             <Typography>Account status:</Typography>
           </Grid>
           <Grid item xs={12} md={8}>
-            <Typography>
-              <Chip
-                label={accountStatus[data.account_status - 1].label}
-                color={
-                  accountStatus[data.account_status - 1].id == 1
-                    ? "success"
-                    : accountStatus[data.account_status - 1].id == 2
-                    ? "error"
-                    : "secondary"
-                }
-              />
-            </Typography>
+            <Chip
+              label={accountStatus[data.account_status - 1].label}
+              color={
+                accountStatus[data.account_status - 1].id == 1
+                  ? "success"
+                  : accountStatus[data.account_status - 1].id == 2
+                  ? "error"
+                  : "secondary"
+              }
+            />
           </Grid>
           <Grid item xs={12}>
             <Divider />
@@ -160,6 +158,9 @@ const AssetInformation = (props) => {
           </Grid>
           <Grid item xs={12} md={8}>
             <Typography>{data.created_at.split("T")[0]}</Typography>
+          </Grid>
+          <Grid item xs={12}>
+            <Divider />
           </Grid>
         </Grid>
       </Box>
@@ -178,7 +179,7 @@ AssetInformation.propTypes = {
 export default function Assets() {
   const [open, setOpen] = useState(false);
   const [options, setOptions] = useState([]);
-  const { data, error, isLoading, mutate } = useSWR("/asset", fetcher);
+  const { data, error, isLoading, mutate } = useSWR("/assets", fetcher);
   const [openAssetDialog, setOpenAssetDialog] = useState(false);
   const [openLedgerDialog, setOpenLedgerDialog] = useState(false);
   const [openDepreciationLedgerDialog, setOpenDepreciationLedgerDialog] =
@@ -258,7 +259,7 @@ export default function Assets() {
 
   if (isLoading) return <Loading />;
 
-  if (error) return <div>Error occured while fetching Data!</div>;
+  if (error) return <Typography>Error occured while fetching Data!</Typography>;
 
   return (
     <>

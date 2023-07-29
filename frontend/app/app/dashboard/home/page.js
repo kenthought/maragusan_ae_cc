@@ -7,15 +7,34 @@ import useSWR from "swr";
 import Box from "@mui/material/Box";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
+import TableFooter from "@mui/material/TableFooter";
+import TableCell, { tableCellClasses } from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Typography from "@mui/material/Typography";
+import Button from "@mui/material/Button";
 import Divider from "@mui/material/Divider";
+import Grid from "@mui/material/Grid";
+import Loading from "@/app/utils/loading";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { useSession } from "next-auth/react";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { styled } from "@mui/material/styles";
+import dayjs from "dayjs";
 
 const fetcher = (url) => axiosInstance.get(url).then((res) => res.data);
 
+const StyledTableCell = styled(TableCell)(({ theme }) => ({
+  [`&.${tableCellClasses.head}`]: {
+    backgroundColor: "grey",
+    color: theme.palette.common.white,
+  },
+  [`&.${tableCellClasses.body}`]: {
+    fontSize: 14,
+  },
+}));
 function createData(name, calories, fat, carbs, protein) {
   return { name, calories, fat, carbs, protein };
 }
@@ -29,46 +48,124 @@ const rows = [
 ];
 
 export default function Home() {
-  const { data, error, isLoading } = useSWR("/account", fetcher, {
-    refreshInterval: 1000,
-  });
+  const { data: session } = useSession();
+  const { data, error, isLoading } = useSWR(
+    "/dailyClosingToday/" +
+      session.user.name[1] +
+      "/" +
+      new Date().getFullYear() +
+      "/" +
+      (new Date().getMonth() + 1) +
+      "/" +
+      new Date().getDate(),
+    fetcher
+  );
+  const [dailyClosingDate, setDailyClosingDate] = useState();
+  const [items, setItems] = useState([]);
 
-  if (error) return <div>Unable to fetch data!</div>;
-  if (isLoading) return <div>Loading...</div>;
+  useEffect(() => {
+    if (data != null) setItems(data);
+  }, [data]);
+
+  const getDailyClosing = (date) => {
+    var year = date.getFullYear();
+    var month = date.getMonth() + 1;
+    var date = date.getDate();
+    axiosInstance
+      .get(
+        "/dailyClosingToday/" +
+          session.user.name[1] +
+          "/" +
+          year +
+          "/" +
+          month +
+          "/" +
+          date
+      )
+      .then((response) => {
+        setItems(response.data);
+      });
+  };
+
+  if (error) return <Typography>Unable to fetch data!</Typography>;
+  if (isLoading) return <Loading />;
   return (
     <Fade in={true}>
       <Box>
         <Typography variant="h6" color="primary" marginBottom={1}>
           Daily closing of entries
         </Typography>
+        <Box sx={{ mb: 1, mt: 2 }}>
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DatePicker
+              value={dailyClosingDate || dayjs(new Date())}
+              onChange={(newValue) => {
+                setDailyClosingDate(newValue);
+                getDailyClosing(new Date(newValue));
+              }}
+              slotProps={{ textField: { size: "small" } }}
+            />
+          </LocalizationProvider>
+        </Box>
         <Divider />
         <TableContainer>
-          <Table sx={{ minWidth: 650 }} aria-label="simple table">
+          <Table sx={{ minWidth: 650 }} aria-label="simple table" size="small">
             <TableHead>
               <TableRow>
-                <TableCell>Dessert (100g serving)</TableCell>
-                <TableCell align="right">Calories</TableCell>
-                <TableCell align="right">Fat&nbsp;(g)</TableCell>
-                <TableCell align="right">Carbs&nbsp;(g)</TableCell>
-                <TableCell align="right">Protein&nbsp;(g)</TableCell>
+                <StyledTableCell>Date</StyledTableCell>
+                <StyledTableCell align="right">Time</StyledTableCell>
+                <StyledTableCell align="right">TransNo</StyledTableCell>
+                <StyledTableCell align="right">Ledger</StyledTableCell>
+                <StyledTableCell align="right">Account #</StyledTableCell>
+                <StyledTableCell align="right">Account Name</StyledTableCell>
+                <StyledTableCell align="right">Particulars</StyledTableCell>
+                <StyledTableCell align="right">Cash in</StyledTableCell>
+                <StyledTableCell align="right">Cash out</StyledTableCell>
+                <StyledTableCell align="right">Balance</StyledTableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {rows.map((row) => (
-                <TableRow
-                  key={row.name}
-                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                >
-                  <TableCell component="th" scope="row">
-                    {row.name}
+              {items.length != 0 ? (
+                items.map((row, index) => (
+                  <TableRow
+                    key={index}
+                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                  >
+                    <TableCell align="right">
+                      {new Date(row.created_at).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell align="right">
+                      {new Date(row.created_at).toLocaleTimeString()}
+                    </TableCell>
+                    <TableCell align="right">{row.trans_number}</TableCell>
+                    <TableCell align="left">{row.ledger}</TableCell>
+                    <TableCell align="right">{row.account_number}</TableCell>
+                    <TableCell align="right">{row.account_name}</TableCell>
+                    <TableCell align="right">{row.particulars}</TableCell>
+                    <TableCell align="right">{row.cash_in}</TableCell>
+                    <TableCell align="right">{row.cash_out}</TableCell>
+                    <TableCell align="right">{row.balance}</TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={10} align="center">
+                    No data to show
                   </TableCell>
-                  <TableCell align="right">{row.calories}</TableCell>
-                  <TableCell align="right">{row.fat}</TableCell>
-                  <TableCell align="right">{row.carbs}</TableCell>
-                  <TableCell align="right">{row.protein}</TableCell>
                 </TableRow>
-              ))}
+              )}
             </TableBody>
+            {items.length != 0 && (
+              <TableFooter>
+                <TableRow>
+                  <TableCell colSpan={10} align="left">
+                    <Typography component="div">
+                      Cash on hand: {items[items.length - 1].balance}
+                    </Typography>
+                  </TableCell>
+                </TableRow>
+              </TableFooter>
+            )}
           </Table>
         </TableContainer>
       </Box>
