@@ -23,9 +23,10 @@ import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import SearchIcon from "@mui/icons-material/Search";
 import OwnersEquityDialog from "@/app/modals/owners_equity/owners_equity_dialog";
-import LedgerDialog from "@/app/modals/asset/ledger_dialog";
+import LedgerDialog from "@/app/modals/owners_equity/ledger_dialog";
 import DepreciationLedgerDialog from "@/app/modals/asset/depreciation_ledger_dialog";
 import Success from "@/app/utils/success";
+import Loading from "@/app/utils/loading";
 import useSWR from "swr";
 import axiosInstance from "@/app/axios";
 import PropTypes from "prop-types";
@@ -39,6 +40,7 @@ const OwnersEquityInformation = (props) => {
     setIsEditing,
     setOwnersEquityInfoMutate,
     setOpenOwnersEquityDialog,
+    setOpenLedgerDialog,
   } = props;
   const { data, error, isLoading, mutate } = useSWR(
     "/owners_equity/" + id,
@@ -50,34 +52,43 @@ const OwnersEquityInformation = (props) => {
     { id: 3, label: "Bad Debts", value: false },
   ]);
 
-  if (isLoading) return <div>Loading...</div>;
+  const buttons = [
+    <Button key="two" onClick={() => setOpenLedgerDialog(true)}>
+      Ledger
+    </Button>,
+    <Button key="three">Summary</Button>,
+    <Button
+      key="four"
+      startIcon={<EditIcon />}
+      onClick={() => {
+        setEditData(data);
+        setIsEditing(true);
+        setOwnersEquityInfoMutate(() => mutate);
+        setOpenOwnersEquityDialog(true);
+      }}
+      color="secondary"
+    >
+      Edit
+    </Button>,
+  ];
 
-  if (error) return <div>Unable to fetch data!</div>;
+  if (isLoading) return <Loading />;
+
+  if (error) return <Typography>Unable to fetch data!</Typography>;
 
   return (
     <Card sx={{ padding: 2, position: "relative" }}>
-      <Typography component="h2" variant="h6" color="primary" margin={1}>
+      <Typography component="h2" variant="h6" color="primary" marginBottom={2}>
         Owners Equity Information
-        <Fab
-          color="secondary"
-          size="small"
-          aria-label="edit"
-          sx={{
-            marginLeft: 2,
-          }}
-        >
-          <Tooltip title="Edit">
-            <EditIcon
-              onClick={() => {
-                setEditData(data);
-                setIsEditing(true);
-                setOwnersEquityInfoMutate(() => mutate);
-                setOpenOwnersEquityDialog(true);
-              }}
-            />
-          </Tooltip>
-        </Fab>
       </Typography>
+      <ButtonGroup
+        variant="contained"
+        aria-label="outlined primary button group"
+        sx={{ marginBottom: 2 }}
+        size="small"
+      >
+        {buttons}
+      </ButtonGroup>
       <Grid item xs={8}></Grid>
       <Box>
         <Grid
@@ -87,64 +98,86 @@ const OwnersEquityInformation = (props) => {
           padding={1}
           spacing={1}
         >
-          <Grid item xs={4}>
+          <Grid item xs={12} md={4}>
             <Typography>Account number:</Typography>
           </Grid>
-          <Grid item xs={8}>
+          <Grid item xs={12} md={8}>
             <Typography>{data.account_number}</Typography>
           </Grid>
-          <Grid item xs={4}>
+          <Grid item xs={12}>
+            <Divider />
+          </Grid>
+          <Grid item xs={12} md={4}>
             <Typography>Account name:</Typography>
           </Grid>
-          <Grid item xs={8}>
+          <Grid item xs={12} md={8}>
             <Typography>{data.account_name}</Typography>
           </Grid>
-          <Grid item xs={4}>
+          <Grid item xs={12}>
+            <Divider />
+          </Grid>
+          <Grid item xs={12} md={4}>
             <Typography>Purok/Street:</Typography>
           </Grid>
-          <Grid item xs={8}>
+          <Grid item xs={12} md={8}>
             <Typography>{data.purok_street}</Typography>
           </Grid>
-          <Grid item xs={4}>
+          <Grid item xs={12}>
+            <Divider />
+          </Grid>
+          <Grid item xs={12} md={4}>
             <Typography>Barangay:</Typography>
           </Grid>
-          <Grid item xs={8}>
+          <Grid item xs={12} md={8}>
             <Typography>{data.barangay.barangay}</Typography>
           </Grid>
-          <Grid item xs={4}>
+          <Grid item xs={12}>
+            <Divider />
+          </Grid>
+          <Grid item xs={12} md={4}>
             <Typography>Municipality:</Typography>
           </Grid>
-          <Grid item xs={8}>
+          <Grid item xs={12} md={8}>
             <Typography>{data.municipality.municipality}</Typography>
           </Grid>
-          <Grid item xs={4}>
+          <Grid item xs={12}>
+            <Divider />
+          </Grid>
+          <Grid item xs={12} md={4}>
             <Typography>Province:</Typography>
           </Grid>
-          <Grid item xs={8}>
+          <Grid item xs={12} md={8}>
             <Typography>{data.province.province}</Typography>
           </Grid>
-          <Grid item xs={4}>
+          <Grid item xs={12}>
+            <Divider />
+          </Grid>
+          <Grid item xs={12} md={4}>
             <Typography>Account status:</Typography>
           </Grid>
-          <Grid item xs={8}>
-            <Typography>
-              <Chip
-                label={accountStatus[data.account_status - 1].label}
-                color={
-                  accountStatus[data.account_status - 1].id == 1
-                    ? "success"
-                    : accountStatus[data.account_status - 1].id == 2
-                    ? "error"
-                    : "secondary"
-                }
-              />
-            </Typography>
+          <Grid item xs={12} md={8}>
+            <Chip
+              label={accountStatus[data.account_status - 1].label}
+              color={
+                accountStatus[data.account_status - 1].id == 1
+                  ? "success"
+                  : accountStatus[data.account_status - 1].id == 2
+                  ? "error"
+                  : "secondary"
+              }
+            />
           </Grid>
-          <Grid item xs={4}>
+          <Grid item xs={12}>
+            <Divider />
+          </Grid>
+          <Grid item xs={12} md={4}>
             <Typography>Date created:</Typography>
           </Grid>
           <Grid item xs={8}>
             <Typography>{data.created_at.split("T")[0]}</Typography>
+          </Grid>
+          <Grid item xs={12}>
+            <Divider />
           </Grid>
         </Grid>
       </Box>
@@ -211,7 +244,7 @@ export default function OwnersEquity() {
         renderInput={(params) => (
           <TextField
             {...params}
-            label="Search Account"
+            placeholder="Search Account"
             InputProps={{
               ...params.InputProps,
               endAdornment: (
@@ -231,62 +264,50 @@ export default function OwnersEquity() {
     </>
   );
 
-  const buttons = [
-    <Button key="two" onClick={() => setOpenLedgerDialog(true)}>
-      Ledger
-    </Button>,
-    <Button key="three">Summary</Button>,
-  ];
-
   return (
     <>
-      <Typography component="h2" variant="h5" color="primary" gutterBottom>
+      <Typography
+        component="h2"
+        variant="h5"
+        color="primary"
+        gutterBottom
+        marginBottom={2}
+      >
         Owner's Equity
+        <Button
+          variant="outlined"
+          startIcon={<AddIcon />}
+          onClick={() => setOpenOwnersEquityDialog(true)}
+          color="primary"
+          sx={{ marginLeft: 2 }}
+        >
+          Add
+        </Button>
       </Typography>
-      <Divider />
+      {search}
       <Box elevation={0} sx={{ padding: 2 }}>
-        <Box sx={{ marginTop: 2, textAlign: "center" }}>
+        <Box sx={{ textAlign: "center" }}>
           <Success
             isSuccess={isSuccess}
             setIsSuccess={setIsSuccess}
             successText={successText}
           />
-          <Grid container marginBottom={1}>
-            <Grid item xs={11}>
-              {search}
-            </Grid>
-            <Grid item xs={1}>
-              <Fab
-                color="primary"
-                size="small"
-                aria-label="add"
-                onClick={() => setOpenOwnersEquityDialog(true)}
-              >
-                <Tooltip title="Add">
-                  <AddIcon />
-                </Tooltip>
-              </Fab>
-            </Grid>
-          </Grid>
           {selected && (
             <Fade in={true}>
               <Box
-                sx={{ padding: 2, textAlign: "left", justifyItems: "bottom" }}
+                sx={{
+                  padding: 2,
+                  textAlign: "left",
+                  justifyItems: "bottom",
+                }}
               >
-                <ButtonGroup
-                  variant="contained"
-                  aria-label="outlined primary button group"
-                  sx={{ marginBottom: 2 }}
-                  size="small"
-                >
-                  {buttons}
-                </ButtonGroup>
                 <OwnersEquityInformation
                   id={selected.id}
                   setEditData={setEditData}
                   setIsEditing={setIsEditing}
                   setOwnersEquityInfoMutate={setOwnersEquityInfoMutate}
                   setOpenOwnersEquityDialog={setOpenOwnersEquityDialog}
+                  setOpenLedgerDialog={setOpenLedgerDialog}
                 />
               </Box>
             </Fade>
@@ -303,6 +324,16 @@ export default function OwnersEquity() {
         setIsEditing={setIsEditing}
         editData={editData}
       />
+      {selected && (
+        <>
+          <LedgerDialog
+            openLedgerDialog={openLedgerDialog}
+            setOpenLedgerDialog={setOpenLedgerDialog}
+            selected={selected}
+            dialogName="Owners Equity Ledger"
+          />
+        </>
+      )}
     </>
   );
 }

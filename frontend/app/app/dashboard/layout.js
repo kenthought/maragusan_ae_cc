@@ -9,6 +9,7 @@ import CssBaseline from "@mui/material/CssBaseline";
 import Divider from "@mui/material/Divider";
 import Drawer from "@mui/material/Drawer";
 import IconButton from "@mui/material/IconButton";
+import Chip from "@mui/material/Chip";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
@@ -16,8 +17,6 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
-import InboxIcon from "@mui/icons-material/Inbox";
-import MailIcon from "@mui/icons-material/Mail";
 import LogoutIcon from "@mui/icons-material/Logout";
 import MenuIcon from "@mui/icons-material/Menu";
 import HomeIcon from "@mui/icons-material/Home";
@@ -29,11 +28,15 @@ import ExpandMore from "@mui/icons-material/ExpandMore";
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
 import AddLocationAltIcon from "@mui/icons-material/AddLocationAlt";
-import CircularProgress from "@mui/material/CircularProgress";
+import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
+import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
+import BusinessCenterIcon from "@mui/icons-material/BusinessCenter";
+import BalanceIcon from "@mui/icons-material/Balance";
 import axiosInstance from "../axios";
 import Container from "@mui/material/Container";
 import Link from "next/link";
 import Cookies from "js-cookie";
+import Loading from "../utils/loading";
 
 const drawerWidth = 240;
 
@@ -78,9 +81,25 @@ export default function DashboardLayout({ children, window }) {
   };
 
   const menuitems = [
-    { id: 0, label: "Assets", path: "assets" },
-    { id: 1, label: "Bank Account", path: "bank_account" },
-    { id: 2, label: "Owners Equity", path: "owners_equity" },
+    {
+      id: 0,
+      label: "Assets",
+      path: "assets",
+      icon: <BusinessCenterIcon />,
+    },
+    {
+      id: 1,
+      label: "Bank Account",
+      path: "bank_account",
+      icon: <AccountBalanceIcon />,
+    },
+    {
+      id: 2,
+      label: "Owners Equity",
+      path: "owners_equity",
+      icon: <BalanceIcon />,
+      access: "admin",
+    },
   ];
 
   const drawer = (
@@ -101,16 +120,17 @@ export default function DashboardLayout({ children, window }) {
             <ListItemText primary={"Home"} />
           </ListItemButton>
         </ListItem>
-        {menuitems.map((menu, index) => (
+        {menuitems.map((menu) => (
           <ListItem key={menu.id} disablePadding>
             <ListItemButton
               href={"/dashboard/" + menu.path}
               LinkComponent={Link}
             >
-              <ListItemIcon>
-                {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-              </ListItemIcon>
+              <ListItemIcon>{menu.icon}</ListItemIcon>
               <ListItemText primary={menu.label} />
+              {menu.access == "admin" && (
+                <Chip label="A" color="primary" size="small" />
+              )}
             </ListItemButton>
           </ListItem>
         ))}
@@ -134,9 +154,21 @@ export default function DashboardLayout({ children, window }) {
               sx={{ pl: 4 }}
             >
               <ListItemIcon>
-                <InboxIcon />
+                <BusinessCenterIcon />
               </ListItemIcon>
               <ListItemText primary="Asset types" />
+            </ListItemButton>
+          </List>
+          <List component="div" disablePadding>
+            <ListItemButton
+              href={"/dashboard/components/bank"}
+              LinkComponent={Link}
+              sx={{ pl: 4 }}
+            >
+              <ListItemIcon>
+                <AccountBalanceIcon />
+              </ListItemIcon>
+              <ListItemText primary="Bank" />
             </ListItemButton>
           </List>
           <List component="div" disablePadding>
@@ -182,22 +214,7 @@ export default function DashboardLayout({ children, window }) {
   const container =
     window !== undefined ? () => window().document.body : undefined;
 
-  if (status === "loading")
-    return (
-      <Container component="main" maxWidth="xs">
-        <CssBaseline />
-        <Box
-          sx={{
-            marginTop: 8,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-          }}
-        >
-          <CircularProgress />
-        </Box>
-      </Container>
-    );
+  if (status === "loading") return <Loading />;
 
   if (status === "unauthenticated") return redirect("/api/auth/signin");
 
@@ -222,12 +239,7 @@ export default function DashboardLayout({ children, window }) {
             >
               <MenuIcon />
             </IconButton>
-            <Typography
-              variant="h6"
-              noWrap
-              component="div"
-              sx={{ flexGrow: 1 }}
-            >
+            <Typography variant="h6" noWrap component="h2" sx={{ flexGrow: 1 }}>
               Lending System
             </Typography>
             <AccountCircle sx={{ marginRight: "10px" }} />

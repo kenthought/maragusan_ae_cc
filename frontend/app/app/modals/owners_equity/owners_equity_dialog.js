@@ -31,17 +31,17 @@ export default function OwnersEquityDialog(props) {
     data: barangay,
     error: barangay_error,
     isLoading: barangay_isLoading,
-  } = useSWR("/barangay", fetcher);
+  } = useSWR("components/barangay", fetcher);
   const {
     data: municipality,
     error: municipality_error,
     isLoading: municipality_isLoading,
-  } = useSWR("/municipality", fetcher);
+  } = useSWR("components/municipality", fetcher);
   const {
     data: province,
     error: province_error,
     isLoading: province_isLoading,
-  } = useSWR("/province", fetcher);
+  } = useSWR("components/province", fetcher);
   const [isError, setIsError] = useState(false);
   const [errorText, setErrorText] = useState(false);
   const { data: session } = useSession();
@@ -88,7 +88,7 @@ export default function OwnersEquityDialog(props) {
       barangay: data.get("barangay"),
       municipality: data.get("municipality"),
       province: data.get("province"),
-      account_status: data.get("account_status"),
+      account_status: !isEditing ? 1 : data.get("account_status"),
       user: session.user.name[1],
     };
 

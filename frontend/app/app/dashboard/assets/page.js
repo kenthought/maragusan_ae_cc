@@ -26,6 +26,7 @@ import AssetDialog from "@/app/modals/asset/asset_dialog";
 import LedgerDialog from "@/app/modals/asset/ledger_dialog";
 import DepreciationLedgerDialog from "@/app/modals/asset/depreciation_ledger_dialog";
 import Success from "@/app/utils/success";
+import Loading from "@/app/utils/loading";
 import useSWR from "swr";
 import axiosInstance from "@/app/axios";
 import PropTypes from "prop-types";
@@ -39,42 +40,56 @@ const AssetInformation = (props) => {
     setIsEditing,
     setAssetInfoMutate,
     setOpenAssetDialog,
+    setOpenDepreciationLedgerDialog,
+    setOpenLedgerDialog,
   } = props;
-  const { data, error, isLoading, mutate } = useSWR("/asset/" + id, fetcher);
+  const { data, error, isLoading, mutate } = useSWR("/assets/" + id, fetcher);
   const [accountStatus] = useState([
     { id: 1, label: "Active", value: true },
     { id: 2, label: "Inactive", value: false },
     { id: 3, label: "Bad Debts", value: false },
   ]);
+  const buttons = [
+    <Button key="one" onClick={() => setOpenDepreciationLedgerDialog(true)}>
+      Depreciation Ledger
+    </Button>,
+    <Button key="two" onClick={() => setOpenLedgerDialog(true)}>
+      Ledger
+    </Button>,
+    <Button key="three">Summary</Button>,
+    <Button
+      key="four"
+      startIcon={<EditIcon />}
+      color="secondary"
+      onClick={() => {
+        setEditData(data);
+        setIsEditing(true);
+        setAssetInfoMutate(() => mutate);
+        setOpenAssetDialog(true);
+      }}
+    >
+      Edit
+    </Button>,
+  ];
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <Loading />;
 
-  if (error) return <div>Unable to fetch data!</div>;
+  if (error) return <Typography>Unable to fetch data!</Typography>;
 
   return (
     <Card sx={{ padding: 2, position: "relative" }}>
-      <Typography component="h2" variant="h6" color="primary" margin={1}>
+      <Typography component="h2" variant="h6" color="primary" marginBottom={2}>
         Asset Information
-        <Fab
-          color="secondary"
-          size="small"
-          aria-label="edit"
-          sx={{
-            marginLeft: 2,
-          }}
-        >
-          <Tooltip title="Edit">
-            <EditIcon
-              onClick={() => {
-                setEditData(data);
-                setIsEditing(true);
-                setAssetInfoMutate(() => mutate);
-                setOpenAssetDialog(true);
-              }}
-            />
-          </Tooltip>
-        </Fab>
       </Typography>
+
+      <ButtonGroup
+        variant="contained"
+        aria-label="outlined primary button group"
+        sx={{ marginBottom: 2 }}
+        size="small"
+      >
+        {buttons}
+      </ButtonGroup>
       <Grid item xs={8}></Grid>
       <Box>
         <Grid
@@ -84,52 +99,68 @@ const AssetInformation = (props) => {
           padding={1}
           spacing={1}
         >
-          <Grid item xs={4}>
+          <Grid item xs={12} md={4}>
             <Typography>Account number:</Typography>
           </Grid>
-          <Grid item xs={8}>
+          <Grid item xs={12} md={8}>
             <Typography>{data.account_number}</Typography>
           </Grid>
-          <Grid item xs={4}>
+          <Grid item xs={12}>
+            <Divider />
+          </Grid>
+          <Grid item xs={12} md={4}>
             <Typography>Account name:</Typography>
           </Grid>
-          <Grid item xs={8}>
+          <Grid item xs={12} md={8}>
             <Typography>{data.account_name}</Typography>
           </Grid>
-          <Grid item xs={4}>
+          <Grid item xs={12}>
+            <Divider />
+          </Grid>
+          <Grid item xs={12} md={4}>
             <Typography>Asset description:</Typography>
           </Grid>
-          <Grid item xs={8}>
+          <Grid item xs={12} md={8}>
             <Typography>{data.asset_description}</Typography>
           </Grid>
-          <Grid item xs={4}>
+          <Grid item xs={12}>
+            <Divider />
+          </Grid>
+          <Grid item xs={12} md={4}>
             <Typography>Asset type:</Typography>
           </Grid>
-          <Grid item xs={8}>
+          <Grid item xs={12} md={8}>
             <Typography>{data.asset_type.asset_type}</Typography>
           </Grid>
-          <Grid item xs={4}>
+          <Grid item xs={12}>
+            <Divider />
+          </Grid>
+          <Grid item xs={12} md={4}>
             <Typography>Account status:</Typography>
           </Grid>
-          <Grid item xs={8}>
-            <Typography>
-              <Chip
-                label={accountStatus[data.account_status - 1].label}
-                color={
-                  accountStatus[data.account_status - 1].id == 1
-                    ? "success"
-                    : accountStatus[data.account_status - 1].id == 2
-                    ? "error"
-                    : "secondary"
-                }
-              />
-            </Typography>
+          <Grid item xs={12} md={8}>
+            <Chip
+              label={accountStatus[data.account_status - 1].label}
+              color={
+                accountStatus[data.account_status - 1].id == 1
+                  ? "success"
+                  : accountStatus[data.account_status - 1].id == 2
+                  ? "error"
+                  : "secondary"
+              }
+            />
           </Grid>
-          <Grid item xs={4}>
+          <Grid item xs={12}>
+            <Divider />
+          </Grid>
+          <Grid item xs={12} md={4}>
             <Typography>Date created:</Typography>
           </Grid>
-          <Grid item xs={8}>
+          <Grid item xs={12} md={8}>
             <Typography>{data.created_at.split("T")[0]}</Typography>
+          </Grid>
+          <Grid item xs={12}>
+            <Divider />
           </Grid>
         </Grid>
       </Box>
@@ -148,7 +179,7 @@ AssetInformation.propTypes = {
 export default function Assets() {
   const [open, setOpen] = useState(false);
   const [options, setOptions] = useState([]);
-  const { data, error, isLoading, mutate } = useSWR("/asset", fetcher);
+  const { data, error, isLoading, mutate } = useSWR("/assets", fetcher);
   const [openAssetDialog, setOpenAssetDialog] = useState(false);
   const [openLedgerDialog, setOpenLedgerDialog] = useState(false);
   const [openDepreciationLedgerDialog, setOpenDepreciationLedgerDialog] =
@@ -206,7 +237,7 @@ export default function Assets() {
         renderInput={(params) => (
           <TextField
             {...params}
-            label="Search Account"
+            placeholder="Search Account"
             InputProps={{
               ...params.InputProps,
               endAdornment: (
@@ -226,69 +257,57 @@ export default function Assets() {
     </>
   );
 
-  const buttons = [
-    <Button key="one" onClick={() => setOpenDepreciationLedgerDialog(true)}>
-      Depreciation Ledger
-    </Button>,
-    <Button key="two" onClick={() => setOpenLedgerDialog(true)}>
-      Ledger
-    </Button>,
-    <Button key="three">Summary</Button>,
-  ];
+  if (isLoading) return <Loading />;
 
-  if (isLoading) return <div>Loading...</div>;
-
-  if (error) return <div>Error occured while fetching Data!</div>;
+  if (error) return <Typography>Error occured while fetching Data!</Typography>;
 
   return (
     <>
-      <Typography component="h2" variant="h5" color="primary">
+      <Typography
+        component="h2"
+        variant="h5"
+        color="primary"
+        gutterBottom
+        marginBottom={2}
+      >
         Assets
+        <Button
+          variant="outlined"
+          startIcon={<AddIcon />}
+          onClick={() => setOpenAssetDialog(true)}
+          color="primary"
+          sx={{ marginLeft: 2 }}
+        >
+          Add
+        </Button>
       </Typography>
-      <Divider />
+      {search}
       <Box elevation={0} sx={{ padding: 2 }}>
-        <Box sx={{ marginTop: 2, textAlign: "center" }}>
+        <Box sx={{ textAlign: "center" }}>
           <Success
             isSuccess={isSuccess}
             setIsSuccess={setIsSuccess}
             successText={successText}
           />
-          <Grid container marginBottom={1}>
-            <Grid item xs={11}>
-              {search}
-            </Grid>
-            <Grid item xs={1}>
-              <Fab
-                color="primary"
-                size="small"
-                aria-label="add"
-                onClick={() => setOpenAssetDialog(true)}
-              >
-                <Tooltip title="Add">
-                  <AddIcon />
-                </Tooltip>
-              </Fab>
-            </Grid>
-          </Grid>
           {selected && (
             <Fade in={true}>
               <Box
-                sx={{ padding: 2, textAlign: "left", justifyItems: "bottom" }}
+                sx={{
+                  padding: 2,
+                  textAlign: "left",
+                  justifyItems: "bottom",
+                }}
               >
-                <ButtonGroup
-                  variant="contained"
-                  aria-label="outlined primary button group"
-                  sx={{ marginBottom: 2 }}
-                  size="small"
-                >
-                  {buttons}
-                </ButtonGroup>
                 <AssetInformation
                   id={selected.id}
                   setEditData={setEditData}
                   setIsEditing={setIsEditing}
                   setAssetInfoMutate={setAssetInfoMutate}
                   setOpenAssetDialog={setOpenAssetDialog}
+                  setOpenDepreciationLedgerDialog={
+                    setOpenDepreciationLedgerDialog
+                  }
+                  setOpenLedgerDialog={setOpenLedgerDialog}
                 />
               </Box>
             </Fade>

@@ -24,10 +24,11 @@ import TextField from "@mui/material/TextField";
 import Box from "@mui/material/Box";
 import { styled } from "@mui/material/styles";
 import axiosInstance from "@/app/axios";
-import Success from "../../utils/success";
-import AssetDebitDialog from "./asset_debit_dialog";
+import Success from "@/app//utils/success";
+import Loading from "@/app/utils/loading";
+import DebitDialog from "./debit_dialog";
 import useSWR from "swr";
-import AssetCreditDialog from "./asset_credit_dialog";
+import CreditDialog from "./credit_dialog";
 
 const fetcher = (url) => axiosInstance.get(url).then((res) => res.data);
 
@@ -52,10 +53,10 @@ export default function LedgerDialog(props) {
     error: ledger_error,
     isLoading: ledger_isLoading,
     mutate,
-  } = useSWR("/ledger/" + selected.id, fetcher);
+  } = useSWR("assets/ledger/" + selected.id, fetcher);
 
-  const [openAssetDebitDialog, setOpenAssetDebitDialog] = useState(false);
-  const [openAssetCreditDialog, setOpenAssetCreditDialog] = useState(false);
+  const [openDebitDialog, setOpenDebitDialog] = useState(false);
+  const [openCreditDialog, setOpenCreditDialog] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [successText, setSuccessText] = useState("");
 
@@ -64,7 +65,7 @@ export default function LedgerDialog(props) {
     setOpenLedgerDialog(false);
   };
 
-  if (ledger_isLoading) return;
+  if (ledger_isLoading) return <Loading />;
 
   return (
     <>
@@ -84,7 +85,7 @@ export default function LedgerDialog(props) {
             >
               <CloseIcon />
             </IconButton>
-            <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
+            <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="h2">
               {dialogName}
             </Typography>
           </Toolbar>
@@ -184,16 +185,10 @@ export default function LedgerDialog(props) {
         </DialogContent>
         <DialogActions>
           <Button variant="contained">Reconcile</Button>
-          <Button
-            variant="contained"
-            onClick={() => setOpenAssetDebitDialog(true)}
-          >
+          <Button variant="contained" onClick={() => setOpenDebitDialog(true)}>
             Debit
           </Button>
-          <Button
-            variant="contained"
-            onClick={() => setOpenAssetCreditDialog(true)}
-          >
+          <Button variant="contained" onClick={() => setOpenCreditDialog(true)}>
             Credit
           </Button>
           <Button variant="contained">Print Soa</Button>
@@ -204,17 +199,17 @@ export default function LedgerDialog(props) {
       </Dialog>
       {selected != null && (
         <>
-          <AssetDebitDialog
-            openAssetDebitDialog={openAssetDebitDialog}
-            setOpenAssetDebitDialog={setOpenAssetDebitDialog}
+          <DebitDialog
+            openDebitDialog={openDebitDialog}
+            setOpenDebitDialog={setOpenDebitDialog}
             selected={selected}
             mutate={mutate}
             setIsSuccess={setIsSuccess}
             setSuccessText={setSuccessText}
           />
-          <AssetCreditDialog
-            openAssetCreditDialog={openAssetCreditDialog}
-            setOpenAssetCreditDialog={setOpenAssetCreditDialog}
+          <CreditDialog
+            openCreditDialog={openCreditDialog}
+            setOpenCreditDialog={setOpenCreditDialog}
             selected={selected}
             mutate={mutate}
             setIsSuccess={setIsSuccess}

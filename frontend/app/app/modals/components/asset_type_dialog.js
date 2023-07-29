@@ -64,7 +64,7 @@ export default function AssetTypeDialog(props) {
 
     if (!isEditing)
       axiosInstance
-        .post("asset_type/", postData)
+        .post("components/asset_type/", postData)
         .then((response) => {
           handleSuccessful(true, "Asset type added successfully!");
           console.log(response);
@@ -80,7 +80,7 @@ export default function AssetTypeDialog(props) {
         });
     else
       axiosInstance
-        .put("asset_type/" + editData.id + "/", postData)
+        .put("components/asset_type/" + editData.id + "/", postData)
         .then((response) => {
           handleSuccessful(true, "Asset type edited successfully!");
           console.log(response);

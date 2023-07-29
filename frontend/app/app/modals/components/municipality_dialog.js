@@ -64,7 +64,7 @@ export default function MunicipalityDialog(props) {
 
     if (!isEditing)
       axiosInstance
-        .post("municipality/", postData)
+        .post("components/municipality/", postData)
         .then((response) => {
           handleSuccessful(true, "Municipality added successfully!");
           console.log(response);
@@ -80,7 +80,7 @@ export default function MunicipalityDialog(props) {
         });
     else
       axiosInstance
-        .put("municipality/" + editData.id + "/", postData)
+        .put("components/municipality/" + editData.id + "/", postData)
         .then((response) => {
           handleSuccessful(true, "Municipality edited successfully!");
           console.log(response);

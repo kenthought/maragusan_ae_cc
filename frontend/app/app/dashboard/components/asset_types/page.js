@@ -23,6 +23,7 @@ import TableRow from "@mui/material/TableRow";
 import TableSortLabel from "@mui/material/TableSortLabel";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
+import Button from "@mui/material/Button";
 import Paper from "@mui/material/Paper";
 import Checkbox from "@mui/material/Checkbox";
 import IconButton from "@mui/material/IconButton";
@@ -36,6 +37,7 @@ import AssetTypeDialog from "@/app/modals/components/asset_type_dialog";
 import Success from "@/app/utils/success";
 import axiosInstance from "@/app/axios";
 import useSWR from "swr";
+import Loading from "@/app/utils/loading";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -233,6 +235,15 @@ function EnhancedTableToolbar(props) {
     <>
       <Typography component="h2" variant="h6" color="primary" margin={2}>
         Asset types
+        <Button
+          variant="outlined"
+          startIcon={<AddIcon />}
+          onClick={() => setOpenAssetTypeDialog(true)}
+          color="primary"
+          sx={{ marginLeft: 2 }}
+        >
+          Add
+        </Button>
       </Typography>
       <Toolbar
         sx={{
@@ -266,7 +277,7 @@ function EnhancedTableToolbar(props) {
           />
         )}
 
-        {numSelected > 0 ? (
+        {numSelected > 0 && (
           <>
             {numSelected === 1 ? (
               <Tooltip title="Edit">
@@ -308,18 +319,6 @@ function EnhancedTableToolbar(props) {
               </IconButton>
             </Tooltip>
           </>
-        ) : (
-          <Tooltip title="Add">
-            <Fab
-              color="primary"
-              size="small"
-              aria-label="add"
-              sx={{ ml: 2 }}
-              onClick={() => setOpenAssetTypeDialog(true)}
-            >
-              <AddIcon />
-            </Fab>
-          </Tooltip>
         )}
       </Toolbar>
     </>
@@ -345,7 +344,10 @@ EnhancedTableToolbar.propTypes = {
 const fetcher = (url) => axiosInstance.get(url).then((res) => res.data);
 
 export default function AssetTypes() {
-  const { data, error, isLoading, mutate } = useSWR("/asset_type", fetcher);
+  const { data, error, isLoading, mutate } = useSWR(
+    "components/asset_type",
+    fetcher
+  );
   // const { mutate } = useSWRConfig();
   const [open, setOpen] = useState(false);
   const [options, setOptions] = useState([]);
@@ -429,9 +431,9 @@ export default function AssetTypes() {
     }
   }, [open]);
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <Loading />;
 
-  if (error) return <div>Error occured while fetching Data!</div>;
+  if (error) return <Typography>Error occured while fetching Data!</Typography>;
 
   return (
     <>

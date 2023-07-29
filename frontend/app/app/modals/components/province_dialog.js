@@ -64,7 +64,7 @@ export default function ProvinceDialog(props) {
 
     if (!isEditing)
       axiosInstance
-        .post("province/", postData)
+        .post("components/province/", postData)
         .then((response) => {
           handleSuccessful(true, "Province added successfully!");
           console.log(response);
@@ -80,7 +80,7 @@ export default function ProvinceDialog(props) {
         });
     else
       axiosInstance
-        .put("province/" + editData.id + "/", postData)
+        .put("components/province/" + editData.id + "/", postData)
         .then((response) => {
           handleSuccessful(true, "Province edited successfully!");
           console.log(response);
