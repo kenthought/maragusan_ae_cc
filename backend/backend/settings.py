@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     "assets",
     "bank_accounts",
     "owners_equity",
+    "expenses",
     "components",
     "rest_framework",
     "users",

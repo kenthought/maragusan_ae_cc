@@ -33,7 +33,7 @@ import Switch from "@mui/material/Switch";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { styled } from "@mui/material/styles";
 import { visuallyHidden } from "@mui/utils";
-import AssetTypeDialog from "@/app/modals/components/asset_type_dialog";
+import SupplierDialog from "@/app/modals/components/supplier_dialog";
 import Success from "@/app/utils/success";
 import axiosInstance from "@/app/axios";
 import useSWR from "swr";
@@ -75,10 +75,22 @@ function stableSort(array, comparator) {
 
 const headCells = [
   {
-    id: "asset_type",
+    id: "supplier",
     numeric: false,
     disablePadding: true,
-    label: "Asset Type",
+    label: "Supplier",
+  },
+  {
+    id: "tin",
+    numeric: false,
+    disablePadding: true,
+    label: "Tin no.",
+  },
+  {
+    id: "address",
+    numeric: false,
+    disablePadding: true,
+    label: "Address",
   },
 ];
 
@@ -105,7 +117,7 @@ function EnhancedTableHead(props) {
             checked={rowCount > 0 && numSelected === rowCount}
             onChange={onSelectAllClick}
             inputProps={{
-              "aria-label": "select all asset types",
+              "aria-label": "select all supplier",
             }}
           />
         </StyledTableCell>
@@ -160,14 +172,14 @@ function Search(props) {
         }}
         size="small"
         isOptionEqualToValue={(option, value) =>
-          option.asset_type === value.title
+          option.supplier === value.title
         }
-        getOptionLabel={(option) => option.asset_type}
+        getOptionLabel={(option) => option.supplier}
         options={options}
         renderOption={(props, option) => {
           return (
             <li {...props} key={option.id}>
-              {option.asset_type}
+              {option.supplier}
             </li>
           );
         }}
@@ -216,7 +228,7 @@ function EnhancedTableToolbar(props) {
     setOpen,
     options,
     loading,
-    setOpenAssetTypeDialog,
+    setOpenSupplierDialog,
     setIsSuccess,
     setSuccessText,
     setSelected,
@@ -234,11 +246,11 @@ function EnhancedTableToolbar(props) {
   return (
     <>
       <Typography component="h2" variant="h6" color="primary" margin={2}>
-        Asset types
+        Supplier
         <Button
           variant="outlined"
           startIcon={<AddIcon />}
-          onClick={() => setOpenAssetTypeDialog(true)}
+          onClick={() => setOpenSupplierDialog(true)}
           color="primary"
           sx={{ marginLeft: 2 }}
         >
@@ -285,7 +297,7 @@ function EnhancedTableToolbar(props) {
                   onClick={() => {
                     setEditData(selected[0]);
                     setIsEditing(true);
-                    setOpenAssetTypeDialog(true);
+                    setOpenSupplierDialog(true);
                   }}
                 >
                   <EditIcon />
@@ -305,7 +317,7 @@ function EnhancedTableToolbar(props) {
                   }
 
                   axiosInstance
-                    .delete("components/asset_type/" + str)
+                    .delete("components/supplier/" + str)
                     .then((response) => {
                       handleSuccessful(
                         true,
@@ -334,7 +346,7 @@ EnhancedTableToolbar.propTypes = {
   setOpen: PropTypes.func.isRequired,
   options: PropTypes.array.isRequired,
   loading: PropTypes.bool.isRequired,
-  setOpenAssetTypeDialog: PropTypes.func.isRequired,
+  setOpenSupplierDialog: PropTypes.func.isRequired,
   setIsSuccess: PropTypes.func.isRequired,
   setSuccessText: PropTypes.func.isRequired,
   setSelected: PropTypes.func.isRequired,
@@ -345,9 +357,9 @@ EnhancedTableToolbar.propTypes = {
 
 const fetcher = (url) => axiosInstance.get(url).then((res) => res.data);
 
-export default function AssetTypes() {
+export default function Supplier() {
   const { data, error, isLoading, mutate } = useSWR(
-    "components/asset_type",
+    "components/supplier",
     fetcher
   );
   // const { mutate } = useSWRConfig();
@@ -360,7 +372,7 @@ export default function AssetTypes() {
   const [page, setPage] = useState(0);
   const [dense, setDense] = useState(false);
   const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [openAssetTypeDialog, setOpenAssetTypeDialog] = useState(false);
+  const [openSupplierDialog, setOpenSupplierDialog] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [successText, setSuccessText] = useState("");
   const [isEditing, setIsEditing] = useState(false);
@@ -457,7 +469,7 @@ export default function AssetTypes() {
               loading={loading}
               setIsSuccess={setIsSuccess}
               setSuccessText={setSuccessText}
-              setOpenAssetTypeDialog={setOpenAssetTypeDialog}
+              setOpenSupplierDialog={setOpenSupplierDialog}
               setSelected={setSelected}
               setEditData={setEditData}
               setIsEditing={setIsEditing}
@@ -508,7 +520,23 @@ export default function AssetTypes() {
                           scope="row"
                           padding="none"
                         >
-                          {row.asset_type}
+                          {row.supplier}
+                        </TableCell>
+                        <TableCell
+                          component="th"
+                          id={labelId}
+                          scope="row"
+                          padding="none"
+                        >
+                          {row.tin}
+                        </TableCell>
+                        <TableCell
+                          component="th"
+                          id={labelId}
+                          scope="row"
+                          padding="none"
+                        >
+                          {row.address}
                         </TableCell>
                         {/* Add additional cell if there are more data */}
                       </TableRow>
@@ -545,9 +573,9 @@ export default function AssetTypes() {
           </Paper>
         </Box>
       </Box>
-      <AssetTypeDialog
-        openAssetTypeDialog={openAssetTypeDialog}
-        setOpenAssetTypeDialog={setOpenAssetTypeDialog}
+      <SupplierDialog
+        openSupplierDialog={openSupplierDialog}
+        setOpenSupplierDialog={setOpenSupplierDialog}
         setSuccessText={setSuccessText}
         setIsSuccess={setIsSuccess}
         mutate={mutate}

@@ -11,6 +11,10 @@ from bank_accounts.serializers import (
     LedgerViewSerializer as BankAccountLedgerViewSerializer,
 )
 from bank_accounts.models import Ledger as BankAccountLedger
+from expenses.serializers import (
+    LedgerViewSerializer as ExpensesLedgerViewSerializer,
+)
+from expenses.models import Ledger as ExpensesLedger
 from django.db import connection
 from django.http import Http404
 from django.shortcuts import get_object_or_404
@@ -54,6 +58,17 @@ class DailyClosingToday(APIView):
         except BankAccountLedger.DoesNotExist:
             raise Http404
 
+    def get_expenses_ledger(self, user_id, year, month, date):
+        try:
+            # today = date.today()
+
+            return ExpensesLedger.objects.filter(
+                user_id=user_id, created_at__contains=datetime.date(year, month, date)
+            )
+
+        except ExpensesLedger.DoesNotExist:
+            raise Http404
+
     # def get(self, request, user_id, format=None):
     #     cursor = connection.cursor()
     #     cursor.callproc("get_dailyClosingToday", (user_id,))
@@ -95,6 +110,16 @@ class DailyClosingToday(APIView):
             obj = item
             obj["account_name"] = item["bank_account"]["account_name"]
             obj["account_number"] = item["bank_account"]["account_number"]
+            obj["ledger"] = "Bank Account"
+            array.append(obj)
+
+        # Expenses
+        expenses_ledger = self.get_expenses_ledger(user_id, year, month, date)
+        expenses_serializer = ExpensesLedgerViewSerializer(expenses_ledger, many=True)
+        for item in expenses_serializer.data:
+            obj = item
+            obj["account_name"] = item["expenses"]["account_name"]
+            obj["account_number"] = item["expenses"]["account_number"]
             obj["ledger"] = "Bank Account"
             array.append(obj)
 

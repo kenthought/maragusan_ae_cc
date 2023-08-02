@@ -1,5 +1,13 @@
 from rest_framework import serializers
-from .models import AssetType, Bank, Barangay, Municipality, Province
+from .models import (
+    AssetType,
+    Bank,
+    Barangay,
+    Municipality,
+    Province,
+    ExpensesCategory,
+    Supplier,
+)
 from users.serializers import UserSerializer
 
 
@@ -34,3 +42,15 @@ class ProvinceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Province
         fields = ["id", "province", "user"]
+
+
+class ExpensesCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ExpensesCategory
+        fields = ["id", "expenses_category", "user"]
+
+
+class SupplierSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Supplier
+        fields = ["id", "supplier", "tin", "address", "user"]

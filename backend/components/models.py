@@ -60,3 +60,31 @@ class Province(models.Model):
 
     def __str__(self):
         return self.province
+
+
+class ExpensesCategory(models.Model):
+    expenses_category = models.CharField(max_length=100, unique=True)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        related_name="expenses_category",
+        on_delete=models.PROTECT,
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.expenses_category
+
+
+class Supplier(models.Model):
+    supplier = models.CharField(max_length=100, unique=True)
+    tin = models.CharField(max_length=100, unique=True)
+    address = models.CharField(max_length=100, unique=True)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        related_name="supplier",
+        on_delete=models.PROTECT,
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.expenses_category
