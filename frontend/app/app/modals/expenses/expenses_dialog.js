@@ -13,14 +13,13 @@ import axiosInstance from "@/app/axios";
 import { useSession } from "next-auth/react";
 import Typography from "@mui/material/Typography";
 import useSWR from "swr";
-import Loading from "@/app/utils/loading";
 
 const fetcher = (url) => axiosInstance.get(url).then((res) => res.data);
 
-export default function AssetDialog(props) {
+export default function ExpensesDialog(props) {
   const {
-    openAssetDialog,
-    setOpenAssetDialog,
+    openExpensesDialog,
+    setOpenExpensesDialog,
     setIsSuccess,
     setSuccessText,
     mutate,
@@ -29,25 +28,22 @@ export default function AssetDialog(props) {
     editData,
   } = props;
   const {
-    data: asset_type,
-    error: asset_type_error,
-    isLoading: asset_type_isLoading,
-  } = useSWR("/components/asset_type", fetcher);
+    data: expenses_category,
+    error: expenses_category_error,
+    isLoading: expenses_category_isLoading,
+  } = useSWR("components/expenses_category", fetcher);
   const [isError, setIsError] = useState(false);
   const [errorText, setErrorText] = useState(false);
   const { data: session } = useSession();
   const [newData, setNewData] = useState({
     control_number: "",
     account_name: "",
-    asset_description: "",
-    asset_type: {
-      id: 0,
-    },
+    purok_street: "",
   });
   const [accountStatus] = useState([
-    { id: 1, label: "Active" },
-    { id: 2, label: "Inactive" },
-    { id: 3, label: "Bad Debts" },
+    { id: 1, label: "Active", value: true },
+    { id: 2, label: "Inactive", value: false },
+    { id: 3, label: "Bad Debts", value: false },
   ]);
 
   useEffect(() => {
@@ -60,7 +56,7 @@ export default function AssetDialog(props) {
   };
 
   const handleClose = () => {
-    setOpenAssetDialog(false);
+    setOpenExpensesDialog(false);
     setIsEditing(false);
   };
 
@@ -78,8 +74,8 @@ export default function AssetDialog(props) {
     const postData = {
       control_number: data.get("control_number"),
       account_name: data.get("account_name"),
-      asset_description: data.get("asset_description"),
-      asset_type: data.get("asset_type"),
+      expenses_description: data.get("expenses_description"),
+      expenses_category: data.get("expenses_category"),
       account_status: !isEditing ? 1 : data.get("account_status"),
       user: session.user.name[1],
     };
@@ -88,9 +84,9 @@ export default function AssetDialog(props) {
 
     if (!isEditing)
       axiosInstance
-        .post("assets/", postData)
+        .post("expenses/", postData)
         .then((response) => {
-          handleSuccessful(true, "Asset added successfully!");
+          handleSuccessful(true, "Expenses added successfully!");
           console.log(response);
         })
         .catch((response) => {
@@ -100,9 +96,9 @@ export default function AssetDialog(props) {
         });
     else
       axiosInstance
-        .put("assets/" + editData.id + "/", postData)
+        .put("expenses/" + editData.id + "/", postData)
         .then((response) => {
-          handleSuccessful(true, "Asset edited successfully!");
+          handleSuccessful(true, "Expenses edited successfully!");
           console.log(response);
         })
         .catch((response) => {
@@ -112,14 +108,14 @@ export default function AssetDialog(props) {
         });
   };
 
-  if (asset_type_isLoading) return <Loading />;
+  if (expenses_category_isLoading) return;
 
   return (
-    <Dialog open={openAssetDialog} onClose={handleClose} fullWidth>
-      <DialogTitle>{!isEditing ? "Add Asset" : "Edit Asset"}</DialogTitle>
+    <Dialog open={openExpensesDialog} onClose={handleClose} fullWidth>
+      <DialogTitle>{!isEditing ? "Add Expenses" : "Edit Expenses"}</DialogTitle>
       <Box component="form" onSubmit={handleSubmit}>
         <DialogContent>
-          <Typography color="primary">Asset Information</Typography>
+          <Typography color="primary">Expenses Information</Typography>
           {/* Control Number */}
           {!isEditing ? (
             <TextField
@@ -176,16 +172,17 @@ export default function AssetDialog(props) {
               size="small"
             />
           )}
-          {/* Asset Description */}
+          {/* Expenses Description
+           */}
           {!isEditing ? (
             <TextField
               margin="normal"
               required
               autoFocus
               fullWidth
-              id="asset_description"
-              label="Asset Description"
-              name="asset_description"
+              id="expenses_description"
+              label="Expenses Description"
+              name="expenses_description"
               type="textarea"
               size="small"
               multiline
@@ -197,10 +194,10 @@ export default function AssetDialog(props) {
               required
               autoFocus
               fullWidth
-              id="asset_description"
-              label="Asset Description"
-              name="asset_description"
-              value={newData.asset_description || ""}
+              id="expenses_description"
+              label="Expenses Description"
+              name="expenses_description"
+              value={newData.expenses_description || ""}
               onChange={handleEditChange}
               type="textarea"
               size="small"
@@ -208,22 +205,22 @@ export default function AssetDialog(props) {
               rows={3}
             />
           )}
-          {/* Asset Type */}
+          {/* Expenses Category */}
           {!isEditing ? (
             <TextField
               margin="normal"
               required
               fullWidth
-              id="asset_type"
-              name="asset_type"
-              label="Asset type"
+              id="expenses_category"
+              name="expenses_category"
+              label="Expenses Category"
               select
-              error={asset_type_error}
+              error={expenses_category_error}
               size="small"
             >
-              {asset_type.map((option) => (
+              {expenses_category.map((option) => (
                 <MenuItem key={option.id} value={option.id.toString()}>
-                  {option.asset_type}
+                  {option.expenses_category}
                 </MenuItem>
               ))}
             </TextField>
@@ -232,24 +229,24 @@ export default function AssetDialog(props) {
               margin="normal"
               required
               fullWidth
-              id="asset_type"
-              name="asset_type"
-              label="Asset type"
+              id="expenses_category"
+              name="expenses_category"
+              label="Expenses Category"
               value={
-                newData.asset_type
-                  ? newData.asset_type.id
-                    ? newData.asset_type.id
-                    : newData.asset_type
+                newData.expenses_category
+                  ? newData.expenses_category.id
+                    ? newData.expenses_category.id
+                    : newData.expenses_category
                   : ""
               }
               onChange={handleEditChange}
               select
-              error={asset_type_error}
+              error={expenses_category_error}
               size="small"
             >
-              {asset_type.map((option) => (
+              {expenses_category.map((option) => (
                 <MenuItem key={option.id} value={option.id.toString()}>
-                  {option.asset_type}
+                  {option.expenses_category}
                 </MenuItem>
               ))}
             </TextField>
@@ -257,6 +254,7 @@ export default function AssetDialog(props) {
           {isEditing && (
             <TextField
               margin="normal"
+              required
               fullWidth
               id="account_status"
               name="account_status"
@@ -292,9 +290,9 @@ export default function AssetDialog(props) {
   );
 }
 
-AssetDialog.propTypes = {
-  openAssetDialog: PropTypes.bool.isRequired,
-  setOpenAssetDialog: PropTypes.func.isRequired,
+ExpensesDialog.propTypes = {
+  openExpensesDialog: PropTypes.bool.isRequired,
+  setOpenExpensesDialog: PropTypes.func.isRequired,
   setIsSuccess: PropTypes.func.isRequired,
   mutate: PropTypes.func.isRequired,
   isEditing: PropTypes.bool.isRequired,

@@ -100,6 +100,51 @@ export default function DashboardLayout({ children, window }) {
       icon: <BalanceIcon />,
       access: "admin",
     },
+    {
+      id: 3,
+      label: "Expenses",
+      path: "expenses",
+      icon: <BalanceIcon />,
+    },
+    {
+      id: 4,
+      label: "Payables",
+      path: "payables",
+      icon: <AccountBalanceIcon />,
+    },
+  ];
+
+  const componentItems = [
+    {
+      id: 1,
+      label: "Asset Type",
+      path: "asset_types",
+      icon: <BalanceIcon />,
+    },
+    {
+      id: 2,
+      label: "Bank",
+      path: "bank",
+      icon: <AccountBalanceIcon />,
+    },
+    {
+      id: 3,
+      label: "Address",
+      path: "address",
+      icon: <AddLocationAltIcon />,
+    },
+    {
+      id: 3,
+      label: "Expenses Category",
+      path: "expenses_category",
+      icon: <AccountBalanceIcon />,
+    },
+    {
+      id: 4,
+      label: "Supplier",
+      path: "supplier",
+      icon: <AccountBalanceIcon />,
+    },
   ];
 
   const drawer = (
@@ -147,54 +192,18 @@ export default function DashboardLayout({ children, window }) {
           {open ? <ExpandLess /> : <ExpandMore />}
         </ListItemButton>
         <Collapse in={open} timeout="auto" unmountOnExit>
-          <List component="div" disablePadding>
-            <ListItemButton
-              href={"/dashboard/components/asset_types"}
-              LinkComponent={Link}
-              sx={{ pl: 4 }}
-            >
-              <ListItemIcon>
-                <BusinessCenterIcon />
-              </ListItemIcon>
-              <ListItemText primary="Asset types" />
-            </ListItemButton>
-          </List>
-          <List component="div" disablePadding>
-            <ListItemButton
-              href={"/dashboard/components/bank"}
-              LinkComponent={Link}
-              sx={{ pl: 4 }}
-            >
-              <ListItemIcon>
-                <AccountBalanceIcon />
-              </ListItemIcon>
-              <ListItemText primary="Bank" />
-            </ListItemButton>
-          </List>
-          <List component="div" disablePadding>
-            <ListItemButton
-              href={"/dashboard/components/address"}
-              LinkComponent={Link}
-              sx={{ pl: 4 }}
-            >
-              <ListItemIcon>
-                <AddLocationAltIcon />
-              </ListItemIcon>
-              <ListItemText primary="Address" />
-            </ListItemButton>
-          </List>
-          <List component="div" disablePadding>
-            <ListItemButton
-              href={"/dashboard/components/account_status"}
-              LinkComponent={Link}
-              sx={{ pl: 4 }}
-            >
-              <ListItemIcon>
-                <AccountBoxIcon />
-              </ListItemIcon>
-              <ListItemText primary="Account status" />
-            </ListItemButton>
-          </List>
+          {componentItems.map((components) => (
+            <List component="div" key={components.id} disablePadding>
+              <ListItemButton
+                href={"/dashboard/components/" + components.path}
+                LinkComponent={Link}
+                sx={{ pl: 4 }}
+              >
+                <ListItemIcon>{components.icon}</ListItemIcon>
+                <ListItemText primary={components.label} />
+              </ListItemButton>
+            </List>
+          ))}
         </Collapse>
       </List>
       <Divider />

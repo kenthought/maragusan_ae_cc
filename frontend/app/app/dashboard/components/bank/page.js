@@ -302,15 +302,17 @@ function EnhancedTableToolbar(props) {
                       (numSelected - 1 == i ? "" : ",");
                   }
 
-                  axiosInstance.delete("barangay/" + str).then((response) => {
-                    handleSuccessful(
-                      true,
-                      "Deleted " +
-                        (numSelected === 1 ? " " : numSelected + " items ") +
-                        "successfully!"
-                    );
-                    mutate();
-                  });
+                  axiosInstance
+                    .delete("components/barangay/" + str)
+                    .then((response) => {
+                      handleSuccessful(
+                        true,
+                        "Deleted " +
+                          (numSelected === 1 ? " " : numSelected + " items ") +
+                          "successfully!"
+                      );
+                      mutate();
+                    });
                 }}
               >
                 <DeleteIcon />
