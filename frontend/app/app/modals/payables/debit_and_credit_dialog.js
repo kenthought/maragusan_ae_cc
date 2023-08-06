@@ -24,24 +24,23 @@ import Typography from "@mui/material/Typography";
 import useSWR from "swr";
 import { ButtonGroup, Divider, Fade } from "@mui/material";
 
-export default function CreditDialog(props) {
+export default function DebitDialog(props) {
   const {
-    openCreditDialog,
-    setOpenCreditDialog,
+    dialog,
+    openDebitAndCreditDialog,
+    setOpenDebitAndCreditDialog,
     selected,
     mutate,
     setIsSuccess,
     setSuccessText,
   } = props;
-  const [rows, setRows] = useState([]);
   const [post, setPost] = useState();
   const { data: session } = useSession();
   const [isError, setIsError] = useState(false);
   const [errorText, setErrorText] = useState(false);
 
   const handleClose = () => {
-    setOpenCreditDialog(false);
-    setRows([]);
+    setOpenDebitAndCreditDialog(false);
   };
 
   const handleSuccessful = (bool, text) => {
@@ -56,21 +55,19 @@ export default function CreditDialog(props) {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     console.log(selected);
-    const postData = [
-      {
-        post: "credit",
-        invoice_number: data.get("invoice_number"),
-        particulars: data.get("particulars"),
-        credit: parseInt(data.get("amount")),
-        term: 0,
-        control_number: selected.control_number,
-        asset: selected.id,
-        user: session.user.name[1],
-      },
-    ];
+    const postData = {
+      post: post,
+      invoice_number: data.get("invoice_number"),
+      particulars: data.get("particulars"),
+      credit: dialog == "Credit" ? parseInt(data.get("amount")) : 0,
+      debit: dialog == "Debit" ? parseInt(data.get("amount")) : 0,
+      control_number: selected.control_number,
+      payables: selected.id,
+      user: session.user.name[1],
+    };
 
     axiosInstance
-      .post("assets/ledger/", postData)
+      .post("payables/ledger/", postData)
       .then((response) => {
         handleSuccessful(true, "Ledger posted successfully!");
         console.log(response);
@@ -86,12 +83,12 @@ export default function CreditDialog(props) {
 
   return (
     <Dialog
-      open={openCreditDialog}
+      open={openDebitAndCreditDialog}
       onClose={handleClose}
       fullWidth
       maxWidth="lg"
     >
-      <DialogTitle>Credit</DialogTitle>
+      <DialogTitle>{dialog}</DialogTitle>
       <Box component="form" onSubmit={handleSubmit}>
         <DialogContent>
           {isError ? <Alert severity="error">{errorText}</Alert> : <></>}
@@ -189,9 +186,10 @@ export default function CreditDialog(props) {
   );
 }
 
-CreditDialog.propTypes = {
-  openCreditDialog: PropTypes.bool.isRequired,
-  setOpenCreditDialog: PropTypes.func.isRequired,
+DebitDialog.propTypes = {
+  dialog: PropTypes.string.isRequired,
+  openDebitAndCreditDialog: PropTypes.bool.isRequired,
+  setOpenDebitAndCreditDialog: PropTypes.func.isRequired,
   selected: PropTypes.object,
   mutate: PropTypes.func.isRequired,
   setIsSuccess: PropTypes.func.isRequired,

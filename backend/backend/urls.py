@@ -29,6 +29,7 @@ urlpatterns = [
     path("api/owners_equity/", include("owners_equity.urls")),
     path("api/bank_account/", include("bank_accounts.urls")),
     path("api/expenses/", include("expenses.urls")),
+    path("api/payables/", include("payables.urls")),
     path("api/components/", include("components.urls")),
     path(
         "api/dailyClosingToday/<int:user_id>/<int:year>/<int:month>/<int:date>",

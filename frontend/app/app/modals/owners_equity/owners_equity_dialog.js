@@ -187,6 +187,31 @@ export default function OwnersEquityDialog(props) {
               size="small"
             />
           )}
+          {/* Account Status */}
+          {isEditing && (
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              id="account_status"
+              name="account_status"
+              label="Account status"
+              value={
+                accountStatus[newData.account_status - 1]
+                  ? accountStatus[newData.account_status - 1].id
+                  : ""
+              }
+              onChange={handleEditChange}
+              select
+              size="small"
+            >
+              {accountStatus.map((option) => (
+                <MenuItem key={option.id} value={option.id}>
+                  {option.label}
+                </MenuItem>
+              ))}
+            </TextField>
+          )}
           <Typography color="secondary" marginTop={1}>
             Address
           </Typography>
@@ -352,30 +377,6 @@ export default function OwnersEquityDialog(props) {
               {province.map((option) => (
                 <MenuItem key={option.id} value={option.id.toString()}>
                   {option.province}
-                </MenuItem>
-              ))}
-            </TextField>
-          )}
-          {isEditing && (
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="account_status"
-              name="account_status"
-              label="Account Status"
-              value={
-                accountStatus[newData.account_status - 1]
-                  ? accountStatus[newData.account_status - 1].id
-                  : ""
-              }
-              onChange={handleEditChange}
-              select
-              size="small"
-            >
-              {accountStatus.map((option) => (
-                <MenuItem key={option.id} value={option.id}>
-                  {option.label}
                 </MenuItem>
               ))}
             </TextField>

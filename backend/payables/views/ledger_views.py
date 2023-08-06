@@ -1,9 +1,5 @@
-from assets.models import Ledger
-from assets.serializers import (
-    LedgerViewSerializer,
-    LedgerWriteSerializer,
-    DepreciationLedgerWriteSerializer,
-)
+from payables.models import Ledger
+from payables.serializers import LedgerViewSerializer, LedgerWriteSerializer
 from django.http import Http404
 from django.db.models import F
 from rest_framework.views import APIView
@@ -20,27 +16,10 @@ class LedgerList(APIView):
         return Response(serializer.data)
 
     def post(self, request, format=None):
-        ledger_serializer = LedgerWriteSerializer(data=request.data[0])
+        ledger_serializer = LedgerWriteSerializer(data=request.data)
 
         if ledger_serializer.is_valid():
             ledger_serializer.save()
-
-            for item in request.data:
-                obj = item
-                if item["post"] != "credit":
-                    depcreciation_ledger_serializer = DepreciationLedgerWriteSerializer(
-                        data=obj
-                    )
-
-                    if depcreciation_ledger_serializer.is_valid():
-                        depcreciation_ledger_serializer.save()
-
-                    else:
-                        return Response(
-                            depcreciation_ledger_serializer.errors,
-                            status=status.HTTP_400_BAD_REQUEST,
-                        )
-
             return Response(ledger_serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(ledger_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -49,14 +28,14 @@ class LedgerList(APIView):
 class LedgerDetail(APIView):
     permissions_clases = [permissions.IsAuthenticated]
 
-    def get_object(self, asset):
+    def get_object(self, payables):
         try:
-            return Ledger.objects.filter(asset_id=asset)
+            return Ledger.objects.filter(payables_id=payables)
         except Ledger.DoesNotExist:
             raise Http404
 
-    def get(self, request, asset, format=None):
-        ledger = self.get_object(asset)
+    def get(self, request, payables, format=None):
+        ledger = self.get_object(payables)
         serializer = LedgerViewSerializer(ledger, many=True)
         array = []
         count = 0

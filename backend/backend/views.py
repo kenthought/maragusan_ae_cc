@@ -15,6 +15,10 @@ from expenses.serializers import (
     LedgerViewSerializer as ExpensesLedgerViewSerializer,
 )
 from expenses.models import Ledger as ExpensesLedger
+from payables.serializers import (
+    LedgerViewSerializer as PayablesLedgerViewSerializer,
+)
+from payables.models import Ledger as PayablesLedger
 from django.db import connection
 from django.http import Http404
 from django.shortcuts import get_object_or_404
@@ -67,6 +71,17 @@ class DailyClosingToday(APIView):
             )
 
         except ExpensesLedger.DoesNotExist:
+            raise Http404
+
+    def get_payables_ledger(self, user_id, year, month, date):
+        try:
+            # today = date.today()
+
+            return PayablesLedger.objects.filter(
+                user_id=user_id, created_at__contains=datetime.date(year, month, date)
+            )
+
+        except PayablesLedger.DoesNotExist:
             raise Http404
 
     # def get(self, request, user_id, format=None):
@@ -123,6 +138,17 @@ class DailyClosingToday(APIView):
             obj["ledger"] = "Bank Account"
             array.append(obj)
 
+        # Payables
+        payables_ledger = self.get_payables_ledger(user_id, year, month, date)
+        payables_serializer = PayablesLedgerViewSerializer(payables_ledger, many=True)
+        for item in payables_serializer.data:
+            obj = item
+            obj["account_name"] = item["payables"]["account_name"]
+            obj["account_number"] = item["payables"]["account_number"]
+            obj["ledger"] = "Payables"
+            array.append(obj)
+
+        # sort ledgers by created_at
         temp = sorted(array, key=lambda x: x["created_at"])
 
         # compute and do data presentment in ledgers.
@@ -131,7 +157,7 @@ class DailyClosingToday(APIView):
             obj["cash_in"] = ""
             obj["cash_out"] = ""
 
-            if obj["ledger"] == "Owners Equity":
+            if obj["ledger"] == "Owners Equity" or obj["ledger"] == "Payables":
                 obj["cash_in"] = obj["debit"]
                 obj["cash_out"] = obj["credit"]
             else:
