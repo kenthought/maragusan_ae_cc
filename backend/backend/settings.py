@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     "bank_accounts",
     "owners_equity",
     "expenses",
+    "payables",
     "components",
     "rest_framework",
     "users",
@@ -148,6 +149,8 @@ LANGUAGE_CODE = "en-us"
 TIME_ZONE = "Asia/Taipei"
 
 USE_I18N = True
+
+USE_L10N = True
 
 USE_TZ = True
 
