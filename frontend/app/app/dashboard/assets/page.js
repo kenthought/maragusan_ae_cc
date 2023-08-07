@@ -198,7 +198,7 @@ export default function Assets() {
     } else {
       setOptions(data);
     }
-  }, [open]);
+  }, [open, data]);
 
   const search = (
     <>

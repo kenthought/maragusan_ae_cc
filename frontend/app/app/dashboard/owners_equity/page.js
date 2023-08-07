@@ -205,7 +205,7 @@ export default function OwnersEquity() {
     } else {
       setOptions(data);
     }
-  }, [open]);
+  }, [open, data]);
 
   const search = (
     <>
@@ -273,7 +273,7 @@ export default function OwnersEquity() {
         gutterBottom
         marginBottom={2}
       >
-        Owner's Equity
+        {"Owner's Equity"}
         <Button
           variant="outlined"
           startIcon={<AddIcon />}

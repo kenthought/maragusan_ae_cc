@@ -431,7 +431,7 @@ export default function AssetTypes() {
     } else {
       setOptions(data);
     }
-  }, [open]);
+  }, [open, data]);
 
   if (isLoading) return <Loading />;
 

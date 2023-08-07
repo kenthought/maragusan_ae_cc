@@ -270,7 +270,7 @@ export default function Payables() {
     } else {
       setOptions(data);
     }
-  }, [open]);
+  }, [open, data]);
 
   const search = (
     <>

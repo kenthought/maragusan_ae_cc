@@ -426,7 +426,7 @@ export default function Bank() {
     } else {
       setOptions(data);
     }
-  }, [open]);
+  }, [open, data]);
 
   if (isLoading) return <Loading />;
 

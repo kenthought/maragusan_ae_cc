@@ -183,7 +183,7 @@ export default function Expenses() {
     } else {
       setOptions(data);
     }
-  }, [open]);
+  }, [open, data]);
 
   const search = (
     <>

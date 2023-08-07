@@ -443,7 +443,7 @@ export default function Supplier() {
     } else {
       setOptions(data);
     }
-  }, [open]);
+  }, [open, data]);
 
   if (isLoading) return <Loading />;
 

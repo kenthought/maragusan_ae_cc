@@ -234,7 +234,7 @@ export default function BankAccount() {
     } else {
       setOptions(data);
     }
-  }, [open]);
+  }, [open, data]);
 
   const search = (
     <>

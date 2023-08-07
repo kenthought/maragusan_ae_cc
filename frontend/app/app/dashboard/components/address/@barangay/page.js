@@ -419,7 +419,7 @@ export default function Barangay() {
     } else {
       setOptions(data);
     }
-  }, [open]);
+  }, [open, data]);
 
   if (isLoading) return <Loading />;
 

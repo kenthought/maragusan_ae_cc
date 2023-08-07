@@ -432,7 +432,7 @@ export default function ExpensesCategory() {
     } else {
       setOptions(data);
     }
-  }, [open]);
+  }, [open, data]);
 
   if (isLoading) return <Loading />;
 
