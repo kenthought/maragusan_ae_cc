@@ -28,24 +28,17 @@ const fetcher = (url) => axiosInstance.get(url).then((res) => res.data);
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
-    backgroundColor: "grey",
+    backgroundColor: "white",
     color: theme.palette.common.white,
   },
   [`&.${tableCellClasses.body}`]: {
     fontSize: 14,
   },
 }));
-function createData(name, calories, fat, carbs, protein) {
-  return { name, calories, fat, carbs, protein };
-}
 
-const rows = [
-  createData("Frozen yoghurt", 159, 6.0, 24, 4.0),
-  createData("Ice cream sandwich", 237, 9.0, 37, 4.3),
-  createData("Eclair", 262, 16.0, 24, 6.0),
-  createData("Cupcake", 305, 3.7, 67, 4.3),
-  createData("Gingerbread", 356, 16.0, 49, 3.9),
-];
+const ccyFormat = (num) => {
+  return `${num.toFixed(2)}`;
+};
 
 export default function Home() {
   const { data: session } = useSession();
@@ -112,16 +105,16 @@ export default function Home() {
           <Table sx={{ minWidth: 650 }} aria-label="simple table" size="small">
             <TableHead>
               <TableRow>
-                <StyledTableCell>Date</StyledTableCell>
-                <StyledTableCell align="right">Time</StyledTableCell>
-                <StyledTableCell align="right">TransNo</StyledTableCell>
-                <StyledTableCell align="right">Ledger</StyledTableCell>
-                <StyledTableCell align="right">Account #</StyledTableCell>
-                <StyledTableCell align="right">Account Name</StyledTableCell>
-                <StyledTableCell align="right">Particulars</StyledTableCell>
-                <StyledTableCell align="right">Cash in</StyledTableCell>
-                <StyledTableCell align="right">Cash out</StyledTableCell>
-                <StyledTableCell align="right">Balance</StyledTableCell>
+                <TableCell>Date</TableCell>
+                <TableCell align="right">Time</TableCell>
+                <TableCell align="right">Trans #</TableCell>
+                <TableCell align="right">Ledger</TableCell>
+                <TableCell align="right">Account #</TableCell>
+                <TableCell align="right">Account Name</TableCell>
+                <TableCell align="right">Particulars</TableCell>
+                <TableCell align="right">Cash in</TableCell>
+                <TableCell align="right">Cash out</TableCell>
+                <TableCell align="right">Balance</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -142,9 +135,15 @@ export default function Home() {
                     <TableCell align="right">{row.account_number}</TableCell>
                     <TableCell align="right">{row.account_name}</TableCell>
                     <TableCell align="right">{row.particulars}</TableCell>
-                    <TableCell align="right">{row.cash_in}</TableCell>
-                    <TableCell align="right">{row.cash_out}</TableCell>
-                    <TableCell align="right">{row.balance}</TableCell>
+                    <TableCell align="right">
+                      {ccyFormat(parseFloat(row.cash_in))}
+                    </TableCell>
+                    <TableCell align="right">
+                      {ccyFormat(parseFloat(row.cash_out))}
+                    </TableCell>
+                    <TableCell align="right">
+                      {ccyFormat(parseFloat(row.balance))}
+                    </TableCell>
                   </TableRow>
                 ))
               ) : (
@@ -160,7 +159,7 @@ export default function Home() {
                 <TableRow>
                   <TableCell colSpan={10} align="left">
                     <Typography component="div">
-                      Cash on hand: {items[items.length - 1].balance}
+                      Cash on hand: {ccyFormat(items[items.length - 1].balance)}
                     </Typography>
                   </TableCell>
                 </TableRow>

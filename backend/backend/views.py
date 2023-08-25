@@ -19,6 +19,10 @@ from payables.serializers import (
     LedgerViewSerializer as PayablesLedgerViewSerializer,
 )
 from payables.models import Ledger as PayablesLedger
+from receivables.serializers import (
+    LedgerViewSerializer as ReceivablesLedgerViewSerializer,
+)
+from receivables.models import Ledger as ReceivablesLedger
 from django.db import connection
 from django.http import Http404
 from django.shortcuts import get_object_or_404
@@ -84,6 +88,17 @@ class DailyClosingToday(APIView):
         except PayablesLedger.DoesNotExist:
             raise Http404
 
+    def get_receivables_ledger(self, user_id, year, month, date):
+        try:
+            # today = date.today()
+
+            return ReceivablesLedger.objects.filter(
+                user_id=user_id, created_at__contains=datetime.date(year, month, date)
+            )
+
+        except ReceivablesLedger.DoesNotExist:
+            raise Http404
+
     # def get(self, request, user_id, format=None):
     #     cursor = connection.cursor()
     #     cursor.callproc("get_dailyClosingToday", (user_id,))
@@ -146,6 +161,18 @@ class DailyClosingToday(APIView):
             obj["account_name"] = item["payables"]["account_name"]
             obj["account_number"] = item["payables"]["account_number"]
             obj["ledger"] = "Payables"
+            array.append(obj)
+
+        # Receivables
+        receivables_ledger = self.get_receivables_ledger(user_id, year, month, date)
+        receivables_serializer = ReceivablesLedgerViewSerializer(
+            receivables_ledger, many=True
+        )
+        for item in receivables_serializer.data:
+            obj = item
+            obj["account_name"] = item["receivables"]["account_name"]
+            obj["account_number"] = item["receivables"]["account_number"]
+            obj["ledger"] = "Receivables"
             array.append(obj)
 
         # sort ledgers by created_at

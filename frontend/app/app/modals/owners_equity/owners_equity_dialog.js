@@ -81,7 +81,7 @@ export default function OwnersEquityDialog(props) {
   const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    const postData = {
+    var postData = {
       control_number: data.get("control_number"),
       account_name: data.get("account_name"),
       purok_street: data.get("purok_street"),
@@ -106,11 +106,30 @@ export default function OwnersEquityDialog(props) {
           setIsError(true);
           setErrorText(response.message);
         });
-    else
+    else {
+      // axiosInstance
+      //   .put("owners_equity/" + editData.id + "/", postData)
+      //   .then((response) => {
+      //     handleSuccessful(true, "Owners Equity edited successfully!");
+      //     console.log(response);
+      //   })
+      //   .catch((response) => {
+      //     console.log(response);
+      //     setIsError(true);
+      //     setErrorText(response.message);
+      //   });}
+
+      const forApproval = {
+        type: "Owner's Equity",
+        module_id: editData.id,
+        account_number: editData.account_number,
+        data: postData,
+      };
+
       axiosInstance
-        .put("owners_equity/" + editData.id + "/", postData)
+        .post("approvals/", forApproval)
         .then((response) => {
-          handleSuccessful(true, "Owners Equity edited successfully!");
+          handleSuccessful(true, "Submitted for approval!");
           console.log(response);
         })
         .catch((response) => {
@@ -118,6 +137,7 @@ export default function OwnersEquityDialog(props) {
           setIsError(true);
           setErrorText(response.message);
         });
+    }
   };
 
   if (barangay_isLoading || municipality_isLoading || province_isLoading)

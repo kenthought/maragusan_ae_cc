@@ -42,6 +42,10 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
   },
 }));
 
+const ccyFormat = (num) => {
+  return `${num.toFixed(2)}`;
+};
+
 const Transition = forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
@@ -155,9 +159,15 @@ export default function LedgerDialog(props) {
                       </TableCell>
                       <TableCell align="right">{row.invoice_number}</TableCell>
                       <TableCell align="right">{row.particulars}</TableCell>
-                      <TableCell align="right">{row.debit}</TableCell>
-                      <TableCell align="right">{row.credit}</TableCell>
-                      <TableCell align="right">{row.balance}</TableCell>
+                      <TableCell align="right">
+                        {ccyFormat(parseFloat(row.debit))}
+                      </TableCell>
+                      <TableCell align="right">
+                        {ccyFormat(parseFloat(row.credit))}
+                      </TableCell>
+                      <TableCell align="right">
+                        {ccyFormat(parseFloat(row.balance))}
+                      </TableCell>
                       <TableCell align="right">{row.trans_number}</TableCell>
                       <TableCell align="right">{row.user.first_name}</TableCell>
                       <TableCell align="right">

@@ -24,6 +24,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import SearchIcon from "@mui/icons-material/Search";
 import OwnersEquityDialog from "@/app/modals/owners_equity/owners_equity_dialog";
 import LedgerDialog from "@/app/modals/owners_equity/ledger_dialog";
+import SummaryDialog from "@/app/modals/owners_equity/summary_dialog";
 import DepreciationLedgerDialog from "@/app/modals/asset/depreciation_ledger_dialog";
 import Success from "@/app/utils/success";
 import Loading from "@/app/utils/loading";
@@ -56,9 +57,8 @@ const OwnersEquityInformation = (props) => {
     <Button key="two" onClick={() => setOpenLedgerDialog(true)}>
       Ledger
     </Button>,
-    <Button key="three">Summary</Button>,
     <Button
-      key="four"
+      key="three"
       startIcon={<EditIcon />}
       onClick={() => {
         setEditData(data);
@@ -191,6 +191,7 @@ export default function OwnersEquity() {
   const { data, error, isLoading, mutate } = useSWR("/owners_equity", fetcher);
   const [openOwnersEquityDialog, setOpenOwnersEquityDialog] = useState(false);
   const [openLedgerDialog, setOpenLedgerDialog] = useState(false);
+  const [openSummaryDialog, setOpenSummaryDialog] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [successText, setSuccessText] = useState("");
   const [isEditing, setIsEditing] = useState(false);
@@ -283,6 +284,14 @@ export default function OwnersEquity() {
         >
           Add
         </Button>
+        <Button
+          variant="outlined"
+          color="primary"
+          sx={{ marginLeft: 2 }}
+          onClick={() => setOpenSummaryDialog(true)}
+        >
+          Summary
+        </Button>
       </Typography>
       {search}
       <Box elevation={0} sx={{ padding: 2 }}>
@@ -323,6 +332,10 @@ export default function OwnersEquity() {
         isEditing={isEditing}
         setIsEditing={setIsEditing}
         editData={editData}
+      />
+      <SummaryDialog
+        openSummaryDialog={openSummaryDialog}
+        setOpenSummaryDialog={setOpenSummaryDialog}
       />
       {selected && (
         <>

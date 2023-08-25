@@ -41,6 +41,10 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
   },
 }));
 
+const ccyFormat = (num) => {
+  return `${num.toFixed(2)}`;
+};
+
 const Transition = forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
@@ -65,7 +69,53 @@ export default function LedgerDialog(props) {
     setOpenLedgerDialog(false);
   };
 
-  if (ledger_isLoading) return <Loading />;
+  const exportToExcel = () => {
+    var tab_text =
+      "<table border='2px'><tr><td style='font-weight: bold; font-size: 15px'>" +
+      "Owner's equity ledger" +
+      "</td></tr>" +
+      "<tr><td>Account number: " +
+      selected.account_number +
+      "</td><td>Account name:" +
+      selected.account_name +
+      "</tr></td>" +
+      "<tr>";
+    var textRange;
+    var j = 0;
+    var tab = document.getElementById("ledger_table"); // id of table
+
+    for (j = 0; j < tab.rows.length; j++) {
+      tab_text = tab_text + tab.rows[j].innerHTML + "</tr>";
+      //tab_text=tab_text+"</tr>";
+    }
+
+    tab_text =
+      tab_text + "<tr><td>" + new Date().toDateString() + "</td></tr></table>";
+    tab_text = tab_text.replace(/<A[^>]*>|<\/A>/g, ""); //remove if u want links in your table
+    tab_text = tab_text.replace(/<img[^>]*>/gi, ""); // remove if u want images in your table
+    tab_text = tab_text.replace(/<input[^>]*>|<\/input>/gi, ""); // reomves input params
+
+    var ua = window.navigator.userAgent;
+    var msie = ua.indexOf("MSIE ");
+    var sa;
+
+    if (msie > 0 || !!navigator.userAgent.match(/Trident.*rv\:11\./)) {
+      // If Internet Explorer
+      txtArea1.document.open("txt/html", "replace");
+      txtArea1.document.write(tab_text);
+      txtArea1.document.close();
+      txtArea1.focus();
+      sa = txtArea1.document.execCommand("SaveAs", true, "");
+    } //other browser not tested on IE 11
+    else
+      sa = window.open(
+        "data:application/vnd.ms-excel," + encodeURIComponent(tab_text)
+      );
+
+    return sa;
+  };
+
+  if (ledger_isLoading) return;
 
   return (
     <>
@@ -130,6 +180,7 @@ export default function LedgerDialog(props) {
                 sx={{ minWidth: 650 }}
                 aria-label="simple table"
                 size="small"
+                id="ledger_table"
               >
                 <TableHead>
                   <TableRow>
@@ -155,9 +206,15 @@ export default function LedgerDialog(props) {
                       </TableCell>
                       <TableCell align="right">{row.invoice_number}</TableCell>
                       <TableCell align="right">{row.particulars}</TableCell>
-                      <TableCell align="right">{row.debit}</TableCell>
-                      <TableCell align="right">{row.credit}</TableCell>
-                      <TableCell align="right">{row.balance}</TableCell>
+                      <TableCell align="right">
+                        {ccyFormat(parseFloat(row.debit))}
+                      </TableCell>
+                      <TableCell align="right">
+                        {ccyFormat(parseFloat(row.credit))}
+                      </TableCell>
+                      <TableCell align="right">
+                        {ccyFormat(parseFloat(row.balance))}
+                      </TableCell>
                       <TableCell align="right">{row.trans_number}</TableCell>
                       <TableCell align="right">{row.user.first_name}</TableCell>
                       <TableCell align="right">
@@ -166,7 +223,7 @@ export default function LedgerDialog(props) {
                     </TableRow>
                   ))}
                 </TableBody>
-                <TableFooter>
+                {/* <TableFooter>
                   <TableRow>
                     <TableCell colSpan={9} align="right">
                       <Typography component="div" padding={2}>
@@ -174,8 +231,12 @@ export default function LedgerDialog(props) {
                       </Typography>
                     </TableCell>
                   </TableRow>
-                </TableFooter>
+                </TableFooter> */}
               </Table>
+
+              <Typography component="div" padding={2}>
+                Balance: {ledger[ledger.length - 1].balance}
+              </Typography>
             </TableContainer>
           ) : (
             <Typography component="div" textAlign="center" marginTop={2}>
@@ -203,7 +264,9 @@ export default function LedgerDialog(props) {
           >
             Credit
           </Button>
-          <Button variant="contained">Print Soa</Button>
+          <Button variant="contained" onClick={exportToExcel}>
+            Print Soa
+          </Button>
           <Button variant="contained" onClick={handleClose} color="error">
             Close
           </Button>

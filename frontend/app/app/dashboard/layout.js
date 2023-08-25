@@ -112,6 +112,12 @@ export default function DashboardLayout({ children, window }) {
       path: "payables",
       icon: <AccountBalanceIcon />,
     },
+    {
+      id: 5,
+      label: "Receivables",
+      path: "receivables",
+      icon: <AccountBalanceIcon />,
+    },
   ];
 
   const componentItems = [
@@ -134,15 +140,21 @@ export default function DashboardLayout({ children, window }) {
       icon: <AddLocationAltIcon />,
     },
     {
-      id: 3,
+      id: 4,
       label: "Expenses Category",
       path: "expenses_category",
       icon: <AccountBalanceIcon />,
     },
     {
-      id: 4,
+      id: 5,
       label: "Supplier",
       path: "supplier",
+      icon: <AccountBalanceIcon />,
+    },
+    {
+      id: 6,
+      label: "Company",
+      path: "company",
       icon: <AccountBalanceIcon />,
     },
   ];
@@ -179,6 +191,16 @@ export default function DashboardLayout({ children, window }) {
             </ListItemButton>
           </ListItem>
         ))}
+
+        <ListItem disablePadding>
+          <ListItemButton href={"/dashboard/approvals"} LinkComponent={Link}>
+            <ListItemIcon>
+              <LogoutIcon />
+            </ListItemIcon>
+            <ListItemText primary={"Approvals"} />{" "}
+            <Chip label="A" color="primary" size="small" />
+          </ListItemButton>
+        </ListItem>
       </List>
 
       <Divider />

@@ -34,6 +34,10 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
   },
 }));
 
+const ccyFormat = (num) => {
+  return `${num.toFixed(2)}`;
+};
+
 export default function DebitDialog(props) {
   const {
     openDebitDialog,
@@ -93,8 +97,8 @@ export default function DebitDialog(props) {
         invoice_number: data.get("invoice_number"),
         term: data.get("depreciation_term") - i,
         particulars: data.get("particulars"),
-        debit: i == 0 ? amount.toString() : 0,
-        credit: i > 0 ? (amount / data.get("depreciation_term")).toString() : 0,
+        debit: i == 0 ? amount : 0,
+        credit: i > 0 ? amount / data.get("depreciation_term") : 0,
         control_number: selected.control_number,
         asset: selected.id,
         user: session.user.name[1],
@@ -170,12 +174,12 @@ export default function DebitDialog(props) {
                       ? "Asset purchase value"
                       : "Depreciation Schedule"}
                   </TableCell>
-                  <TableCell align="right">{row.debit}</TableCell>
-                  <TableCell align="right">{row.credit}</TableCell>
+                  <TableCell align="right">{ccyFormat(row.debit)}</TableCell>
+                  <TableCell align="right">{ccyFormat(row.credit)}</TableCell>
                   <TableCell align="right">
                     {index == 0
-                      ? row.debit - row.credit
-                      : rows[0].debit - row.credit * index}
+                      ? ccyFormat(row.debit - row.credit)
+                      : ccyFormat(rows[0].debit - row.credit * index)}
                   </TableCell>
                 </TableRow>
               ))}

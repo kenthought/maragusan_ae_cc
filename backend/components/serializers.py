@@ -7,6 +7,9 @@ from .models import (
     Province,
     ExpensesCategory,
     Supplier,
+    Schedule,
+    Frequency,
+    Company,
 )
 from users.serializers import UserSerializer
 
@@ -54,3 +57,30 @@ class SupplierSerializer(serializers.ModelSerializer):
     class Meta:
         model = Supplier
         fields = ["id", "supplier", "tin", "address", "user"]
+
+
+class FrequencySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Frequency
+        fields = ["id", "frequency", "user"]
+
+
+class ScheduleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Schedule
+        fields = ["id", "schedule", "user"]
+
+
+class CompanyWriteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Company
+        fields = ["id", "company", "address", "frequency", "schedule", "user"]
+
+
+class CompanyViewSerializer(serializers.ModelSerializer):
+    frequency = FrequencySerializer()
+    schedule = ScheduleSerializer()
+
+    class Meta:
+        model = Company
+        fields = ["id", "company", "address", "frequency", "schedule", "user"]

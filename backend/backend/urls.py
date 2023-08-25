@@ -30,7 +30,10 @@ urlpatterns = [
     path("api/bank_account/", include("bank_accounts.urls")),
     path("api/expenses/", include("expenses.urls")),
     path("api/payables/", include("payables.urls")),
+    path("api/receivables/", include("receivables.urls")),
     path("api/components/", include("components.urls")),
+    path("api/balance/", include("balance.urls")),
+    path("api/approvals/", include("approvals.urls")),
     path(
         "api/dailyClosingToday/<int:user_id>/<int:year>/<int:month>/<int:date>",
         DailyClosingToday.as_view(),

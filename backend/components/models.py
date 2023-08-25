@@ -78,7 +78,7 @@ class ExpensesCategory(models.Model):
 class Supplier(models.Model):
     supplier = models.CharField(max_length=100, unique=True)
     tin = models.CharField(max_length=100, unique=True)
-    address = models.CharField(max_length=100, unique=True)
+    address = models.CharField(max_length=100)
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         related_name="supplier",
@@ -88,3 +88,45 @@ class Supplier(models.Model):
 
     def __str__(self):
         return self.expenses_category
+
+
+class Frequency(models.Model):
+    frequency = models.CharField(max_length=100, unique=True)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, related_name="frequency", on_delete=models.PROTECT
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.frequency
+
+
+class Schedule(models.Model):
+    schedule = models.CharField(max_length=100, unique=True)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, related_name="schedule", on_delete=models.PROTECT
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.schedule
+
+
+class Company(models.Model):
+    company = models.CharField(max_length=100, unique=True)
+    address = models.CharField(max_length=100)
+    frequency = models.ForeignKey(
+        Frequency, related_name="company", on_delete=models.PROTECT
+    )
+    schedule = models.ForeignKey(
+        Schedule, related_name="company", on_delete=models.PROTECT
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        related_name="company",
+        on_delete=models.PROTECT,
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.company
