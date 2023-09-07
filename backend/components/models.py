@@ -29,28 +29,6 @@ class Bank(models.Model):
 
 
 # Address
-class Barangay(models.Model):
-    barangay = models.CharField(max_length=100, unique=True)
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL, related_name="barangay", on_delete=models.PROTECT
-    )
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return self.barangay
-
-
-class Municipality(models.Model):
-    municipality = models.CharField(max_length=100, unique=True)
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL, related_name="municipality", on_delete=models.PROTECT
-    )
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return self.municipality
-
-
 class Province(models.Model):
     province = models.CharField(max_length=100, unique=True)
     user = models.ForeignKey(
@@ -60,6 +38,37 @@ class Province(models.Model):
 
     def __str__(self):
         return self.province
+
+
+class Municipality(models.Model):
+    municipality = models.CharField(max_length=100, unique=True)
+    province = models.ForeignKey(
+        Province, related_name="municipality", on_delete=models.PROTECT
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, related_name="municipality", on_delete=models.PROTECT
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.municipality
+
+
+class Barangay(models.Model):
+    barangay = models.CharField(max_length=100, unique=True)
+    municipality = models.ForeignKey(
+        Municipality, related_name="barangay", on_delete=models.PROTECT
+    )
+    province = models.ForeignKey(
+        Province, related_name="barangay", on_delete=models.PROTECT
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, related_name="barangay", on_delete=models.PROTECT
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.barangay
 
 
 class ExpensesCategory(models.Model):
