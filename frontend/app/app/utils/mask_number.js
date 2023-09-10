@@ -8,9 +8,6 @@ export const MaskNumberCustom = forwardRef(function TextMaskCustom(props, ref) {
     <IMaskInput
       {...other}
       mask="(#00) 000-0000"
-      definitions={{
-        "#": /[1-9]/,
-      }}
       inputRef={ref}
       onAccept={(value) => onChange({ target: { name: props.name, value } })}
       overwrite
