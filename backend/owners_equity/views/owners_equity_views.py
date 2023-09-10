@@ -3,6 +3,7 @@ from owners_equity.serializers import (
     OwnersEquityViewSerializer,
     OwnersEquityWriteSerializer,
 )
+from approvals.serializers import ApprovalWriteSerializer
 from django.http import Http404
 from django.db.models import F
 from rest_framework.views import APIView
@@ -14,6 +15,20 @@ from rest_framework import status, permissions
 class OwnersEquityList(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
+    def add_for_approval(self, data):
+        try:
+            approval_serializer = ApprovalWriteSerializer(data=data)
+            if approval_serializer.is_valid():
+                approval_serializer.save()
+                print(approval_serializer.data)
+            else:
+                return Response(
+                    approval_serializer.errors,
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+        except:
+            raise Http404
+
     def get(self, request, format=None):
         owners_equity = OwnersEquity.objects.all()
         serializer = OwnersEquityViewSerializer(owners_equity, many=True)
@@ -23,6 +38,12 @@ class OwnersEquityList(APIView):
         serializer = OwnersEquityWriteSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
+            print(serializer.data)
+            for_approval = request.data["forApproval"]
+            for_approval["module_id"] = serializer.data["id"]
+            for_approval["account_number"] = serializer.data["account_number"]
+            self.add_for_approval(for_approval)
+
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

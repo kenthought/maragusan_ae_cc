@@ -17,17 +17,59 @@ from rest_framework import status, permissions
 class ApprovalList(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
+    def update_data(self, approval_type, type, pk):
+        if type == "Owner's Equity":
+            try:
+                data = {
+                    "under_approval": True,
+                }
+                owners_equity = OwnersEquity.objects.get(pk=pk)
+                owners_equity_serializer = OwnersEquityWriteSerializer(
+                    owners_equity, data=data, partial=True
+                )
+
+                if owners_equity_serializer.is_valid():
+                    owners_equity_serializer.save()
+                else:
+                    return Response(
+                        owners_equity_serializer.errors,
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+
+            except OwnersEquity.DoesNotExist:
+                raise Http404
+        else:
+            raise Http404
+
     def get(self, request, format=None):
-        approval = Approval.objects.exclude(approved_by__isnull=False)
+        approval = Approval.objects.order_by("-created_at").exclude(
+            approved_by__isnull=False
+        )
         serializer = ApprovalViewSerializer(approval, many=True)
         return Response(serializer.data)
 
     def post(self, request, format=None):
-        serializer = ApprovalWriteSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        self.update_data(
+            request.data["approval_type"],
+            request.data["type"],
+            request.data["module_id"],
+        )
+        approval_serializer = ApprovalWriteSerializer(data=request.data)
+        if approval_serializer.is_valid():
+            approval_serializer.save()
+            return Response(approval_serializer.data, status=status.HTTP_201_CREATED)
+        return Response(approval_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ApprovedList(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, format=None):
+        approval = Approval.objects.order_by("-created_at").exclude(
+            approved_by__isnull=True
+        )
+        serializer = ApprovalViewSerializer(approval, many=True)
+        return Response(serializer.data)
 
 
 class ApprovalDetail(APIView):
@@ -39,10 +81,25 @@ class ApprovalDetail(APIView):
         except Approval.DoesNotExist:
             raise Http404
 
-    def get_owners_equity(self, pk):
-        try:
-            return OwnersEquity.objects.get(pk=pk)
-        except OwnersEquity.DoesNotExist:
+    def update_data(self, data):
+        if data["type"] == "Owner's Equity":
+            try:
+                if data["approval_type"] == "Add":
+                    data["new_data"]["under_approval"] = 0
+                owners_equity = OwnersEquity.objects.get(pk=data["module_id"])
+                owners_equity_serializer = OwnersEquityWriteSerializer(
+                    owners_equity, data=data["new_data"]
+                )
+                if owners_equity_serializer.is_valid():
+                    owners_equity_serializer.save()
+                else:
+                    return Response(
+                        owners_equity_serializer.errors,
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+            except OwnersEquity.DoesNotExist:
+                raise Http404
+        else:
             raise Http404
 
     def get(self, request, pk, format=None):
@@ -52,21 +109,11 @@ class ApprovalDetail(APIView):
 
     def put(self, request, pk, format=None):
         approval = self.get_object(pk)
-        owners_equity = self.get_owners_equity(request.data["module_id"])
+        self.update_data(request.data)
         data = {
             "approved_by": request.data["approved_by"],
         }
         approval_serializer = ApprovalWriteSerializer(approval, data=data, partial=True)
-        owners_equity_serializer = OwnersEquityWriteSerializer(
-            owners_equity, data=request.data["data"]
-        )
-
-        if owners_equity_serializer.is_valid():
-            owners_equity_serializer.save()
-        else:
-            return Response(
-                owners_equity_serializer.errors, status=status.HTTP_400_BAD_REQUEST
-            )
 
         if approval_serializer.is_valid():
             approval_serializer.save()

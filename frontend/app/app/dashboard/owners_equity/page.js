@@ -86,9 +86,17 @@ const OwnersEquityInformation = (props) => {
         aria-label="outlined primary button group"
         sx={{ marginBottom: 2 }}
         size="small"
+        disabled={data.under_approval}
       >
         {buttons}
       </ButtonGroup>
+
+      {data.under_approval && (
+        <Box>
+          <Chip label="For approval" color="warning" />
+        </Box>
+      )}
+
       <Grid item xs={8}></Grid>
       <Box>
         <Grid
@@ -152,24 +160,28 @@ const OwnersEquityInformation = (props) => {
           <Grid item xs={12}>
             <Divider />
           </Grid>
-          <Grid item xs={12} md={4}>
-            <Typography>Account status:</Typography>
-          </Grid>
-          <Grid item xs={12} md={8}>
-            <Chip
-              label={accountStatus[data.account_status - 1].label}
-              color={
-                accountStatus[data.account_status - 1].id == 1
-                  ? "success"
-                  : accountStatus[data.account_status - 1].id == 2
-                  ? "error"
-                  : "secondary"
-              }
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <Divider />
-          </Grid>
+          {!data.under_approval && (
+            <>
+              <Grid item xs={12} md={4}>
+                <Typography>Account status:</Typography>
+              </Grid>
+              <Grid item xs={12} md={8}>
+                <Chip
+                  label={accountStatus[data.account_status - 1].label}
+                  color={
+                    accountStatus[data.account_status - 1].id == 1
+                      ? "success"
+                      : accountStatus[data.account_status - 1].id == 2
+                      ? "error"
+                      : "secondary"
+                  }
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <Divider />
+              </Grid>
+            </>
+          )}
           <Grid item xs={12} md={4}>
             <Typography>Date created:</Typography>
           </Grid>

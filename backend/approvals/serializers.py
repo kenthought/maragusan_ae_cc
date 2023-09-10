@@ -9,25 +9,32 @@ class ApprovalWriteSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "type",
+            "approval_type",
             "account_number",
             "module_id",
-            "data",
+            "old_data",
+            "new_data",
             "approved_by",
+            "submitted_by",
             "created_at",
         ]
 
 
 class ApprovalViewSerializer(serializers.ModelSerializer):
     approved_by = UserSerializer()
+    submitted_by = UserSerializer()
 
     class Meta:
         model = Approval
         fields = [
             "id",
             "type",
+            "approval_type",
             "account_number",
             "module_id",
-            "data",
+            "old_data",
+            "new_data",
             "approved_by",
+            "submitted_by",
             "created_at",
         ]

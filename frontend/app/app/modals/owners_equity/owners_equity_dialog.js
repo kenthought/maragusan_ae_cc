@@ -6,6 +6,7 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import Box from "@mui/material/Box";
 import DialogTitle from "@mui/material/DialogTitle";
+import Autocomplete from "@mui/material/Autocomplete";
 import Alert from "@mui/material/Alert";
 import MenuItem from "@mui/material/MenuItem";
 import PropTypes from "prop-types";
@@ -55,10 +56,12 @@ export default function OwnersEquityDialog(props) {
     { id: 2, label: "Inactive", value: false },
     { id: 3, label: "Bad Debts", value: false },
   ]);
+  const [barangayData, setBarangayData] = useState(null);
 
   useEffect(() => {
     setNewData(editData);
-  }, [editData]);
+    if (isEditing) setBarangayData(editData.barangay);
+  }, [editData, isEditing]);
 
   const handleEditChange = (event) => {
     const value = event.target.value;
@@ -68,6 +71,7 @@ export default function OwnersEquityDialog(props) {
   const handleClose = () => {
     setOpenOwnersEquityDialog(false);
     setIsEditing(false);
+    setBarangayData(null);
   };
 
   const handleSuccessful = (bool, text) => {
@@ -85,28 +89,37 @@ export default function OwnersEquityDialog(props) {
       control_number: data.get("control_number"),
       account_name: data.get("account_name"),
       purok_street: data.get("purok_street"),
-      barangay: data.get("barangay"),
-      municipality: data.get("municipality"),
-      province: data.get("province"),
+      barangay: barangayData.id,
+      municipality: barangayData.municipality.id,
+      province: barangayData.municipality.province.id,
       account_status: !isEditing ? 1 : data.get("account_status"),
+      under_approval: !isEditing ? 1 : 0,
       user: session.user.name[1],
     };
 
-    console.log(postData);
+    if (!isEditing) {
+      postData.forApproval = {
+        type: "Owner's Equity",
+        approval_type: "Add",
+        old_data: { ...postData },
+        new_data: { ...postData },
+        submitted_by: session.user.name[1],
+      };
 
-    if (!isEditing)
+      console.log(postData);
+
       axiosInstance
         .post("owners_equity/", postData)
         .then((response) => {
-          handleSuccessful(true, "Owners Equity added successfully!");
-          console.log(response);
+          handleSuccessful(true, "Submitted for approval!");
+          console.log("asdasdasD", response);
         })
         .catch((response) => {
-          console.log(response);
+          console.log("ERROR", response);
           setIsError(true);
           setErrorText(response.message);
         });
-    else {
+    } else {
       // axiosInstance
       //   .put("owners_equity/" + editData.id + "/", postData)
       //   .then((response) => {
@@ -119,11 +132,19 @@ export default function OwnersEquityDialog(props) {
       //     setErrorText(response.message);
       //   });}
 
+      const old_data = editData;
+      old_data.barangay = editData.barangay.id;
+      old_data.municipality = editData.municipality.id;
+      old_data.province = editData.province.id;
+
       const forApproval = {
         type: "Owner's Equity",
+        approval_type: "Edit",
         module_id: editData.id,
         account_number: editData.account_number,
-        data: postData,
+        old_data: old_data,
+        new_data: postData,
+        submitted_by: session.user.name[1],
       };
 
       axiosInstance
@@ -265,142 +286,106 @@ export default function OwnersEquityDialog(props) {
           )}
           {/* Barangay */}
           {!isEditing ? (
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="barangay"
-              name="barangay"
-              label="Barangay"
-              select
-              error={barangay_error}
+            <Autocomplete
+              disablePortal
+              getOptionLabel={(option) => option.barangay}
+              options={barangay}
               size="small"
-            >
-              {barangay.map((option) => (
-                <MenuItem key={option.id} value={option.id.toString()}>
-                  {option.barangay}
-                </MenuItem>
-              ))}
-            </TextField>
+              onChange={(event, newInputValue) => {
+                if (newInputValue != null) setBarangayData(newInputValue);
+              }}
+              renderOption={(props, option) => {
+                return (
+                  <li {...props} key={option.id}>
+                    {option.barangay}
+                  </li>
+                );
+              }}
+              renderTags={(tagValue, getTagProps) => {
+                return tagValue.map((option, index) => (
+                  <Chip
+                    {...getTagProps({ index })}
+                    key={option}
+                    label={option}
+                  />
+                ));
+              }}
+              renderInput={(params) => (
+                <TextField
+                  margin="normal"
+                  required
+                  id="barangay"
+                  label="Barangay"
+                  name="barangay"
+                  fullWidth
+                  {...params}
+                />
+              )}
+            />
           ) : (
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="barangay"
-              name="barangay"
-              label="Barangay"
-              value={
-                newData.barangay
-                  ? newData.barangay.id
-                    ? newData.barangay.id
-                    : newData.barangay
-                  : ""
-              }
-              onChange={handleEditChange}
-              select
-              error={barangay_error}
+            <Autocomplete
+              disablePortal
+              getOptionLabel={(option) => option.barangay}
+              options={barangay}
               size="small"
-            >
-              {barangay.map((option) => (
-                <MenuItem key={option.id} value={option.id.toString()}>
-                  {option.barangay}
-                </MenuItem>
-              ))}
-            </TextField>
+              value={newData.barangay || null}
+              onChange={(event, newInputValue) => {
+                setBarangayData(newInputValue);
+              }}
+              inputValue={barangayData ? barangayData.barangay : ""}
+              renderOption={(props, option) => {
+                return (
+                  <li {...props} key={option.id}>
+                    {option.barangay}
+                  </li>
+                );
+              }}
+              renderTags={(tagValue, getTagProps) => {
+                return tagValue.map((option, index) => (
+                  <Chip
+                    {...getTagProps({ index })}
+                    key={option}
+                    label={option}
+                  />
+                ));
+              }}
+              renderInput={(params) => (
+                <TextField
+                  margin="normal"
+                  required
+                  id="barangay"
+                  label="Barangay"
+                  name="barangay"
+                  fullWidth
+                  {...params}
+                />
+              )}
+            />
           )}
           {/* Municipality */}
-          {!isEditing ? (
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="municipality"
-              name="municipality"
-              label="Municipality"
-              select
-              error={municipality_error}
-              size="small"
-            >
-              {municipality.map((option) => (
-                <MenuItem key={option.id} value={option.id.toString()}>
-                  {option.municipality}
-                </MenuItem>
-              ))}
-            </TextField>
-          ) : (
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="municipality"
-              name="municipality"
-              label="Municipality"
-              value={
-                newData.municipality
-                  ? newData.municipality.id
-                    ? newData.municipality.id
-                    : newData.municipality
-                  : ""
-              }
-              onChange={handleEditChange}
-              select
-              error={municipality_error}
-              size="small"
-            >
-              {municipality.map((option) => (
-                <MenuItem key={option.id} value={option.id.toString()}>
-                  {option.municipality}
-                </MenuItem>
-              ))}
-            </TextField>
-          )}
+          <TextField
+            margin="normal"
+            fullWidth
+            label="Municipality"
+            value={barangayData ? barangayData.municipality.municipality : ""}
+            onChange={handleEditChange}
+            type="text"
+            size="small"
+            readOnly
+          />
           {/* Province */}
-          {!isEditing ? (
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="province"
-              name="province"
-              label="Province"
-              select
-              error={province_error}
-              size="small"
-            >
-              {province.map((option) => (
-                <MenuItem key={option.id} value={option.id.toString()}>
-                  {option.province}
-                </MenuItem>
-              ))}
-            </TextField>
-          ) : (
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="province"
-              name="province"
-              label="Province"
-              value={
-                newData.province
-                  ? newData.province.id
-                    ? newData.province.id
-                    : newData.province
-                  : ""
-              }
-              onChange={handleEditChange}
-              select
-              error={province_error}
-              size="small"
-            >
-              {province.map((option) => (
-                <MenuItem key={option.id} value={option.id.toString()}>
-                  {option.province}
-                </MenuItem>
-              ))}
-            </TextField>
-          )}
+          <TextField
+            margin="normal"
+            fullWidth
+            label="Province"
+            value={
+              barangayData ? barangayData.municipality.province.province : ""
+            }
+            onChange={handleEditChange}
+            type="text"
+            size="small"
+            readOnly
+          />
           {isError ? <Alert severity="error">{errorText}</Alert> : <></>}
         </DialogContent>
         <DialogActions>

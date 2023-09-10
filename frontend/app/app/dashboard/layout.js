@@ -52,7 +52,8 @@ const setupTokens = (session) => {
 export default function DashboardLayout({ children, window }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { data: session, status } = useSession();
-  const [open, setOpen] = useState(false);
+  const [openComponents, setOpenComponents] = useState(false);
+  const [openMenu, setOpenMenu] = useState(false);
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -73,7 +74,8 @@ export default function DashboardLayout({ children, window }) {
   };
 
   const handleClick = () => {
-    setOpen(!open);
+    setOpenComponents(!openComponents);
+    setOpenMenu(!openMenu);
   };
 
   const handleDrawerToggle = () => {
@@ -174,24 +176,44 @@ export default function DashboardLayout({ children, window }) {
             <ListItemIcon>
               <HomeIcon />
             </ListItemIcon>
-            <ListItemText primary={"Home"} />
+            <ListItemText color="primary" primary={"Home"} />
           </ListItemButton>
         </ListItem>
-        {menuitems.map((menu) => (
-          <ListItem key={menu.id} disablePadding>
-            <ListItemButton
-              href={"/dashboard/" + menu.path}
-              LinkComponent={Link}
-            >
-              <ListItemIcon>{menu.icon}</ListItemIcon>
-              <ListItemText primary={menu.label} />
-              {menu.access == "admin" && (
-                <Chip label="A" color="primary" size="small" />
-              )}
-            </ListItemButton>
-          </ListItem>
-        ))}
-
+      </List>
+      <Divider />
+      <List>
+        <ListItemButton
+          onClick={() => {
+            setOpenMenu(!openMenu);
+            if (openComponents) setOpenComponents(false);
+          }}
+        >
+          <ListItemIcon>
+            <TableRowsIcon />
+          </ListItemIcon>
+          <ListItemText primary="Menu" />
+          {openMenu ? <ExpandLess /> : <ExpandMore />}
+        </ListItemButton>
+        <Collapse in={openMenu} timeout="auto" unmountOnExit>
+          {menuitems.map((menu) => (
+            <ListItem key={menu.id} disablePadding>
+              <ListItemButton
+                href={"/dashboard/" + menu.path}
+                LinkComponent={Link}
+                sx={{ pl: 4 }}
+              >
+                <ListItemIcon>{menu.icon}</ListItemIcon>
+                <ListItemText primary={menu.label} />
+                {menu.access == "admin" && (
+                  <Chip label="A" color="primary" size="small" />
+                )}
+              </ListItemButton>
+            </ListItem>
+          ))}
+        </Collapse>
+      </List>
+      <Divider />
+      <List>
         <ListItem disablePadding>
           <ListItemButton href={"/dashboard/approvals"} LinkComponent={Link}>
             <ListItemIcon>
@@ -202,18 +224,22 @@ export default function DashboardLayout({ children, window }) {
           </ListItemButton>
         </ListItem>
       </List>
-
       <Divider />
       <List>
         {/* components */}
-        <ListItemButton onClick={handleClick}>
+        <ListItemButton
+          onClick={() => {
+            setOpenComponents(!openComponents);
+            if (openMenu) setOpenMenu(false);
+          }}
+        >
           <ListItemIcon>
             <TableRowsIcon />
           </ListItemIcon>
           <ListItemText primary="Components" />
-          {open ? <ExpandLess /> : <ExpandMore />}
+          {openComponents ? <ExpandLess /> : <ExpandMore />}
         </ListItemButton>
-        <Collapse in={open} timeout="auto" unmountOnExit>
+        <Collapse in={openComponents} timeout="auto" unmountOnExit>
           {componentItems.map((components) => (
             <List component="div" key={components.id} disablePadding>
               <ListItemButton

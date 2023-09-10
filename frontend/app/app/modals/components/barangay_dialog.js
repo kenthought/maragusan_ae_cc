@@ -11,6 +11,10 @@ import Typography from "@mui/material/Typography";
 import PropTypes from "prop-types";
 import axiosInstance from "@/app/axios";
 import { useSession } from "next-auth/react";
+import useSWR from "swr";
+import Autocomplete from "@mui/material/Autocomplete";
+
+const fetcher = (url) => axiosInstance.get(url).then((res) => res.data);
 
 export default function BarangayDialog(props) {
   const {
@@ -28,10 +32,17 @@ export default function BarangayDialog(props) {
   const [errorText, setErrorText] = useState(false);
   const { data: session } = useSession();
   const [newData, setNewData] = useState({});
+  const [municipalityData, setMunicipalityData] = useState(null);
+  const {
+    data: municipality,
+    error: municipality_error,
+    isLoading: municipality_isLoading,
+  } = useSWR("components/municipality", fetcher);
 
   useEffect(() => {
     setNewData(editData);
-  }, [editData]);
+    if (isEditing) setMunicipalityData(editData.municipality);
+  }, [editData, isEditing]);
 
   const handleEditChange = (event) => {
     const value = event.target.value;
@@ -41,6 +52,7 @@ export default function BarangayDialog(props) {
   const handleClose = () => {
     setOpenBarangayDialog(false);
     setIsEditing(false);
+    setMunicipalityData(null);
   };
 
   const handleSuccessful = (bool, text) => {
@@ -57,6 +69,8 @@ export default function BarangayDialog(props) {
     const data = new FormData(event.currentTarget);
     const postData = {
       barangay: data.get("barangay"),
+      municipality: municipalityData.id,
+      province: municipalityData.province.id,
       user: session.user.name[1],
     };
 
@@ -96,6 +110,8 @@ export default function BarangayDialog(props) {
         });
   };
 
+  if (municipality_isLoading) return;
+
   return (
     <Dialog open={openBarangayDialog} onClose={handleClose} fullWidth>
       <DialogTitle>{!isEditing ? "Add Barangay" : "Edit Barangay"}</DialogTitle>
@@ -129,6 +145,99 @@ export default function BarangayDialog(props) {
               size="small"
             />
           )}
+
+          {!isEditing ? (
+            <Autocomplete
+              disablePortal
+              getOptionLabel={(option) => option.municipality}
+              options={municipality}
+              size="small"
+              onChange={(event, newInputValue) => {
+                if (newInputValue != null) setMunicipalityData(newInputValue);
+              }}
+              renderOption={(props, option) => {
+                return (
+                  <li {...props} key={option.id}>
+                    {option.municipality}
+                  </li>
+                );
+              }}
+              renderTags={(tagValue, getTagProps) => {
+                return tagValue.map((option, index) => (
+                  <Chip
+                    {...getTagProps({ index })}
+                    key={option}
+                    label={option}
+                  />
+                ));
+              }}
+              renderInput={(params) => (
+                <TextField
+                  margin="normal"
+                  required
+                  id="municipality"
+                  label="Municipality"
+                  name="municipality"
+                  fullWidth
+                  {...params}
+                />
+              )}
+            />
+          ) : (
+            <Autocomplete
+              disablePortal
+              getOptionLabel={(option) => option.municipality}
+              options={municipality}
+              size="small"
+              value={newData.municipality || null}
+              onChange={(event, newInputValue) => {
+                setMunicipalityData(newInputValue);
+              }}
+              inputValue={municipalityData ? municipalityData.municipality : ""}
+              // onInputChange={(event, newInputValue) => {
+              //   console.log("asdasd", newInputValue);
+              //   setmunicipalityData(newInputValue);
+              // }}
+              renderOption={(props, option) => {
+                return (
+                  <li {...props} key={option.id}>
+                    {option.municipality}
+                  </li>
+                );
+              }}
+              renderTags={(tagValue, getTagProps) => {
+                return tagValue.map((option, index) => (
+                  <Chip
+                    {...getTagProps({ index })}
+                    key={option}
+                    label={option}
+                  />
+                ));
+              }}
+              renderInput={(params) => (
+                <TextField
+                  margin="normal"
+                  required
+                  id="municipality"
+                  label="Municipality"
+                  name="municipality"
+                  fullWidth
+                  {...params}
+                />
+              )}
+            />
+          )}
+
+          <TextField
+            margin="normal"
+            fullWidth
+            label="Province"
+            value={municipalityData ? municipalityData.province.province : ""}
+            onChange={handleEditChange}
+            type="text"
+            size="small"
+            readOnly
+          />
 
           {isError ? <Alert severity="error">{errorText}</Alert> : <></>}
         </DialogContent>

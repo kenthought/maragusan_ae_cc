@@ -1,5 +1,5 @@
 from components.models import Barangay
-from components.serializers import BarangaySerializer
+from components.serializers import BarangaySerializer, BarangayViewSerializer
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
@@ -13,7 +13,7 @@ class BarangayList(APIView):
 
     def get(self, request, format=None):
         barangay = Barangay.objects.all()
-        serializer = BarangaySerializer(barangay, many=True)
+        serializer = BarangayViewSerializer(barangay, many=True)
         return Response(serializer.data)
 
     def post(self, request, format=None):
@@ -43,7 +43,7 @@ class BarangayDetail(APIView):
 
     def get(self, request, pk, format=None):
         barangay = self.get_object(pk)
-        serializer = BarangaySerializer(barangay)
+        serializer = BarangayViewSerializer(barangay)
         return Response(serializer.data)
 
     def put(self, request, pk, format=None):

@@ -1,16 +1,16 @@
 from rest_framework import serializers
 from .models import OwnersEquity, Ledger
 from components.serializers import (
-    BarangaySerializer,
-    MunicipalitySerializer,
+    BarangayViewSerializer,
+    MunicipalityViewSerializer,
     ProvinceSerializer,
 )
 from users.serializers import UserSerializer
 
 
 class OwnersEquityViewSerializer(serializers.ModelSerializer):
-    barangay = BarangaySerializer()
-    municipality = MunicipalitySerializer()
+    barangay = BarangayViewSerializer()
+    municipality = MunicipalityViewSerializer()
     province = ProvinceSerializer()
     user = UserSerializer()
 
@@ -27,6 +27,7 @@ class OwnersEquityViewSerializer(serializers.ModelSerializer):
             "province",
             "account_status",
             "user",
+            "under_approval",
             "created_at",
         ]
 
@@ -45,6 +46,7 @@ class OwnersEquityWriteSerializer(serializers.ModelSerializer):
             "province",
             "account_status",
             "user",
+            "under_approval",
             "created_at",
         ]
 

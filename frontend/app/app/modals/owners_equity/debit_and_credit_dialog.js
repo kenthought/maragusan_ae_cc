@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, forwardRef } from "react";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Dialog from "@mui/material/Dialog";
@@ -23,6 +23,8 @@ import { useSession } from "next-auth/react";
 import Typography from "@mui/material/Typography";
 import useSWR from "swr";
 import { ButtonGroup, Divider, Fade } from "@mui/material";
+import { NumericFormatCustom } from "@/app/utils/numberic_format";
+import { MaskNumberCustom } from "@/app/utils/mask_number";
 
 export default function DebitDialog(props) {
   const {
@@ -55,6 +57,12 @@ export default function DebitDialog(props) {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     console.log(selected);
+    if (selected.control_number != data.get("control_number")) {
+      setIsError(true);
+      setErrorText("Invalid control number");
+      return;
+    }
+
     const postData = {
       post: post,
       invoice_number: data.get("invoice_number"),
@@ -146,6 +154,7 @@ export default function DebitDialog(props) {
                   name="amount"
                   type="text"
                   size="small"
+                  InputProps={{ inputComponent: NumericFormatCustom }}
                 />
               </Box>
             </Grid>
@@ -158,10 +167,8 @@ export default function DebitDialog(props) {
                   label="Control #"
                   id="control_number"
                   name="control_number"
-                  type="text"
-                  value={selected.control_number}
+                  type="password"
                   size="small"
-                  readOnly
                 />
               </Box>
             </Grid>

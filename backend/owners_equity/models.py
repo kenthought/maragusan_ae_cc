@@ -24,6 +24,7 @@ class OwnersEquity(models.Model):
         "components.Province", related_name="owners_equity", on_delete=models.PROTECT
     )
     account_status = models.IntegerField(default=1)
+    under_approval = models.BooleanField(default=True)
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL, related_name="owners_equity", on_delete=models.PROTECT
     )
