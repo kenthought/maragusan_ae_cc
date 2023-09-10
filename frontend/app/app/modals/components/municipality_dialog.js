@@ -11,6 +11,10 @@ import Typography from "@mui/material/Typography";
 import PropTypes from "prop-types";
 import axiosInstance from "@/app/axios";
 import { useSession } from "next-auth/react";
+import Autocomplete from "@mui/material/Autocomplete";
+import useSWR from "swr";
+
+const fetcher = (url) => axiosInstance.get(url).then((res) => res.data);
 
 export default function MunicipalityDialog(props) {
   const {
@@ -28,10 +32,17 @@ export default function MunicipalityDialog(props) {
   const [errorText, setErrorText] = useState(false);
   const { data: session } = useSession();
   const [newData, setNewData] = useState({});
+  const [provinceData, setProvinceData] = useState(null);
+  const {
+    data: province,
+    error: province_error,
+    isLoading: province_isLoading,
+  } = useSWR("components/province", fetcher);
 
   useEffect(() => {
     setNewData(editData);
-  }, [editData]);
+    if (isEditing) setProvinceData(editData.province);
+  }, [editData, isEditing]);
 
   const handleEditChange = (event) => {
     const value = event.target.value;
@@ -41,6 +52,7 @@ export default function MunicipalityDialog(props) {
   const handleClose = () => {
     setOpenMunicipalityDialog(false);
     setIsEditing(false);
+    setProvinceData(null);
   };
 
   const handleSuccessful = (bool, text) => {
@@ -57,6 +69,7 @@ export default function MunicipalityDialog(props) {
     const data = new FormData(event.currentTarget);
     const postData = {
       municipality: data.get("municipality"),
+      province: provinceData.id,
       user: session.user.name[1],
     };
 
@@ -96,6 +109,8 @@ export default function MunicipalityDialog(props) {
         });
   };
 
+  if (province_isLoading) return;
+
   return (
     <Dialog open={openMunicipalityDialog} onClose={handleClose} fullWidth>
       <DialogTitle>
@@ -129,6 +144,88 @@ export default function MunicipalityDialog(props) {
               onChange={handleEditChange}
               type="text"
               size="small"
+            />
+          )}
+          {!isEditing ? (
+            <Autocomplete
+              disablePortal
+              getOptionLabel={(option) => option.province}
+              options={province}
+              size="small"
+              onChange={(event, newInputValue) => {
+                if (newInputValue != null) setProvinceData(newInputValue);
+              }}
+              renderOption={(props, option) => {
+                return (
+                  <li {...props} key={option.id}>
+                    {option.province}
+                  </li>
+                );
+              }}
+              renderTags={(tagValue, getTagProps) => {
+                return tagValue.map((option, index) => (
+                  <Chip
+                    {...getTagProps({ index })}
+                    key={option}
+                    label={option}
+                  />
+                ));
+              }}
+              renderInput={(params) => (
+                <TextField
+                  margin="normal"
+                  required
+                  id="province"
+                  label="Province"
+                  name="province"
+                  fullWidth
+                  {...params}
+                />
+              )}
+            />
+          ) : (
+            <Autocomplete
+              disablePortal
+              getOptionLabel={(option) => option.province}
+              options={province}
+              size="small"
+              value={newData.province || null}
+              onChange={(event, newInputValue) => {
+                console.log("asdasd123", newInputValue);
+                setProvinceData(newInputValue);
+              }}
+              inputValue={provinceData ? provinceData.province : ""}
+              // onInputChange={(event, newInputValue) => {
+              //   console.log("asdasd", newInputValue);
+              //   setProvinceData(newInputValue);
+              // }}
+              renderOption={(props, option) => {
+                return (
+                  <li {...props} key={option.id}>
+                    {option.province}
+                  </li>
+                );
+              }}
+              renderTags={(tagValue, getTagProps) => {
+                return tagValue.map((option, index) => (
+                  <Chip
+                    {...getTagProps({ index })}
+                    key={option}
+                    label={option}
+                  />
+                ));
+              }}
+              renderInput={(params) => (
+                <TextField
+                  margin="normal"
+                  required
+                  id="province"
+                  label="Province"
+                  name="province"
+                  fullWidth
+                  {...params}
+                />
+              )}
             />
           )}
 

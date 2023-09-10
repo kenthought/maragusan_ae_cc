@@ -1,5 +1,5 @@
 from components.models import Municipality
-from components.serializers import MunicipalitySerializer
+from components.serializers import MunicipalitySerializer, MunicipalityViewSerializer
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
@@ -13,7 +13,7 @@ class MunicipalityList(APIView):
 
     def get(self, request, format=None):
         municipality = Municipality.objects.all()
-        serializer = MunicipalitySerializer(municipality, many=True)
+        serializer = MunicipalityViewSerializer(municipality, many=True)
         return Response(serializer.data)
 
     def post(self, request, format=None):
@@ -43,7 +43,7 @@ class MunicipalityDetail(APIView):
 
     def get(self, request, pk, format=None):
         municipality = self.get_object(pk)
-        serializer = MunicipalitySerializer(municipality)
+        serializer = MunicipalityViewSerializer(municipality)
         return Response(serializer.data)
 
     def put(self, request, pk, format=None):

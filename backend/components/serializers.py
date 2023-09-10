@@ -29,22 +29,38 @@ class BankSerializer(serializers.ModelSerializer):
 
 
 # Address
-class BarangaySerializer(serializers.ModelSerializer):
+class ProvinceSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Barangay
-        fields = ["id", "barangay", "user"]
+        model = Province
+        fields = ["id", "province", "user"]
 
 
 class MunicipalitySerializer(serializers.ModelSerializer):
     class Meta:
         model = Municipality
-        fields = ["id", "municipality", "user"]
+        fields = ["id", "municipality", "province", "user"]
 
 
-class ProvinceSerializer(serializers.ModelSerializer):
+class MunicipalityViewSerializer(serializers.ModelSerializer):
+    province = ProvinceSerializer()
+
     class Meta:
-        model = Province
-        fields = ["id", "province", "user"]
+        model = Municipality
+        fields = ["id", "municipality", "province", "user"]
+
+
+class BarangaySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Barangay
+        fields = ["id", "barangay", "municipality", "province", "user"]
+
+
+class BarangayViewSerializer(serializers.ModelSerializer):
+    municipality = MunicipalityViewSerializer()
+
+    class Meta:
+        model = Barangay
+        fields = ["id", "barangay", "municipality", "province", "user"]
 
 
 class ExpensesCategorySerializer(serializers.ModelSerializer):
