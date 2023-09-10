@@ -30,6 +30,15 @@ class ApprovalList(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class ApprovedList(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, format=None):
+        approval = Approval.objects.exclude(approved_by__isnull=True)
+        serializer = ApprovalViewSerializer(approval, many=True)
+        return Response(serializer.data)
+
+
 class ApprovalDetail(APIView):
     permissions_clases = [permissions.IsAuthenticated]
 
