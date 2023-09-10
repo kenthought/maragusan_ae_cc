@@ -34,10 +34,7 @@ import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import SearchIcon from "@mui/icons-material/Search";
 import VisibilityIcon from "@mui/icons-material/Visibility";
-import OwnersEquityDialog from "@/app/modals/owners_equity/owners_equity_dialog";
-import LedgerDialog from "@/app/modals/owners_equity/ledger_dialog";
-import SummaryDialog from "@/app/modals/owners_equity/summary_dialog";
-import DepreciationLedgerDialog from "@/app/modals/asset/depreciation_ledger_dialog";
+import ApprovedDialog from "@/app/modals/approval/approved_dialog";
 import Success from "@/app/utils/success";
 import Loading from "@/app/utils/loading";
 import useSWR from "swr";
@@ -284,6 +281,7 @@ export default function Approvals() {
   } = useSWR("approvals/", fetcher);
   const [data, setData] = useState({});
   const [openViewApproval, setOpenViewApproval] = useState(false);
+  const [openApproved, setOpenApproved] = useState(false);
   const [api, setAPI] = useState("");
 
   if (approvals_isLoading) return <Loading />;
@@ -298,6 +296,14 @@ export default function Approvals() {
         marginBottom={2}
       >
         Approvals
+        <Button
+          variant="outlined"
+          onClick={() => setOpenApproved(true)}
+          color="primary"
+          sx={{ marginLeft: 2 }}
+        >
+          Approved
+        </Button>
       </Typography>
       <Box elevation={0} sx={{ padding: 2 }}>
         <Box sx={{ textAlign: "center" }}>
@@ -373,6 +379,10 @@ export default function Approvals() {
           approvalsMutate={mutate}
         />
       )}
+      <ApprovedDialog
+        openApproved={openApproved}
+        setOpenApproved={setOpenApproved}
+      />
     </>
   );
 }

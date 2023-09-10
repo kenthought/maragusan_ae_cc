@@ -4,6 +4,7 @@ from approvals.views import *
 
 urlpatterns = [
     path("", ApprovalList.as_view()),
+    path("approved", ApprovedList.as_view()),
     path("<int:pk>/", ApprovalDetail.as_view()),
 ]
 
