@@ -93,24 +93,33 @@ export default function OwnersEquityDialog(props) {
       municipality: barangayData.municipality.id,
       province: barangayData.municipality.province.id,
       account_status: !isEditing ? 1 : data.get("account_status"),
+      under_approval: !isEditing ? 1 : 0,
       user: session.user.name[1],
     };
 
-    console.log(postData);
+    if (!isEditing) {
+      postData.forApproval = {
+        type: "Owner's Equity",
+        approval_type: "Add",
+        old_data: { ...postData },
+        new_data: { ...postData },
+        submitted_by: session.user.name[1],
+      };
 
-    if (!isEditing)
+      console.log(postData);
+
       axiosInstance
         .post("owners_equity/", postData)
         .then((response) => {
-          handleSuccessful(true, "Owners Equity added successfully!");
-          console.log(response);
+          handleSuccessful(true, "Submitted for approval!");
+          console.log("asdasdasD", response);
         })
         .catch((response) => {
-          console.log(response);
+          console.log("ERROR", response);
           setIsError(true);
           setErrorText(response.message);
         });
-    else {
+    } else {
       // axiosInstance
       //   .put("owners_equity/" + editData.id + "/", postData)
       //   .then((response) => {
@@ -123,11 +132,19 @@ export default function OwnersEquityDialog(props) {
       //     setErrorText(response.message);
       //   });}
 
+      const old_data = editData;
+      old_data.barangay = editData.barangay.id;
+      old_data.municipality = editData.municipality.id;
+      old_data.province = editData.province.id;
+
       const forApproval = {
         type: "Owner's Equity",
+        approval_type: "Edit",
         module_id: editData.id,
         account_number: editData.account_number,
-        data: postData,
+        old_data: old_data,
+        new_data: postData,
+        submitted_by: session.user.name[1],
       };
 
       axiosInstance

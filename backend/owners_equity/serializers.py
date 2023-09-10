@@ -27,6 +27,7 @@ class OwnersEquityViewSerializer(serializers.ModelSerializer):
             "province",
             "account_status",
             "user",
+            "under_approval",
             "created_at",
         ]
 
@@ -45,6 +46,7 @@ class OwnersEquityWriteSerializer(serializers.ModelSerializer):
             "province",
             "account_status",
             "user",
+            "under_approval",
             "created_at",
         ]
 

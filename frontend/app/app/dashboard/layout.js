@@ -200,6 +200,7 @@ export default function DashboardLayout({ children, window }) {
               <ListItemButton
                 href={"/dashboard/" + menu.path}
                 LinkComponent={Link}
+                sx={{ pl: 4 }}
               >
                 <ListItemIcon>{menu.icon}</ListItemIcon>
                 <ListItemText primary={menu.label} />
@@ -209,19 +210,20 @@ export default function DashboardLayout({ children, window }) {
               </ListItemButton>
             </ListItem>
           ))}
-
-          <ListItem disablePadding>
-            <ListItemButton href={"/dashboard/approvals"} LinkComponent={Link}>
-              <ListItemIcon>
-                <LogoutIcon />
-              </ListItemIcon>
-              <ListItemText primary={"Approvals"} />{" "}
-              <Chip label="A" color="primary" size="small" />
-            </ListItemButton>
-          </ListItem>
         </Collapse>
       </List>
-
+      <Divider />
+      <List>
+        <ListItem disablePadding>
+          <ListItemButton href={"/dashboard/approvals"} LinkComponent={Link}>
+            <ListItemIcon>
+              <LogoutIcon />
+            </ListItemIcon>
+            <ListItemText primary={"Approvals"} />{" "}
+            <Chip label="A" color="primary" size="small" />
+          </ListItemButton>
+        </ListItem>
+      </List>
       <Divider />
       <List>
         {/* components */}

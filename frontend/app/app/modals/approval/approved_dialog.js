@@ -26,18 +26,13 @@ import { useSession } from "next-auth/react";
 import Typography from "@mui/material/Typography";
 import useSWR from "swr";
 import Loading from "@/app/utils/loading";
+import OwnersEquityView from "@/app/dashboard/approvals/views/owners_equity";
 
 const fetcher = (url) => axiosInstance.get(url).then((res) => res.data);
 
 const ViewApproval = (props) => {
-  const { data, api, openViewApproval, setOpenViewApproval } = props;
+  const { data, openViewApproval, setOpenViewApproval } = props;
   const { data: session } = useSession();
-  const {
-    data: module,
-    error: module_error,
-    isLoading: module_isLoading,
-    mutate,
-  } = useSWR(api + "/" + data.module_id, fetcher);
   const {
     data: barangay,
     error: barangay_error,
@@ -53,127 +48,25 @@ const ViewApproval = (props) => {
     error: province_error,
     isLoading: province_isLoading,
   } = useSWR("components/province", fetcher);
-  const [accountStatus] = useState([
-    { id: 1, label: "Active", value: true },
-    { id: 2, label: "Inactive", value: false },
-    { id: 3, label: "Bad Debts", value: false },
-  ]);
 
   const handleClose = () => {
     setOpenViewApproval(false);
   };
 
-  if (
-    module_isLoading ||
-    barangay_isLoading ||
-    municipality_isLoading ||
-    province_isLoading
-  )
+  if (barangay_isLoading || municipality_isLoading || province_isLoading)
     return;
 
   return (
     <Dialog open={openViewApproval} onClose={handleClose}>
       <DialogContent>
-        <Box>
-          <Grid
-            container
-            direction="row"
-            justifyContent="flex-start"
-            padding={1}
-            spacing={1}
-          >
-            <Grid item xs={12} md={4}>
-              <Typography>Account number:</Typography>
-            </Grid>
-            <Grid item xs={12} md={8}>
-              <Typography>{data.account_number}</Typography>
-            </Grid>
-            <Grid item xs={12}>
-              <Divider />
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <Typography>Account name:</Typography>
-            </Grid>
-            <Grid item xs={12} md={8}>
-              <Typography>{data.data.account_name}</Typography>
-            </Grid>
-            <Grid item xs={12}>
-              <Divider />
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <Typography>Purok/Street:</Typography>
-            </Grid>
-            <Grid item xs={12} md={8}>
-              <Typography>{data.data.purok_street}</Typography>
-            </Grid>
-            <Grid item xs={12}>
-              <Divider />
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <Typography>Barangay:</Typography>
-            </Grid>
-            <Grid item xs={12} md={8}>
-              <Typography>
-                {barangay.find((x) => x.id == data.data.barangay).barangay}
-              </Typography>
-            </Grid>
-            <Grid item xs={12}>
-              <Divider />
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <Typography>Municipality:</Typography>
-            </Grid>
-            <Grid item xs={12} md={8}>
-              <Typography>
-                {
-                  municipality.find((x) => x.id == data.data.municipality)
-                    .municipality
-                }
-              </Typography>
-            </Grid>
-            <Grid item xs={12}>
-              <Divider />
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <Typography>Province:</Typography>
-            </Grid>
-            <Grid item xs={12} md={8}>
-              <Typography>
-                {province.find((x) => x.id == data.data.province).province}
-              </Typography>
-            </Grid>
-            <Grid item xs={12}>
-              <Divider />
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <Typography>Account status:</Typography>
-            </Grid>
-            <Grid item xs={12} md={8}>
-              <Chip
-                label={accountStatus[data.data.account_status - 1].label}
-                color={
-                  accountStatus[data.data.account_status - 1].id == 1
-                    ? "success"
-                    : accountStatus[data.data.account_status - 1].id == 2
-                    ? "error"
-                    : "secondary"
-                }
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <Divider />
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <Typography>Date created:</Typography>
-            </Grid>
-            <Grid item xs={8}>
-              <Typography>{module.created_at.split("T")[0]}</Typography>
-            </Grid>
-            <Grid item xs={12}>
-              <Divider />
-            </Grid>
-          </Grid>
-        </Box>
+        {data.type == "Owner's Equity" && (
+          <OwnersEquityView
+            data={data}
+            barangay={barangay}
+            municipality={municipality}
+            province={province}
+          />
+        )}
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose} variant="contained" color="error">
@@ -223,7 +116,8 @@ export default function ApprovedDialog(props) {
                 >
                   <TableHead>
                     <TableRow>
-                      <TableCell>Date</TableCell>
+                      <TableCell>Date & Time</TableCell>
+                      <TableCell align="right">Approval</TableCell>
                       <TableCell align="right">Type</TableCell>
                       <TableCell align="right">Account #</TableCell>
                       <TableCell align="right">Account name</TableCell>
@@ -242,14 +136,19 @@ export default function ApprovedDialog(props) {
                           }}
                         >
                           <TableCell component="th" scope="row">
-                            {new Date(row.created_at).toLocaleDateString()}
+                            {new Date(row.created_at).toLocaleDateString() +
+                              " " +
+                              new Date(row.created_at).toLocaleTimeString()}
+                          </TableCell>
+                          <TableCell align="right">
+                            {row.approval_type}
                           </TableCell>
                           <TableCell align="right">{row.type}</TableCell>
                           <TableCell align="right">
                             {row.account_number}
                           </TableCell>
                           <TableCell align="right">
-                            {row.data.account_name}
+                            {row.old_data.account_name}
                           </TableCell>
                           <TableCell align="right">
                             {row.approved_by.first_name}
@@ -260,8 +159,6 @@ export default function ApprovedDialog(props) {
                               variant="contained"
                               color="primary"
                               onClick={() => {
-                                if (row.type == "Owner's Equity")
-                                  setAPI("owners_equity");
                                 setData(row);
                                 setOpenViewApproval(true);
                               }}
@@ -290,7 +187,6 @@ export default function ApprovedDialog(props) {
       {openViewApproval && (
         <ViewApproval
           data={data}
-          api={api}
           openViewApproval={openViewApproval}
           setOpenViewApproval={setOpenViewApproval}
         />

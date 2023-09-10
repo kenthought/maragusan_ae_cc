@@ -41,19 +41,22 @@ import useSWR from "swr";
 import axiosInstance from "@/app/axios";
 import PropTypes from "prop-types";
 import { useSession } from "next-auth/react";
+import OwnersEquityView from "./views/owners_equity";
 
 const fetcher = (url) => axiosInstance.get(url).then((res) => res.data);
 
 const ViewApproval = (props) => {
-  const { data, api, openViewApproval, setOpenViewApproval, approvalsMutate } =
-    props;
-  const { data: session } = useSession();
   const {
-    data: module,
-    error: module_error,
-    isLoading: module_isLoading,
-    mutate,
-  } = useSWR(api + "/" + data.module_id, fetcher);
+    data,
+    openViewApproval,
+    setOpenViewApproval,
+    approvalsMutate,
+    setIsSuccess,
+    setSuccessText,
+  } = props;
+  const { data: session } = useSession();
+  const [isError, setIsError] = useState(false);
+  const [errorText, setErrorText] = useState(false);
   const {
     data: barangay,
     error: barangay_error,
@@ -69,15 +72,6 @@ const ViewApproval = (props) => {
     error: province_error,
     isLoading: province_isLoading,
   } = useSWR("components/province", fetcher);
-  const [accountStatus] = useState([
-    { id: 1, label: "Active", value: true },
-    { id: 2, label: "Inactive", value: false },
-    { id: 3, label: "Bad Debts", value: false },
-  ]);
-  const [isSuccess, setIsSuccess] = useState(false);
-  const [successText, setSuccessText] = useState("");
-  const [isError, setIsError] = useState(false);
-  const [errorText, setErrorText] = useState(false);
 
   const handleSuccessful = (bool, text) => {
     setIsError(false);
@@ -87,13 +81,13 @@ const ViewApproval = (props) => {
     handleClose();
   };
 
-  const handleEdit = () => {
+  const handleSubmit = () => {
     data.approved_by = session.user.name[1];
     console.log("DATA", data);
     axiosInstance
       .put("approvals/" + data.id + "/", data)
       .then((response) => {
-        handleSuccessful(true, "Owners Equity edited successfully!");
+        handleSuccessful(true, data.approval_type + "ed successfully!");
         console.log(response);
       })
       .catch((response) => {
@@ -107,154 +101,25 @@ const ViewApproval = (props) => {
     setOpenViewApproval(false);
   };
 
-  if (
-    module_isLoading ||
-    barangay_isLoading ||
-    municipality_isLoading ||
-    province_isLoading
-  )
+  if (barangay_isLoading || municipality_isLoading || province_isLoading)
     return;
 
   return (
     <Dialog open={openViewApproval} onClose={handleClose}>
       <DialogContent>
-        <Typography
-          component="h2"
-          variant="h6"
-          color="primary"
-          marginBottom={2}
-        >
-          Edit {data.type}
-        </Typography>
-        <Box>
-          <Success
-            isSuccess={isSuccess}
-            setIsSuccess={setIsSuccess}
-            successText={successText}
+        {data.type == "Owner's Equity" && (
+          <OwnersEquityView
+            data={data}
+            barangay={barangay}
+            municipality={municipality}
+            province={province}
           />
-          <Grid
-            container
-            direction="row"
-            justifyContent="flex-start"
-            padding={1}
-            spacing={1}
-          >
-            <Grid item xs={12} md={4}>
-              <Typography>Account number:</Typography>
-            </Grid>
-            <Grid item xs={12} md={8}>
-              <Typography>{data.account_number}</Typography>
-            </Grid>
-            <Grid item xs={12}>
-              <Divider />
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <Typography>Account name:</Typography>
-            </Grid>
-            <Grid item xs={12} md={8}>
-              <Typography>
-                {module.account_name + " => " + data.data.account_name}
-              </Typography>
-            </Grid>
-            <Grid item xs={12}>
-              <Divider />
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <Typography>Purok/Street:</Typography>
-            </Grid>
-            <Grid item xs={12} md={8}>
-              <Typography>
-                {module.purok_street + " => " + data.data.purok_street}
-              </Typography>
-            </Grid>
-            <Grid item xs={12}>
-              <Divider />
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <Typography>Barangay:</Typography>
-            </Grid>
-            <Grid item xs={12} md={8}>
-              <Typography>
-                {module.barangay.barangay +
-                  " => " +
-                  barangay.find((x) => x.id == data.data.barangay).barangay}
-              </Typography>
-            </Grid>
-            <Grid item xs={12}>
-              <Divider />
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <Typography>Municipality:</Typography>
-            </Grid>
-            <Grid item xs={12} md={8}>
-              <Typography>
-                {module.municipality.municipality +
-                  " => " +
-                  municipality.find((x) => x.id == data.data.municipality)
-                    .municipality}
-              </Typography>
-            </Grid>
-            <Grid item xs={12}>
-              <Divider />
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <Typography>Province:</Typography>
-            </Grid>
-            <Grid item xs={12} md={8}>
-              <Typography>
-                {module.province.province +
-                  " => " +
-                  province.find((x) => x.id == data.data.province).province}
-              </Typography>
-            </Grid>
-            <Grid item xs={12}>
-              <Divider />
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <Typography>Account status:</Typography>
-            </Grid>
-            <Grid item xs={12} md={8}>
-              <Chip
-                label={accountStatus[module.account_status - 1].label}
-                color={
-                  accountStatus[module.account_status - 1].id == 1
-                    ? "success"
-                    : accountStatus[module.account_status - 1].id == 2
-                    ? "error"
-                    : "secondary"
-                }
-              />
-              {"    =>   "}
-              <Chip
-                label={accountStatus[data.data.account_status - 1].label}
-                color={
-                  accountStatus[data.data.account_status - 1].id == 1
-                    ? "success"
-                    : accountStatus[data.data.account_status - 1].id == 2
-                    ? "error"
-                    : "secondary"
-                }
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <Divider />
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <Typography>Date created:</Typography>
-            </Grid>
-            <Grid item xs={8}>
-              <Typography>{module.created_at.split("T")[0]}</Typography>
-            </Grid>
-            <Grid item xs={12}>
-              <Divider />
-            </Grid>
-          </Grid>
-        </Box>
+        )}
         {isError ? <Alert severity="error">{errorText}</Alert> : <></>}
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleEdit} variant="contained" color="success">
-          Edit
+        <Button onClick={handleSubmit} variant="contained" color="success">
+          {data.approval_type}
         </Button>
         <Button onClick={handleClose} variant="contained" color="error">
           Close
@@ -282,7 +147,8 @@ export default function Approvals() {
   const [data, setData] = useState({});
   const [openViewApproval, setOpenViewApproval] = useState(false);
   const [openApproved, setOpenApproved] = useState(false);
-  const [api, setAPI] = useState("");
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [successText, setSuccessText] = useState(false);
 
   if (approvals_isLoading) return <Loading />;
 
@@ -307,6 +173,11 @@ export default function Approvals() {
       </Typography>
       <Box elevation={0} sx={{ padding: 2 }}>
         <Box sx={{ textAlign: "center" }}>
+          <Success
+            isSuccess={isSuccess}
+            setIsSuccess={setIsSuccess}
+            successText={successText}
+          />
           {approvals.length != 0 ? (
             <TableContainer component={Paper}>
               <Table
@@ -316,10 +187,12 @@ export default function Approvals() {
               >
                 <TableHead>
                   <TableRow>
-                    <TableCell>Date</TableCell>
+                    <TableCell>Date & Time</TableCell>
+                    <TableCell align="right">Approval</TableCell>
                     <TableCell align="right">Type</TableCell>
                     <TableCell align="right">Account #</TableCell>
                     <TableCell align="right">Account name</TableCell>
+                    <TableCell align="right">Requested by</TableCell>
                     <TableCell align="right">Action</TableCell>
                   </TableRow>
                 </TableHead>
@@ -334,14 +207,20 @@ export default function Approvals() {
                         }}
                       >
                         <TableCell component="th" scope="row">
-                          {new Date(row.created_at).toLocaleDateString()}
+                          {new Date(row.created_at).toLocaleDateString() +
+                            " " +
+                            new Date(row.created_at).toLocaleTimeString()}
                         </TableCell>
+                        <TableCell align="right">{row.approval_type}</TableCell>
                         <TableCell align="right">{row.type}</TableCell>
                         <TableCell align="right">
                           {row.account_number}
                         </TableCell>
                         <TableCell align="right">
-                          {row.data.account_name}
+                          {row.old_data.account_name}
+                        </TableCell>
+                        <TableCell align="right">
+                          {row.submitted_by.first_name}
                         </TableCell>
                         <TableCell align="right">
                           <Button
@@ -349,8 +228,6 @@ export default function Approvals() {
                             variant="contained"
                             color="primary"
                             onClick={() => {
-                              if (row.type == "Owner's Equity")
-                                setAPI("owners_equity");
                               setData(row);
                               setOpenViewApproval(true);
                             }}
@@ -373,10 +250,11 @@ export default function Approvals() {
       {openViewApproval && (
         <ViewApproval
           data={data}
-          api={api}
           openViewApproval={openViewApproval}
           setOpenViewApproval={setOpenViewApproval}
           approvalsMutate={mutate}
+          setSuccessText={setSuccessText}
+          setIsSuccess={setIsSuccess}
         />
       )}
       <ApprovedDialog
