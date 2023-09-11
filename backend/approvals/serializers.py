@@ -15,6 +15,7 @@ class ApprovalWriteSerializer(serializers.ModelSerializer):
             "old_data",
             "new_data",
             "approved_by",
+            "approved_date",
             "submitted_by",
             "created_at",
         ]
@@ -35,6 +36,7 @@ class ApprovalViewSerializer(serializers.ModelSerializer):
             "old_data",
             "new_data",
             "approved_by",
+            "approved_date",
             "submitted_by",
             "created_at",
         ]
