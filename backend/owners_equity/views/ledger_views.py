@@ -7,7 +7,7 @@ from django.db.models import F
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
-from datetime import date
+from datetime import datetime
 import json
 from django.core.serializers.json import DjangoJSONEncoder
 
@@ -36,7 +36,7 @@ class LedgerList(APIView):
                 "module_id": ledger_data["owners_equity"],
                 "balance": balance_amount,
                 "user": ledger_data["user"],
-                "updated_at": date.today().strftime("%m/%d/%Y %H:%M:%S"),
+                "updated_at": datetime.today().strftime("%m/%d/%Y %H:%M:%S"),
             }
 
             balance_serializer = BalanceWriteSerializer(data=data)
@@ -58,7 +58,7 @@ class LedgerList(APIView):
             data = {
                 "balance": balance_amount,
                 "user": ledger_data["user"],
-                "updated_at": date.today().strftime("%m/%d/%Y %H:%M:%S"),
+                "updated_at": datetime.today().strftime("%m/%d/%Y %H:%M:%S"),
             }
             balance_write_serializer = BalanceWriteSerializer(
                 balance, data=data, partial=True

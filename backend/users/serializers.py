@@ -27,6 +27,8 @@ class UserSerializer(serializers.ModelSerializer):
             "middle_name",
             "last_name",
             "is_staff",
+            "business_code",
+            "branch_code",
         ]
 
     def create(self, validated_data):

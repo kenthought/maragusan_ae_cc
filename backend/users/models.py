@@ -66,6 +66,8 @@ class UserData(AbstractUser, PermissionsMixin):
     middle_name = models.CharField(max_length=100, blank=True)
     last_name = models.CharField(max_length=100)
     email = models.EmailField(max_length=100, unique=True)
+    business_code = models.CharField(max_length=3)
+    branch_code = models.CharField(max_length=3)
     date_joined = models.DateTimeField(auto_now_add=True)
     is_admin = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
@@ -75,7 +77,14 @@ class UserData(AbstractUser, PermissionsMixin):
     objects = UserManager()
 
     USERNAME_FIELD = "username"
-    REQUIRED_FIELDS = ["email", "first_name", "middle_name", "last_name"]
+    REQUIRED_FIELDS = [
+        "email",
+        "first_name",
+        "middle_name",
+        "last_name",
+        "business_code",
+        "branch_code",
+    ]
 
     def __str__(self):
         return self.username

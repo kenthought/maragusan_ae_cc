@@ -93,7 +93,7 @@ export default function ApprovedDialog(props) {
     data: approved,
     error: approved_error,
     isLoading: approved_isLoading,
-  } = useSWR("approvals/approved", fetcher);
+  } = useSWR("approvals/approved", fetcher, { refreshInterval: 1000 });
 
   const handleClose = () => {
     setOpenApproved(false);
@@ -116,7 +116,7 @@ export default function ApprovedDialog(props) {
                 >
                   <TableHead>
                     <TableRow>
-                      <TableCell>Date & Time</TableCell>
+                      <TableCell>Approved date & time</TableCell>
                       <TableCell align="right">Approval</TableCell>
                       <TableCell align="right">Type</TableCell>
                       <TableCell align="right">Account #</TableCell>
@@ -136,9 +136,9 @@ export default function ApprovedDialog(props) {
                           }}
                         >
                           <TableCell component="th" scope="row">
-                            {new Date(row.created_at).toLocaleDateString() +
+                            {new Date(row.approved_date).toLocaleDateString() +
                               " " +
-                              new Date(row.created_at).toLocaleTimeString()}
+                              new Date(row.approved_date).toLocaleTimeString()}
                           </TableCell>
                           <TableCell align="right">
                             {row.approval_type}

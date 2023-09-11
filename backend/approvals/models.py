@@ -17,6 +17,11 @@ class Approval(models.Model):
         null=True,
         on_delete=models.PROTECT,
     )
+    approved_date = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+    )
     submitted_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         related_name="approval_submitted",

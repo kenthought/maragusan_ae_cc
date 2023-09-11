@@ -138,6 +138,8 @@ ViewApproval.propTypes = {
 };
 
 export default function Approvals() {
+  const [open, setOpen] = useState(false);
+  const [options, setOptions] = useState([]);
   const {
     data: approvals,
     error: approvals_error,
@@ -147,8 +149,75 @@ export default function Approvals() {
   const [data, setData] = useState({});
   const [openViewApproval, setOpenViewApproval] = useState(false);
   const [openApproved, setOpenApproved] = useState(false);
+  const loading = open && options.length === 0;
   const [isSuccess, setIsSuccess] = useState(false);
+  const [selected, setSelected] = useState(null);
   const [successText, setSuccessText] = useState(false);
+
+  useEffect(() => {
+    if (!open) {
+      setOptions([]);
+    } else {
+      setOptions(approvals);
+    }
+  }, [open, approvals]);
+
+  const search = (
+    <>
+      <Autocomplete
+        freeSolo
+        id="asynchronous-demo"
+        open={open}
+        onOpen={() => {
+          setOpen(true);
+        }}
+        onClose={() => {
+          setOpen(false);
+        }}
+        onChange={(event, newValue) => {
+          setData(newValue);
+          setOpenViewApproval(true);
+        }}
+        size="small"
+        isOptionEqualToValue={(option, value) =>
+          option.old_data.account_name === value.title
+        }
+        getOptionLabel={(option) => option.old_data.account_name}
+        options={options}
+        renderOption={(props, option) => {
+          return (
+            <li {...props} key={option.id}>
+              {option.old_data.account_name}
+            </li>
+          );
+        }}
+        renderTags={(tagValue, getTagProps) => {
+          return tagValue.map((option, index) => (
+            <Chip {...getTagProps({ index })} key={option} label={option} />
+          ));
+        }}
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            placeholder="Search Account"
+            InputProps={{
+              ...params.InputProps,
+              endAdornment: (
+                <Fragment>
+                  {loading ? (
+                    <CircularProgress color="inherit" size={20} />
+                  ) : (
+                    <SearchIcon color="inherit" size={20} />
+                  )}
+                  {params.InputProps.endAdornment}
+                </Fragment>
+              ),
+            }}
+          />
+        )}
+      />
+    </>
+  );
 
   if (approvals_isLoading) return <Loading />;
 
@@ -171,6 +240,7 @@ export default function Approvals() {
           Approved
         </Button>
       </Typography>
+      {search}
       <Box elevation={0} sx={{ padding: 2 }}>
         <Box sx={{ textAlign: "center" }}>
           <Success
@@ -247,7 +317,7 @@ export default function Approvals() {
           )}
         </Box>
       </Box>
-      {openViewApproval && (
+      {openViewApproval && data != null && (
         <ViewApproval
           data={data}
           openViewApproval={openViewApproval}

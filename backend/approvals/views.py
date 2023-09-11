@@ -11,6 +11,7 @@ from django.db.models import F
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
+from datetime import datetime
 
 
 # Create your views here.
@@ -112,6 +113,7 @@ class ApprovalDetail(APIView):
         self.update_data(request.data)
         data = {
             "approved_by": request.data["approved_by"],
+            "approved_date": datetime.today().strftime("%m/%d/%Y %H:%M:%S"),
         }
         approval_serializer = ApprovalWriteSerializer(approval, data=data, partial=True)
 
