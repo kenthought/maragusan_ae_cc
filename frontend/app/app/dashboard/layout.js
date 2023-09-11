@@ -174,9 +174,17 @@ export default function DashboardLayout({ children, window }) {
         <ListItem disablePadding>
           <ListItemButton href={"/dashboard/home"} LinkComponent={Link}>
             <ListItemIcon>
-              <HomeIcon />
+              <HomeIcon color="primary" />
             </ListItemIcon>
-            <ListItemText color="primary" primary={"Home"} />
+            <ListItemText
+              primary={"Home"}
+              primaryTypographyProps={{
+                fontSize: 15,
+                fontWeight: "medium",
+                lineHeight: "20px",
+                mb: "2px",
+              }}
+            />
           </ListItemButton>
         </ListItem>
       </List>
@@ -189,9 +197,17 @@ export default function DashboardLayout({ children, window }) {
           }}
         >
           <ListItemIcon>
-            <TableRowsIcon />
+            <TableRowsIcon color="primary" />
           </ListItemIcon>
-          <ListItemText primary="Menu" />
+          <ListItemText
+            primary="Menu"
+            primaryTypographyProps={{
+              fontSize: 15,
+              fontWeight: "medium",
+              lineHeight: "20px",
+              mb: "2px",
+            }}
+          />
           {openMenu ? <ExpandLess /> : <ExpandMore />}
         </ListItemButton>
         <Collapse in={openMenu} timeout="auto" unmountOnExit>
@@ -203,7 +219,15 @@ export default function DashboardLayout({ children, window }) {
                 sx={{ pl: 4 }}
               >
                 <ListItemIcon>{menu.icon}</ListItemIcon>
-                <ListItemText primary={menu.label} />
+                <ListItemText
+                  primary={menu.label}
+                  primaryTypographyProps={{
+                    fontSize: 15,
+                    fontWeight: "medium",
+                    lineHeight: "20px",
+                    mb: "2px",
+                  }}
+                />
                 {menu.access == "admin" && (
                   <Chip label="A" color="primary" size="small" />
                 )}
@@ -217,9 +241,17 @@ export default function DashboardLayout({ children, window }) {
         <ListItem disablePadding>
           <ListItemButton href={"/dashboard/approvals"} LinkComponent={Link}>
             <ListItemIcon>
-              <LogoutIcon />
+              <LogoutIcon color="primary" />
             </ListItemIcon>
-            <ListItemText primary={"Approvals"} />{" "}
+            <ListItemText
+              primary={"Approvals"}
+              primaryTypographyProps={{
+                fontSize: 15,
+                fontWeight: "medium",
+                lineHeight: "20px",
+                mb: "2px",
+              }}
+            />{" "}
             <Chip label="A" color="primary" size="small" />
           </ListItemButton>
         </ListItem>
@@ -234,9 +266,17 @@ export default function DashboardLayout({ children, window }) {
           }}
         >
           <ListItemIcon>
-            <TableRowsIcon />
+            <TableRowsIcon color="primary" />
           </ListItemIcon>
-          <ListItemText primary="Components" />
+          <ListItemText
+            primary="Components"
+            primaryTypographyProps={{
+              fontSize: 15,
+              fontWeight: "medium",
+              lineHeight: "20px",
+              mb: "2px",
+            }}
+          />
           {openComponents ? <ExpandLess /> : <ExpandMore />}
         </ListItemButton>
         <Collapse in={openComponents} timeout="auto" unmountOnExit>
@@ -248,7 +288,15 @@ export default function DashboardLayout({ children, window }) {
                 sx={{ pl: 4 }}
               >
                 <ListItemIcon>{components.icon}</ListItemIcon>
-                <ListItemText primary={components.label} />
+                <ListItemText
+                  primary={components.label}
+                  primaryTypographyProps={{
+                    fontSize: 15,
+                    fontWeight: "medium",
+                    lineHeight: "20px",
+                    mb: "2px",
+                  }}
+                />
               </ListItemButton>
             </List>
           ))}
@@ -259,9 +307,17 @@ export default function DashboardLayout({ children, window }) {
         <ListItem disablePadding>
           <ListItemButton onClick={logout}>
             <ListItemIcon>
-              <LogoutIcon />
+              <LogoutIcon color="primary" />
             </ListItemIcon>
-            <ListItemText primary={"Logout"} />
+            <ListItemText
+              primary={"Logout"}
+              primaryTypographyProps={{
+                fontSize: 15,
+                fontWeight: "medium",
+                lineHeight: "20px",
+                mb: "2px",
+              }}
+            />
           </ListItemButton>
         </ListItem>
       </List>
