@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "balance",
     "approvals",
     "components",
+    "ledger",
     "rest_framework",
     "users",
     "corsheaders",
