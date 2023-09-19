@@ -20,6 +20,7 @@ import Typography from "@mui/material/Typography";
 import LogoutIcon from "@mui/icons-material/Logout";
 import MenuIcon from "@mui/icons-material/Menu";
 import HomeIcon from "@mui/icons-material/Home";
+import PersonIcon from "@mui/icons-material/Person";
 import TableRowsIcon from "@mui/icons-material/TableRows";
 import Collapse from "@mui/material/Collapse";
 import Fade from "@mui/material/Fade";
@@ -71,11 +72,6 @@ export default function DashboardLayout({ children, window }) {
     axiosInstance.defaults.headers["Authorization"] = null;
 
     signOut({ callbackUrl: "http://localhost:3000/login" });
-  };
-
-  const handleClick = () => {
-    setOpenComponents(!openComponents);
-    setOpenMenu(!openMenu);
   };
 
   const handleDrawerToggle = () => {
@@ -164,7 +160,11 @@ export default function DashboardLayout({ children, window }) {
   const drawer = (
     <div>
       <Toolbar>
-        <Typography variant="h6" sx={{ textAlign: "center", padding: "10px" }}>
+        <Typography
+          variant="h6"
+          component="div"
+          sx={{ textAlign: "center", padding: "10px", fontSize: "18px" }}
+        >
           Maragusan A&E Credit Corporation
         </Typography>
       </Toolbar>
@@ -301,6 +301,25 @@ export default function DashboardLayout({ children, window }) {
             </List>
           ))}
         </Collapse>
+      </List>
+      <Divider />
+      <List>
+        <ListItem disablePadding>
+          <ListItemButton href={"/dashboard/users"} LinkComponent={Link}>
+            <ListItemIcon>
+              <PersonIcon color="primary" />
+            </ListItemIcon>
+            <ListItemText
+              primary={"Users"}
+              primaryTypographyProps={{
+                fontSize: 15,
+                fontWeight: "medium",
+                lineHeight: "20px",
+                mb: "2px",
+              }}
+            />
+          </ListItemButton>
+        </ListItem>
       </List>
       <Divider />
       <List>
