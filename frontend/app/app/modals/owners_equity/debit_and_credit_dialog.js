@@ -67,8 +67,14 @@ export default function DebitDialog(props) {
       post: post,
       invoice_number: data.get("invoice_number"),
       particulars: data.get("particulars"),
-      credit: dialog == "Credit" ? parseInt(data.get("amount")) : 0,
-      debit: dialog == "Debit" ? parseInt(data.get("amount")) : 0,
+      credit:
+        dialog == "Credit"
+          ? parseFloat(data.get("amount").replace(/\,/g, ""), 10)
+          : 0,
+      debit:
+        dialog == "Debit"
+          ? parseFloat(data.get("amount").replace(/\,/g, ""), 10)
+          : 0,
       control_number: selected.control_number,
       owners_equity: selected.id,
       user: session.user.name[1],

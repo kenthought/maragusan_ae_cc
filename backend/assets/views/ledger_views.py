@@ -63,14 +63,14 @@ class LedgerDetail(APIView):
         for item in serializer.data:
             obj = item
             if count == 0:
-                obj["balance"] = int(obj["debit"]) - int(obj["credit"])
+                obj["balance"] = float(obj["debit"]) - float(obj["credit"])
             else:
                 if obj["debit"] != "0":
-                    obj["balance"] = int(array[count - 1]["balance"]) + int(
+                    obj["balance"] = float(array[count - 1]["balance"]) + float(
                         obj["debit"]
                     )
                 if obj["credit"] != "0":
-                    obj["balance"] = int(array[count - 1]["balance"]) - int(
+                    obj["balance"] = float(array[count - 1]["balance"]) - float(
                         obj["credit"]
                     )
             array.append(obj)

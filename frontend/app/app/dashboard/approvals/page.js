@@ -131,7 +131,6 @@ const ViewApproval = (props) => {
 
 ViewApproval.propTypes = {
   data: PropTypes.object.isRequired,
-  api: PropTypes.string.isRequired,
   openViewApproval: PropTypes.bool.isRequired,
   setOpenViewApproval: PropTypes.func.isRequired,
   approvalsMutate: PropTypes.func.isRequired,

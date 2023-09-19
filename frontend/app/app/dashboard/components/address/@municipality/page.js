@@ -80,6 +80,12 @@ const headCells = [
     disablePadding: true,
     label: "Municipality",
   },
+  {
+    id: "province",
+    numeric: false,
+    disablePadding: true,
+    label: "Province",
+  },
 ];
 
 function EnhancedTableHead(props) {
@@ -507,6 +513,14 @@ export default function Municipality() {
                           padding="none"
                         >
                           {row.municipality}
+                        </TableCell>
+                        <TableCell
+                          component="th"
+                          id={labelId}
+                          scope="row"
+                          padding="none"
+                        >
+                          {row.province.province}
                         </TableCell>
                         {/* Add additional cell if there are more data */}
                       </TableRow>
