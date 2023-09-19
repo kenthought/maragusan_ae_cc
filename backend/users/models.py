@@ -65,9 +65,15 @@ class UserData(AbstractUser, PermissionsMixin):
     first_name = models.CharField(max_length=100)
     middle_name = models.CharField(max_length=100, blank=True)
     last_name = models.CharField(max_length=100)
-    email = models.EmailField(max_length=100, unique=True)
-    business_code = models.CharField(max_length=3)
-    branch_code = models.CharField(max_length=3)
+    email = models.EmailField(max_length=100, unique=True, blank=True)
+    business_code = models.CharField(max_length=100)
+    branch = models.ForeignKey(
+        "components.Municipality",
+        related_name="user_branch",
+        on_delete=models.PROTECT,
+        null=True,
+    )
+    branch_code = models.CharField(default="00", max_length=100)
     date_joined = models.DateTimeField(auto_now_add=True)
     is_admin = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
@@ -78,13 +84,19 @@ class UserData(AbstractUser, PermissionsMixin):
 
     USERNAME_FIELD = "username"
     REQUIRED_FIELDS = [
-        "email",
         "first_name",
         "middle_name",
         "last_name",
         "business_code",
-        "branch_code",
     ]
 
     def __str__(self):
         return self.username
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+        if self.branch_code == None:
+            self.branch_code = str(self.branch).zfill(2)
+            # You need to call save two times since the id value is not accessible at creation
+            super().save()

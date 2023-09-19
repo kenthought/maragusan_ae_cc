@@ -41,125 +41,103 @@ import useSWR from "swr";
 import axiosInstance from "@/app/axios";
 import PropTypes from "prop-types";
 import { useSession } from "next-auth/react";
-import OwnersEquityView from "./views/owners_equity";
+import UserDialog from "@/app/modals/user/users_dialog";
 
 const fetcher = (url) => axiosInstance.get(url).then((res) => res.data);
 
-const ViewApproval = (props) => {
-  const {
-    data,
-    openViewApproval,
-    setOpenViewApproval,
-    approvalsMutate,
-    setIsSuccess,
-    setSuccessText,
-  } = props;
-  const { data: session } = useSession();
-  const [isError, setIsError] = useState(false);
-  const [errorText, setErrorText] = useState(false);
-  const {
-    data: barangay,
-    error: barangay_error,
-    isLoading: barangay_isLoading,
-  } = useSWR("components/barangay", fetcher);
-  const {
-    data: municipality,
-    error: municipality_error,
-    isLoading: municipality_isLoading,
-  } = useSWR("components/municipality", fetcher);
-  const {
-    data: province,
-    error: province_error,
-    isLoading: province_isLoading,
-  } = useSWR("components/province", fetcher);
-
-  const handleSuccessful = (bool, text) => {
-    setIsError(false);
-    setIsSuccess(bool);
-    setSuccessText(text);
-    approvalsMutate();
-    handleClose();
-  };
-
-  const handleSubmit = () => {
-    data.approved_by = session.user.name[1];
-    console.log("DATA", data);
-    axiosInstance
-      .put("approvals/" + data.id + "/", data)
-      .then((response) => {
-        handleSuccessful(true, data.approval_type + "ed successfully!");
-        console.log(response);
-      })
-      .catch((response) => {
-        console.log(response);
-        setIsError(true);
-        setErrorText(response.message);
-      });
-  };
+const ViewUser = (props) => {
+  const { data, openViewUser, setOpenViewUser } = props;
 
   const handleClose = () => {
-    setOpenViewApproval(false);
+    setOpenViewUser(false);
   };
 
-  if (barangay_isLoading || municipality_isLoading || province_isLoading)
-    return;
-
   return (
-    <Dialog open={openViewApproval} onClose={handleClose}>
+    <Dialog open={openViewUser} onClose={handleClose}>
       <DialogContent>
-        {data.type == "Owner's Equity" && (
-          <OwnersEquityView
-            data={data}
-            barangay={barangay}
-            municipality={municipality}
-            province={province}
-          />
-        )}
-        {isError ? <Alert severity="error">{errorText}</Alert> : <></>}
+        <Typography
+          component="h2"
+          variant="h6"
+          color="primary"
+          marginBottom={2}
+        >
+          User details
+        </Typography>
+        <Table aria-label="simple table" size="small">
+          <TableBody>
+            <TableRow>
+              <TableCell>Username:</TableCell>
+              <TableCell>{data.username}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>Email:</TableCell>
+              <TableCell>{data.email}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>First name:</TableCell>
+              <TableCell>{data.first_name}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>Middle name:</TableCell>
+              <TableCell>{data.middle_name}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>Last name:</TableCell>
+              <TableCell>{data.last_name}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>Status:</TableCell>
+              <TableCell>
+                {data.is_active ? (
+                  <Chip label="Active" color="success" />
+                ) : (
+                  <Chip label="Inactive" color="error" />
+                )}
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>Access:</TableCell>
+              <TableCell>
+                {data.is_staff ? (
+                  <Chip label="Admin" color="primary" />
+                ) : (
+                  <Chip label="User" color="secondary" />
+                )}
+              </TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
       </DialogContent>
-      <DialogActions>
-        <Button onClick={handleSubmit} variant="contained" color="success">
-          {data.approval_type}
-        </Button>
-        <Button onClick={handleClose} variant="contained" color="error">
-          Close
-        </Button>
-      </DialogActions>
     </Dialog>
   );
 };
 
-ViewApproval.propTypes = {
-  data: PropTypes.object.isRequired,
-  openViewApproval: PropTypes.bool.isRequired,
-  setOpenViewApproval: PropTypes.func.isRequired,
-  approvalsMutate: PropTypes.func.isRequired,
-};
-
-export default function Approvals() {
+export default function Users() {
   const [open, setOpen] = useState(false);
   const [options, setOptions] = useState([]);
   const {
-    data: approvals,
-    error: approvals_error,
-    isLoading: approvals_isLoading,
+    data: users,
+    error: users_error,
+    isLoading: users_isLoading,
     mutate,
-  } = useSWR("approvals/", fetcher);
+  } = useSWR("users/", fetcher);
   const [data, setData] = useState({});
-  const [openViewApproval, setOpenViewApproval] = useState(false);
-  const [openApproved, setOpenApproved] = useState(false);
+  const [openUserDialog, setOpenUserDialog] = useState(false);
+  const [openViewUser, setOpenViewUser] = useState(false);
   const loading = open && options.length === 0;
   const [isSuccess, setIsSuccess] = useState(false);
-  const [selected, setSelected] = useState(null);
   const [successText, setSuccessText] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editData, setEditData] = useState({});
 
   useEffect(() => {
     if (!open) {
       setOptions([]);
     } else {
-      setOptions(approvals);
+      setOptions(users);
     }
-  }, [open, approvals]);
+    console.log("asdasd", users);
+  }, [open, users]);
 
   const search = (
     <>
@@ -175,18 +153,18 @@ export default function Approvals() {
         }}
         onChange={(event, newValue) => {
           setData(newValue);
-          setOpenViewApproval(true);
+          setOpenViewUser(true);
         }}
         size="small"
         isOptionEqualToValue={(option, value) =>
-          option.old_data.account_name === value.title
+          option.first_name === value.title
         }
-        getOptionLabel={(option) => option.old_data.account_name}
+        getOptionLabel={(option) => option.first_name}
         options={options}
         renderOption={(props, option) => {
           return (
             <li {...props} key={option.id}>
-              {option.old_data.account_name}
+              {option.first_name}
             </li>
           );
         }}
@@ -198,7 +176,7 @@ export default function Approvals() {
         renderInput={(params) => (
           <TextField
             {...params}
-            placeholder="Search Account"
+            placeholder="Search user"
             InputProps={{
               ...params.InputProps,
               endAdornment: (
@@ -218,7 +196,7 @@ export default function Approvals() {
     </>
   );
 
-  if (approvals_isLoading) return <Loading />;
+  if (users_isLoading) return <Loading />;
 
   return (
     <>
@@ -229,14 +207,15 @@ export default function Approvals() {
         gutterBottom
         marginBottom={2}
       >
-        Approvals
+        Users
         <Button
           variant="outlined"
-          onClick={() => setOpenApproved(true)}
+          startIcon={<AddIcon />}
+          onClick={() => setOpenUserDialog(true)}
           color="primary"
           sx={{ marginLeft: 2 }}
         >
-          Approved
+          Add user
         </Button>
       </Typography>
       {search}
@@ -247,7 +226,7 @@ export default function Approvals() {
             setIsSuccess={setIsSuccess}
             successText={successText}
           />
-          {approvals.length != 0 ? (
+          {users.length != 0 ? (
             <TableContainer component={Paper}>
               <Table
                 sx={{ minWidth: 650 }}
@@ -256,17 +235,18 @@ export default function Approvals() {
               >
                 <TableHead>
                   <TableRow>
-                    <TableCell>Date & Time</TableCell>
-                    <TableCell align="right">Approval</TableCell>
-                    <TableCell align="right">Type</TableCell>
-                    <TableCell align="right">Account #</TableCell>
-                    <TableCell align="right">Account name</TableCell>
-                    <TableCell align="right">Requested by</TableCell>
+                    <TableCell>First name</TableCell>
+                    <TableCell align="right">Middle name</TableCell>
+                    <TableCell align="right">Last name</TableCell>
+                    <TableCell align="right">Bussiness code</TableCell>
+                    <TableCell align="right">Branch code</TableCell>
+                    <TableCell align="right">Status</TableCell>
+                    <TableCell align="right">Access</TableCell>
                     <TableCell align="right">Action</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {approvals.map((row) => {
+                  {users.map((row) => {
                     // const data = JSON.parse(row.data);
                     return (
                       <TableRow
@@ -276,20 +256,25 @@ export default function Approvals() {
                         }}
                       >
                         <TableCell component="th" scope="row">
-                          {new Date(row.created_at).toLocaleDateString() +
-                            " " +
-                            new Date(row.created_at).toLocaleTimeString()}
+                          {row.first_name}
                         </TableCell>
-                        <TableCell align="right">{row.approval_type}</TableCell>
-                        <TableCell align="right">{row.type}</TableCell>
+                        <TableCell align="right">{row.middle_name}</TableCell>
+                        <TableCell align="right">{row.last_name}</TableCell>
+                        <TableCell align="right">{row.business_code}</TableCell>
+                        <TableCell align="right">{row.branch_code}</TableCell>
                         <TableCell align="right">
-                          {row.account_number}
+                          {row.is_active ? (
+                            <Chip label={"Active"} color={"success"} />
+                          ) : (
+                            <Chip label={"Active"} color={"error"} />
+                          )}
                         </TableCell>
                         <TableCell align="right">
-                          {row.old_data.account_name}
-                        </TableCell>
-                        <TableCell align="right">
-                          {row.submitted_by.first_name}
+                          {row.is_staff ? (
+                            <Chip label={"Admin"} color={"primary"} />
+                          ) : (
+                            <Chip label={"User"} color={"secondary"} />
+                          )}
                         </TableCell>
                         <TableCell align="right">
                           <Button
@@ -298,7 +283,7 @@ export default function Approvals() {
                             color="primary"
                             onClick={() => {
                               setData(row);
-                              setOpenViewApproval(true);
+                              setOpenViewUser(true);
                             }}
                             size="small"
                           >
@@ -312,24 +297,28 @@ export default function Approvals() {
               </Table>
             </TableContainer>
           ) : (
-            <Typography align="left">No pending approvals</Typography>
+            <Typography align="left">No pending users</Typography>
           )}
         </Box>
       </Box>
-      {openViewApproval && data != null && (
-        <ViewApproval
+
+      <UserDialog
+        openUserDialog={openUserDialog}
+        setOpenUserDialog={setOpenUserDialog}
+        setIsSuccess={setIsSuccess}
+        setSuccessText={setSuccessText}
+        mutate={!isEditing ? mutate : UserInfoMutate}
+        isEditing={isEditing}
+        setIsEditing={setIsEditing}
+        editData={editData}
+      />
+      {openViewUser && data != null && (
+        <ViewUser
           data={data}
-          openViewApproval={openViewApproval}
-          setOpenViewApproval={setOpenViewApproval}
-          approvalsMutate={mutate}
-          setSuccessText={setSuccessText}
-          setIsSuccess={setIsSuccess}
+          openViewUser={openViewUser}
+          setOpenViewUser={setOpenViewUser}
         />
       )}
-      <ApprovedDialog
-        openApproved={openApproved}
-        setOpenApproved={setOpenApproved}
-      />
     </>
   );
 }

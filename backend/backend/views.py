@@ -192,14 +192,14 @@ class DailyClosingToday(APIView):
                 obj["cash_out"] = obj["debit"]
 
             if count == 0:
-                obj["balance"] = int(obj["cash_in"]) - int(obj["cash_out"])
+                obj["balance"] = float(obj["cash_in"]) - float(obj["cash_out"])
             else:
                 if obj["cash_in"] != "0":
-                    obj["balance"] = int(temp[count - 1]["balance"]) + int(
+                    obj["balance"] = float(temp[count - 1]["balance"]) + float(
                         obj["cash_in"]
                     )
                 if obj["cash_out"] != "0":
-                    obj["balance"] = int(temp[count - 1]["balance"]) - int(
+                    obj["balance"] = float(temp[count - 1]["balance"]) - float(
                         obj["cash_out"]
                     )
             daily_closing.append(obj)

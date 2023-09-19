@@ -22,11 +22,13 @@ class UserSerializer(serializers.ModelSerializer):
         model = UserData
         fields = [
             "username",
+            "password",
             "email",
             "first_name",
             "middle_name",
             "last_name",
             "is_staff",
+            "is_active",
             "business_code",
             "branch_code",
         ]

@@ -20,6 +20,8 @@ export const NumericFormatCustom = forwardRef(function NumericFormatCustom(
           },
         });
       }}
+      decimalScale={2}
+      fixedDecimalScale
       thousandSeparator
       valueIsNumericString
     />

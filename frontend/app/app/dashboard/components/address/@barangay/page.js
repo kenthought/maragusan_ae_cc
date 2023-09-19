@@ -80,6 +80,18 @@ const headCells = [
     disablePadding: true,
     label: "Barangay",
   },
+  {
+    id: "municipality",
+    numeric: false,
+    disablePadding: true,
+    label: "Municipality",
+  },
+  {
+    id: "province",
+    numeric: false,
+    disablePadding: true,
+    label: "Province",
+  },
 ];
 
 function EnhancedTableHead(props) {
@@ -358,6 +370,7 @@ export default function Barangay() {
     const isAsc = orderBy === property && order === "asc";
     setOrder(isAsc ? "desc" : "asc");
     setOrderBy(property);
+    console.log("property:", property, "isAsc:", isAsc);
   };
 
   const handleSelectAllClick = (event) => {
@@ -506,6 +519,22 @@ export default function Barangay() {
                           padding="none"
                         >
                           {row.barangay}
+                        </TableCell>
+                        <TableCell
+                          component="th"
+                          id={labelId}
+                          scope="row"
+                          padding="none"
+                        >
+                          {row.municipality.municipality}
+                        </TableCell>
+                        <TableCell
+                          component="th"
+                          id={labelId}
+                          scope="row"
+                          padding="none"
+                        >
+                          {row.municipality.province.province}
                         </TableCell>
                         {/* Add additional cell if there are more data */}
                       </TableRow>
