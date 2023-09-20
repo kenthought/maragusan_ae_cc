@@ -57,6 +57,7 @@ export default function UserDialog(props) {
     owners_equity: false,
     payables: false,
     receivables: false,
+    approvals: false,
   });
 
   useEffect(() => {
@@ -112,7 +113,8 @@ export default function UserDialog(props) {
         branch: municipalityData.id,
         is_staff: userAccess == "admin" ? true : false,
         is_admin: userAccess == "admin" ? true : false,
-        granted_access: userAccess == "admin" ? null : grantedAccess,
+        granted_access:
+          userAccess == "admin" ? null : JSON.stringify(grantedAccess),
       };
 
       if (!isEditing) {
@@ -516,6 +518,16 @@ export default function UserDialog(props) {
                       />
                     }
                     label="Receivables"
+                  />
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={grantedAccess.approvals}
+                        onChange={handleGrantedAccessChange}
+                        name="approvals"
+                      />
+                    }
+                    label="Approvals"
                   />
                 </FormGroup>
               </FormControl>

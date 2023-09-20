@@ -7,20 +7,12 @@ class UserManager(BaseUserManager):
     use_in_migration = True
 
     def create_user(
-        self,
-        username,
-        password,
-        email,
-        first_name,
-        middle_name,
-        last_name,
-        **extra_fields
+        self, username, password, first_name, middle_name, last_name, **extra_fields
     ):
         if not username:
             raise ValueError("Username is Required")
         user = self.model(
             username=username,
-            email=email,
             first_name=first_name,
             middle_name=middle_name,
             last_name=last_name,
@@ -31,14 +23,7 @@ class UserManager(BaseUserManager):
         return user
 
     def create_superuser(
-        self,
-        username,
-        password,
-        email,
-        first_name,
-        middle_name,
-        last_name,
-        **extra_fields
+        self, username, password, first_name, middle_name, last_name, **extra_fields
     ):
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
@@ -50,13 +35,7 @@ class UserManager(BaseUserManager):
             raise ValueError("Superuser must have is_superuser = True")
 
         return self.create_user(
-            username,
-            password,
-            email,
-            first_name,
-            middle_name,
-            last_name,
-            **extra_fields
+            username, password, first_name, middle_name, last_name, **extra_fields
         )
 
 
@@ -65,7 +44,7 @@ class UserData(AbstractUser, PermissionsMixin):
     first_name = models.CharField(max_length=100)
     middle_name = models.CharField(max_length=100, blank=True)
     last_name = models.CharField(max_length=100)
-    email = models.EmailField(max_length=100, unique=True, blank=True)
+    email = models.EmailField(max_length=100, blank=True)
     business_code = models.CharField(max_length=100)
     branch = models.ForeignKey(
         "components.Municipality",

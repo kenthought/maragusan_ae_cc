@@ -5,16 +5,39 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .serializers import UserSerializer
 from .models import UserData
 from django.http import Http404
+from user_permissions.serializers import UserPermissionsSerializer
 
 
 # Create your views here.
 class RegisterUser(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
+    def set_permissions(self, permissions, id):
+        data = {
+            "permissions": permissions,
+            "user": id,
+        }
+        print(data)
+        user_permission = UserPermissionsSerializer(data=data)
+        if user_permission.is_valid():
+            user_permission.save()
+            return "Success"
+        else:
+            print(user_permission.errors)
+            return user_permission.errors
+
     def post(self, request):
         serializer = UserSerializer(data=request.data)
+
         if serializer.is_valid():
             serializer.save()
+            if request.data["is_admin"] is False:
+                permissions = self.set_permissions(
+                    request.data["granted_access"], serializer.data["id"]
+                )
+                if permissions != "Success":
+                    return Response(permissions, status=status.HTTP_400_BAD_REQUEST)
+
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

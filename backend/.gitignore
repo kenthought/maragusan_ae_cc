@@ -3,5 +3,5 @@
 *.pyc
 __pycache__/
 *.py[cod]
-migrations/*
+migrations/
 !migrations/__init__.py

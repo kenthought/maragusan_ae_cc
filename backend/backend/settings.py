@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "ledger",
     "rest_framework",
     "users",
+    "user_permissions",
     "corsheaders",
     "rest_framework_simplejwt.token_blacklist",
     "django.contrib.admin",
