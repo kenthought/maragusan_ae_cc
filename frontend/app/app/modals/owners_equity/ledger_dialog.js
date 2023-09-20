@@ -235,7 +235,7 @@ export default function LedgerDialog(props) {
               </Table>
 
               <Typography component="div" padding={2}>
-                Balance: {ledger[ledger.length - 1].balance}
+                Balance: {numFormat(ledger[ledger.length - 1].balance)}
               </Typography>
             </TableContainer>
           ) : (
