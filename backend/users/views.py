@@ -2,7 +2,7 @@ from rest_framework import status, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
-from .serializers import UserSerializer
+from .serializers import UserSerializer, UserViewSerializer
 from .models import UserData
 from django.http import Http404
 from user_permissions.serializers import UserPermissionsSerializer
@@ -47,7 +47,7 @@ class UserList(APIView):
 
     def get(self, request, format=None):
         user = UserData.objects.all()
-        serializer = UserSerializer(user, many=True)
+        serializer = UserViewSerializer(user, many=True)
         return Response(serializer.data)
 
 
@@ -62,7 +62,7 @@ class UserDetail(APIView):
 
     def get(self, request, pk, format=None):
         user = self.get_object(pk)
-        serializer = UserSerializer(user)
+        serializer = UserViewSerializer(user)
         return Response(serializer.data)
 
     def put(self, request, pk, format=None):

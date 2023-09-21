@@ -17,6 +17,24 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         return token
 
 
+class UserViewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserData
+        fields = [
+            "id",
+            "username",
+            "password",
+            "email",
+            "first_name",
+            "middle_name",
+            "last_name",
+            "is_staff",
+            "is_active",
+            "business_code",
+            "branch_code",
+        ]
+
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserData
@@ -32,6 +50,7 @@ class UserSerializer(serializers.ModelSerializer):
             "is_active",
             "business_code",
             "branch_code",
+            "branch",
         ]
 
     def create(self, validated_data):

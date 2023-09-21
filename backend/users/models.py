@@ -75,7 +75,7 @@ class UserData(AbstractUser, PermissionsMixin):
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
 
-        if self.branch_code == None:
-            self.branch_code = str(self.branch).zfill(2)
+        if self.branch is not None:
+            self.branch_code = str(self.branch.id).zfill(2)
             # You need to call save two times since the id value is not accessible at creation
             super().save()
