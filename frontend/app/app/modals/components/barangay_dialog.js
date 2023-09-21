@@ -17,6 +17,96 @@ import Chip from "@mui/material/Chip";
 
 const fetcher = (url) => axiosInstance.get(url).then((res) => res.data);
 
+const Municipality = (props) => {
+  const { id, setMunicipalityData, municipalityData, isEditing, newData } =
+    props;
+  const {
+    data: municipality,
+    error: municipality_error,
+    isLoading: municipality_isLoading,
+  } = useSWR("components/province_municipalities/" + id, fetcher);
+
+  if (municipality_isLoading) return;
+
+  if (isEditing)
+    return (
+      <Autocomplete
+        disablePortal
+        getOptionLabel={(option) => option.municipality}
+        options={municipality}
+        size="small"
+        value={newData.municipality || null}
+        onChange={(event, newInputValue) => {
+          setMunicipalityData(newInputValue);
+        }}
+        inputValue={municipalityData ? municipalityData.municipality : ""}
+        // onInputChange={(event, newInputValue) => {
+        //   console.log("asdasd", newInputValue);
+        //   setmunicipalityData(newInputValue);
+        // }}
+        renderOption={(props, option) => {
+          return (
+            <li {...props} key={option.id}>
+              {option.municipality}
+            </li>
+          );
+        }}
+        renderTags={(tagValue, getTagProps) => {
+          return tagValue.map((option, index) => (
+            <Chip {...getTagProps({ index })} key={option} label={option} />
+          ));
+        }}
+        renderInput={(params) => (
+          <TextField
+            margin="normal"
+            required
+            id="municipality"
+            label="Municipality"
+            name="municipality"
+            fullWidth
+            {...params}
+          />
+        )}
+      />
+    );
+
+  return (
+    <Autocomplete
+      disablePortal
+      getOptionLabel={(option) => option.municipality}
+      options={municipality}
+      size="small"
+      onChange={(event, newInputValue) => {
+        if (newInputValue != null) setMunicipalityData(newInputValue);
+        else setMunicipalityData(null);
+      }}
+      renderOption={(props, option) => {
+        return (
+          <li {...props} key={option.id}>
+            {option.municipality}
+          </li>
+        );
+      }}
+      renderTags={(tagValue, getTagProps) => {
+        return tagValue.map((option, index) => (
+          <Chip {...getTagProps({ index })} key={option} label={option} />
+        ));
+      }}
+      renderInput={(params) => (
+        <TextField
+          margin="normal"
+          required
+          id="municipality"
+          label="Municipality"
+          name="municipality"
+          fullWidth
+          {...params}
+        />
+      )}
+    />
+  );
+};
+
 export default function BarangayDialog(props) {
   const {
     openBarangayDialog,
@@ -32,18 +122,23 @@ export default function BarangayDialog(props) {
   const [isError, setIsError] = useState(false);
   const [errorText, setErrorText] = useState(false);
   const { data: session } = useSession();
-  const [newData, setNewData] = useState({});
+  const [newData, setNewData] = useState(null);
   const [municipalityData, setMunicipalityData] = useState(null);
+  const [provinceData, setProvinceData] = useState(null);
   const {
-    data: municipality,
-    error: municipality_error,
-    isLoading: municipality_isLoading,
-  } = useSWR("components/municipality", fetcher);
+    data: province,
+    error: province_error,
+    isLoading: province_isLoading,
+  } = useSWR("components/province", fetcher);
 
   useEffect(() => {
-    setNewData(editData);
-    if (isEditing) setMunicipalityData(editData.municipality);
-  }, [editData, isEditing]);
+    if (isEditing) {
+      setNewData(editData);
+      setProvinceData(editData.municipality.province);
+      setMunicipalityData(editData.municipality);
+      console.log("123123", newData);
+    }
+  }, [editData, isEditing, newData]);
 
   const handleEditChange = (event) => {
     const value = event.target.value;
@@ -71,7 +166,7 @@ export default function BarangayDialog(props) {
     const postData = {
       barangay: data.get("barangay"),
       municipality: municipalityData.id,
-      province: municipalityData.province.id,
+      province: provinceData.id,
       user: session.user.name[1],
     };
 
@@ -111,7 +206,7 @@ export default function BarangayDialog(props) {
         });
   };
 
-  if (municipality_isLoading) return;
+  if (province_isLoading) return;
 
   return (
     <Dialog open={openBarangayDialog} onClose={handleClose} fullWidth>
@@ -120,46 +215,19 @@ export default function BarangayDialog(props) {
         <DialogContent>
           <Typography color="primary">Barangay Information</Typography>
           {!isEditing ? (
-            <TextField
-              margin="normal"
-              required
-              autoFocus
-              fullWidth
-              id="barangay"
-              label="Barangay"
-              name="barangay"
-              type="text"
-              size="small"
-            />
-          ) : (
-            <TextField
-              margin="normal"
-              required
-              autoFocus
-              fullWidth
-              id="barangay"
-              label="Barangay"
-              name="barangay"
-              value={newData.barangay || ""}
-              onChange={handleEditChange}
-              type="text"
-              size="small"
-            />
-          )}
-
-          {!isEditing ? (
             <Autocomplete
               disablePortal
-              getOptionLabel={(option) => option.municipality}
-              options={municipality}
+              getOptionLabel={(option) => option.province}
+              options={province}
               size="small"
               onChange={(event, newInputValue) => {
-                if (newInputValue != null) setMunicipalityData(newInputValue);
+                if (newInputValue != null) setProvinceData(newInputValue);
+                else setProvinceData(null);
               }}
               renderOption={(props, option) => {
                 return (
                   <li {...props} key={option.id}>
-                    {option.municipality}
+                    {option.province}
                   </li>
                 );
               }}
@@ -176,69 +244,120 @@ export default function BarangayDialog(props) {
                 <TextField
                   margin="normal"
                   required
-                  id="municipality"
-                  label="Municipality"
-                  name="municipality"
+                  id="province"
+                  label="Province"
+                  name="province"
                   fullWidth
                   {...params}
                 />
               )}
             />
           ) : (
-            <Autocomplete
-              disablePortal
-              getOptionLabel={(option) => option.municipality}
-              options={municipality}
-              size="small"
-              value={newData.municipality || null}
-              onChange={(event, newInputValue) => {
-                setMunicipalityData(newInputValue);
-              }}
-              inputValue={municipalityData ? municipalityData.municipality : ""}
-              // onInputChange={(event, newInputValue) => {
-              //   console.log("asdasd", newInputValue);
-              //   setmunicipalityData(newInputValue);
-              // }}
-              renderOption={(props, option) => {
-                return (
-                  <li {...props} key={option.id}>
-                    {option.municipality}
-                  </li>
-                );
-              }}
-              renderTags={(tagValue, getTagProps) => {
-                return tagValue.map((option, index) => (
-                  <Chip
-                    {...getTagProps({ index })}
-                    key={option}
-                    label={option}
+            newData && (
+              <Autocomplete
+                disablePortal
+                getOptionLabel={(option) => option.province}
+                options={province}
+                size="small"
+                value={newData.municipality.province || null}
+                onChange={(event, newInputValue) => {
+                  console.log(newInputValue);
+                  setProvinceData(newInputValue);
+                  setMunicipalityData(null);
+                }}
+                inputValue={provinceData ? provinceData.province : ""}
+                // onInputChange={(event, newInputValue) => {
+                //   console.log("asdasd", newInputValue);
+                //   setmunicipalityData(newInputValue);
+                // }}
+                renderOption={(props, option) => {
+                  return (
+                    <li {...props} key={option.id}>
+                      {option.province}
+                    </li>
+                  );
+                }}
+                renderTags={(tagValue, getTagProps) => {
+                  return tagValue.map((option, index) => (
+                    <Chip
+                      {...getTagProps({ index })}
+                      key={option}
+                      label={option}
+                    />
+                  ));
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    margin="normal"
+                    required
+                    id="province"
+                    label="Province"
+                    name="province"
+                    fullWidth
+                    {...params}
                   />
-                ));
-              }}
-              renderInput={(params) => (
-                <TextField
-                  margin="normal"
-                  required
-                  id="municipality"
-                  label="Municipality"
-                  name="municipality"
-                  fullWidth
-                  {...params}
-                />
-              )}
+                )}
+              />
+            )
+          )}
+          {provinceData ? (
+            <Municipality
+              setMunicipalityData={setMunicipalityData}
+              municipalityData={municipalityData}
+              id={provinceData.id}
+              isEditing={isEditing}
+              newData={newData}
+            />
+          ) : (
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              label="Municipality"
+              type="text"
+              size="small"
+              disabled
             />
           )}
-
-          <TextField
-            margin="normal"
-            fullWidth
-            label="Province"
-            value={municipalityData ? municipalityData.province.province : ""}
-            onChange={handleEditChange}
-            type="text"
-            size="small"
-            readOnly
-          />
+          {municipalityData ? (
+            !isEditing ? (
+              <TextField
+                margin="normal"
+                required
+                autoFocus
+                fullWidth
+                id="barangay"
+                label="Barangay"
+                name="barangay"
+                type="text"
+                size="small"
+              />
+            ) : (
+              <TextField
+                margin="normal"
+                required
+                autoFocus
+                fullWidth
+                id="barangay"
+                label="Barangay"
+                name="barangay"
+                value={newData.barangay || ""}
+                onChange={handleEditChange}
+                type="text"
+                size="small"
+              />
+            )
+          ) : (
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              label="Barangay"
+              type="text"
+              size="small"
+              disabled
+            />
+          )}
 
           {isError ? <Alert severity="error">{errorText}</Alert> : <></>}
         </DialogContent>

@@ -24,6 +24,9 @@ urlpatterns = [
     path("municipality/", MunicipalityList.as_view()),
     path("municipality/<int:pk>/", MunicipalityDetail.as_view()),
     path("municipality/<str:pk_ids>/", MunicipalityList.as_view()),
+    path(
+        "province_municipalities/<int:province_id>/", ProvinceMunicipalities.as_view()
+    ),
     path("province/", ProvinceList.as_view()),
     path("province/<int:pk>/", ProvinceDetail.as_view()),
     path("province/<str:pk_ids>/", ProvinceList.as_view()),

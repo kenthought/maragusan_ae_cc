@@ -58,3 +58,18 @@ class MunicipalityDetail(APIView):
         municipality = self.get_object(pk)
         municipality.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class ProvinceMunicipalities(APIView):
+    permissions_clases = [permissions.IsAuthenticated]
+
+    def get_object(self, province_id):
+        try:
+            return Municipality.objects.filter(province_id=province_id)
+        except Municipality.DoesNotExist:
+            raise Http404
+
+    def get(self, request, province_id, format=None):
+        municipality = self.get_object(province_id)
+        serializer = MunicipalityViewSerializer(municipality, many=True)
+        return Response(serializer.data)
