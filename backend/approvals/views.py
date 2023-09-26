@@ -12,6 +12,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
 from datetime import datetime
+from users.models import UserData
 
 
 # Create your views here.
@@ -109,21 +110,29 @@ class ApprovalDetail(APIView):
         return Response(serializer.data)
 
     def put(self, request, pk, format=None):
-        approval = self.get_object(pk)
-        self.update_data(request.data)
-        data = {
-            "approved_by": request.data["approved_by"],
-            "approved_date": datetime.today().strftime("%m/%d/%Y %H:%M:%S"),
-        }
-        approval_serializer = ApprovalWriteSerializer(approval, data=data, partial=True)
+        user = UserData.objects.get(username=request.user)
 
-        if approval_serializer.is_valid():
-            approval_serializer.save()
-            return Response(approval_serializer.data)
-        else:
-            return Response(
-                approval_serializer.errors, status=status.HTTP_400_BAD_REQUEST
+        if user.check_password(request.data["password"]):
+            print("Correct password!")
+            approval = self.get_object(pk)
+            self.update_data(request.data)
+            data = {
+                "approved_by": request.data["approved_by"],
+                "approved_date": datetime.today().strftime("%m/%d/%Y %H:%M:%S"),
+            }
+            approval_serializer = ApprovalWriteSerializer(
+                approval, data=data, partial=True
             )
+
+            if approval_serializer.is_valid():
+                approval_serializer.save()
+                return Response(approval_serializer.data)
+            else:
+                return Response(
+                    approval_serializer.errors, status=status.HTTP_400_BAD_REQUEST
+                )
+        else:
+            return Response("Invalid Password!", status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk, format=None):
         approval = self.get_object(pk)

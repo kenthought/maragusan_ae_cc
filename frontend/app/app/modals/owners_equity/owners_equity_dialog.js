@@ -26,7 +26,6 @@ export default function OwnersEquityDialog(props) {
     setSuccessText,
     mutate,
     isEditing,
-    setIsEditing,
     editData,
   } = props;
   const {
@@ -64,6 +63,15 @@ export default function OwnersEquityDialog(props) {
     if (isEditing) setBarangayData(editData.barangay);
   }, [editData, isEditing]);
 
+  const generateControlNumber = () => {
+    var number;
+    do {
+      number = Math.floor(Math.random() * 9999);
+    } while (number < 1);
+
+    return number;
+  };
+
   const handleEditChange = (event) => {
     const value = event.target.value;
     setNewData({ ...newData, [event.target.name]: value });
@@ -71,7 +79,6 @@ export default function OwnersEquityDialog(props) {
 
   const handleClose = () => {
     setOpenOwnersEquityDialog(false);
-    setIsEditing(false);
     setBarangayData(null);
   };
 
@@ -178,27 +185,29 @@ export default function OwnersEquityDialog(props) {
             <TextField
               margin="normal"
               required
-              autoFocus
               fullWidth
               id="control_number"
               label="Control number"
               name="control_number"
               type="text"
               size="small"
+              value={generateControlNumber().toString()}
+              autoComplete="off"
+              readOnly
             />
           ) : (
             <TextField
               margin="normal"
               required
-              autoFocus
               fullWidth
               id="control_number"
               label="Control number"
               name="control_number"
               value={newData.control_number || ""}
-              onChange={handleEditChange}
               type="text"
               size="small"
+              autoComplete="off"
+              readOnly
             />
           )}
           {/* Account Name */}
@@ -213,6 +222,7 @@ export default function OwnersEquityDialog(props) {
               name="account_name"
               type="text"
               size="small"
+              autoComplete="off"
             />
           ) : (
             <TextField
@@ -227,6 +237,7 @@ export default function OwnersEquityDialog(props) {
               onChange={handleEditChange}
               type="text"
               size="small"
+              autoComplete="off"
             />
           )}
           {/* Account Status */}
@@ -246,6 +257,7 @@ export default function OwnersEquityDialog(props) {
               onChange={handleEditChange}
               select
               size="small"
+              autoComplete="off"
             >
               {accountStatus.map((option) => (
                 <MenuItem key={option.id} value={option.id}>
@@ -262,19 +274,18 @@ export default function OwnersEquityDialog(props) {
             <TextField
               margin="normal"
               required
-              autoFocus
               fullWidth
               id="purok_street"
               label="Purok/Street"
               name="purok_street"
               type="text"
               size="small"
+              autoComplete="off"
             />
           ) : (
             <TextField
               margin="normal"
               required
-              autoFocus
               fullWidth
               id="purok_street"
               label="Purok/Street"
@@ -283,6 +294,7 @@ export default function OwnersEquityDialog(props) {
               onChange={handleEditChange}
               type="text"
               size="small"
+              autoComplete="off"
             />
           )}
           {/* Barangay */}
@@ -408,6 +420,5 @@ OwnersEquityDialog.propTypes = {
   setIsSuccess: PropTypes.func.isRequired,
   mutate: PropTypes.func.isRequired,
   isEditing: PropTypes.bool.isRequired,
-  setIsEditing: PropTypes.func.isRequired,
   editData: PropTypes.object.isRequired,
 };

@@ -2,20 +2,24 @@ import { useState, useEffect, forwardRef } from "react";
 import { IMaskInput } from "react-imask";
 import PropTypes from "prop-types";
 
-export const MaskNumberCustom = forwardRef(function TextMaskCustom(props, ref) {
+export const MaskControlNumber = forwardRef(function TextMaskCustom(
+  props,
+  ref
+) {
   const { onChange, ...other } = props;
   return (
     <IMaskInput
       {...other}
-      mask="(#00) 000-0000"
+      mask="0000"
+      displayChar="*"
       inputRef={ref}
       onAccept={(value) => onChange({ target: { name: props.name, value } })}
-      overwrite
+      overwrite="shift"
     />
   );
 });
 
-MaskNumberCustom.propTypes = {
+MaskControlNumber.propTypes = {
   name: PropTypes.string.isRequired,
   onChange: PropTypes.func.isRequired,
 };

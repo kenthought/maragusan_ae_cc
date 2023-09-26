@@ -28,6 +28,8 @@ import Success from "../../utils/success";
 import Loading from "@/app/utils/loading";
 import DebitAndCreditDialog from "./debit_and_credit_dialog";
 import useSWR from "swr";
+import { jsPDF } from "jspdf";
+import "jspdf-autotable";
 
 const fetcher = (url) => axiosInstance.get(url).then((res) => res.data);
 
@@ -67,6 +69,58 @@ export default function LedgerDialog(props) {
   const handleClose = () => {
     setIsSuccess(false);
     setOpenLedgerDialog(false);
+  };
+
+  const exportToPDF = () => {
+    const unit = "pt";
+    const size = "A4"; // Use A1, A2, A3 or A4
+    const orientation = "portrait"; // portrait or landscape
+
+    const marginLeft = 40;
+    const doc = new jsPDF(orientation, unit, size);
+
+    doc.setFontSize(12);
+
+    const title = "Owner's equity ledger";
+    const headers = [
+      [
+        "Date",
+        "Invoice #",
+        "Particulars",
+        "Debit",
+        "Credit",
+        "Balance",
+        "Trans no.",
+        "User",
+        "Time",
+      ],
+    ];
+
+    const data = ledger.map((elt) => [
+      new Date(elt.created_at).toLocaleDateString(),
+      elt.invoice_number,
+      elt.particulars,
+      numFormat(parseFloat(elt.debit)),
+      numFormat(parseFloat(elt.credit)),
+      numFormat(parseFloat(elt.balance)),
+      elt.trans_number,
+      elt.user.first_name,
+      new Date(elt.created_at).toLocaleTimeString(),
+    ]);
+
+    let content = {
+      startY: 110,
+      head: headers,
+      body: data,
+      theme: "plain",
+    };
+
+    doc.text(new Date().toDateString(), 450, 20);
+    doc.text(title, marginLeft, 50);
+    doc.text("Account number: " + selected.account_number, marginLeft, 70);
+    doc.text("Account name: " + selected.account_name, 250, 70);
+    doc.autoTable(content);
+    doc.save("soa.pdf");
   };
 
   const exportToExcel = () => {
@@ -264,7 +318,7 @@ export default function LedgerDialog(props) {
           >
             Credit
           </Button>
-          <Button variant="contained" onClick={exportToExcel}>
+          <Button variant="contained" onClick={exportToPDF}>
             Print Soa
           </Button>
           <Button variant="contained" onClick={handleClose} color="error">
@@ -282,6 +336,11 @@ export default function LedgerDialog(props) {
             mutate={mutate}
             setIsSuccess={setIsSuccess}
             setSuccessText={setSuccessText}
+            balance={
+              ledger.length != 0
+                ? numFormat(ledger[ledger.length - 1].balance)
+                : 0
+            }
           />
         </>
       )}

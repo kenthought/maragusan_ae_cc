@@ -77,7 +77,7 @@ const OwnersEquityInformation = (props) => {
   if (error) return <Typography>Unable to fetch data!</Typography>;
 
   return (
-    <Card sx={{ padding: 2, position: "relative" }}>
+    <Card sx={{ padding: 2, position: "relative", width: 600 }}>
       <Typography component="h2" variant="h6" color="primary" marginBottom={2}>
         Owners Equity Information
       </Typography>
@@ -125,37 +125,18 @@ const OwnersEquityInformation = (props) => {
             <Divider />
           </Grid>
           <Grid item xs={12} md={4}>
-            <Typography>Purok/Street:</Typography>
+            <Typography>Address:</Typography>
           </Grid>
           <Grid item xs={12} md={8}>
-            <Typography>{data.purok_street}</Typography>
-          </Grid>
-          <Grid item xs={12}>
-            <Divider />
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <Typography>Barangay:</Typography>
-          </Grid>
-          <Grid item xs={12} md={8}>
-            <Typography>{data.barangay.barangay}</Typography>
-          </Grid>
-          <Grid item xs={12}>
-            <Divider />
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <Typography>Municipality:</Typography>
-          </Grid>
-          <Grid item xs={12} md={8}>
-            <Typography>{data.municipality.municipality}</Typography>
-          </Grid>
-          <Grid item xs={12}>
-            <Divider />
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <Typography>Province:</Typography>
-          </Grid>
-          <Grid item xs={12} md={8}>
-            <Typography>{data.province.province}</Typography>
+            <Typography>
+              {data.purok_street +
+                ", " +
+                data.barangay.barangay +
+                ", " +
+                data.municipality.municipality +
+                ", " +
+                data.province.province}
+            </Typography>
           </Grid>
           <Grid item xs={12}>
             <Divider />
@@ -226,6 +207,7 @@ export default function OwnersEquity() {
         freeSolo
         id="asynchronous-demo"
         open={open}
+        sx={{ width: 385, mt: 2 }}
         onOpen={() => {
           setOpen(true);
         }}
@@ -290,23 +272,26 @@ export default function OwnersEquity() {
         <Button
           variant="outlined"
           startIcon={<AddIcon />}
-          onClick={() => setOpenOwnersEquityDialog(true)}
+          onClick={() => {
+            setIsEditing(false);
+            setOpenOwnersEquityDialog(true);
+          }}
           color="primary"
-          sx={{ marginLeft: 2 }}
+          sx={{ ml: 2 }}
         >
           Add
         </Button>
         <Button
           variant="outlined"
           color="primary"
-          sx={{ marginLeft: 2 }}
           onClick={() => setOpenSummaryDialog(true)}
+          sx={{ ml: 2 }}
         >
           Summary
         </Button>
       </Typography>
       {search}
-      <Box elevation={0} sx={{ padding: 2 }}>
+      <Box elevation={0} sx={{ mt: 4 }}>
         <Box sx={{ textAlign: "center" }}>
           <Success
             isSuccess={isSuccess}
@@ -317,7 +302,6 @@ export default function OwnersEquity() {
             <Fade in={true}>
               <Box
                 sx={{
-                  padding: 2,
                   textAlign: "left",
                   justifyItems: "bottom",
                 }}
@@ -342,7 +326,6 @@ export default function OwnersEquity() {
         setSuccessText={setSuccessText}
         mutate={!isEditing ? mutate : ownersEquityInfoMutate}
         isEditing={isEditing}
-        setIsEditing={setIsEditing}
         editData={editData}
       />
       <SummaryDialog

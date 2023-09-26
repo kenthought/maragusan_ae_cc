@@ -24,7 +24,11 @@ import Typography from "@mui/material/Typography";
 import useSWR from "swr";
 import { ButtonGroup, Divider, Fade } from "@mui/material";
 import { NumericFormatCustom } from "@/app/utils/numberic_format";
-import { MaskNumberCustom } from "@/app/utils/mask_number";
+import { MaskControlNumber } from "@/app/utils/mask_control_number";
+
+const numFormat = (num) => {
+  return `${num.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
+};
 
 export default function DebitDialog(props) {
   const {
@@ -35,11 +39,13 @@ export default function DebitDialog(props) {
     mutate,
     setIsSuccess,
     setSuccessText,
+    balance,
   } = props;
   const [post, setPost] = useState();
   const { data: session } = useSession();
   const [isError, setIsError] = useState(false);
   const [errorText, setErrorText] = useState(false);
+  const [controlNumber, setControlNumber] = useState("");
 
   const handleClose = () => {
     setOpenDebitAndCreditDialog(false);
@@ -56,10 +62,20 @@ export default function DebitDialog(props) {
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log(selected);
-    if (selected.control_number != data.get("control_number")) {
+    const amount = parseFloat(data.get("amount").replace(/\,/g, ""), 10);
+
+    if (selected.control_number != controlNumber) {
       setIsError(true);
       setErrorText("Invalid control number");
+      return;
+    }
+
+    if (
+      dialog == "Credit" &&
+      parseFloat(balance.replace(/\,/g, ""), 10) < amount
+    ) {
+      setIsError(true);
+      setErrorText("Credit should not be above balance");
       return;
     }
 
@@ -67,18 +83,13 @@ export default function DebitDialog(props) {
       post: post,
       invoice_number: data.get("invoice_number"),
       particulars: data.get("particulars"),
-      credit:
-        dialog == "Credit"
-          ? parseFloat(data.get("amount").replace(/\,/g, ""), 10)
-          : 0,
-      debit:
-        dialog == "Debit"
-          ? parseFloat(data.get("amount").replace(/\,/g, ""), 10)
-          : 0,
-      control_number: selected.control_number,
+      credit: dialog == "Credit" ? amount : 0,
+      debit: dialog == "Debit" ? amount : 0,
       owners_equity: selected.id,
       user: session.user.name[1],
     };
+
+    console.log(postData);
 
     axiosInstance
       .post("owners_equity/ledger/", postData)
@@ -96,12 +107,7 @@ export default function DebitDialog(props) {
   if (selected === null) return;
 
   return (
-    <Dialog
-      open={openDebitAndCreditDialog}
-      onClose={handleClose}
-      fullWidth
-      maxWidth="lg"
-    >
+    <Dialog open={openDebitAndCreditDialog} onClose={handleClose} fullWidth>
       <DialogTitle>{dialog}</DialogTitle>
       <Box component="form" onSubmit={handleSubmit}>
         <DialogContent>
@@ -118,9 +124,10 @@ export default function DebitDialog(props) {
                 size="small"
                 value={selected.account_number}
                 readOnly
+                autoComplete="off"
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid item xs={6}>
               <Box paddingRight={1}>
                 <TextField
                   margin="dense"
@@ -132,6 +139,7 @@ export default function DebitDialog(props) {
                   name="invoice_number"
                   type="text"
                   size="small"
+                  autoComplete="off"
                 />
               </Box>
             </Grid>
@@ -147,6 +155,7 @@ export default function DebitDialog(props) {
                 size="small"
                 multiline
                 rows={2}
+                autoComplete="off"
               />
             </Grid>
             <Grid item xs={6}>
@@ -161,6 +170,7 @@ export default function DebitDialog(props) {
                   type="text"
                   size="small"
                   InputProps={{ inputComponent: NumericFormatCustom }}
+                  autoComplete="off"
                 />
               </Box>
             </Grid>
@@ -173,8 +183,14 @@ export default function DebitDialog(props) {
                   label="Control #"
                   id="control_number"
                   name="control_number"
-                  type="password"
+                  type="text"
                   size="small"
+                  InputProps={{ inputComponent: MaskControlNumber }}
+                  value={controlNumber}
+                  onChange={(event) => {
+                    setControlNumber(event.target.value);
+                  }}
+                  autoComplete="off"
                 />
               </Box>
             </Grid>
@@ -207,4 +223,5 @@ DebitDialog.propTypes = {
   mutate: PropTypes.func.isRequired,
   setIsSuccess: PropTypes.func.isRequired,
   setSuccessText: PropTypes.func.isRequired,
+  balance: PropTypes.string.isRequired,
 };

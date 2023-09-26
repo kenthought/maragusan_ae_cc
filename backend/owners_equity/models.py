@@ -51,7 +51,6 @@ class Ledger(models.Model):
         default=0,
         max_length=100,
     )
-    control_number = models.CharField(max_length=100)
     owners_equity = models.ForeignKey(
         "owners_equity.OwnersEquity",
         related_name="owners_equity_ledger",

@@ -26,7 +26,9 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
 import DialogActions from "@mui/material/DialogActions";
 import Alert from "@mui/material/Alert";
 import Tooltip from "@mui/material/Tooltip";
@@ -42,8 +44,93 @@ import axiosInstance from "@/app/axios";
 import PropTypes from "prop-types";
 import { useSession } from "next-auth/react";
 import OwnersEquityView from "./views/owners_equity";
+import { MaskPasswordInput } from "@/app/utils/mask_password_input";
 
 const fetcher = (url) => axiosInstance.get(url).then((res) => res.data);
+
+const EnterUserPassword = (props) => {
+  const {
+    openEnterUserPassword,
+    setOpenEnterUserPassword,
+    data,
+    setIsSuccess,
+    setSuccessText,
+    approvalsMutate,
+    closeViewApproval,
+  } = props;
+  const [password, setPassword] = useState("");
+  const [isError, setIsError] = useState(false);
+  const [errorText, setErrorText] = useState(false);
+  const { data: session } = useSession();
+
+  const handleClose = () => {
+    setOpenEnterUserPassword(false);
+    closeViewApproval();
+  };
+
+  const handleSuccessful = (bool, text) => {
+    setIsError(false);
+    setIsSuccess(bool);
+    setSuccessText(text);
+    approvalsMutate();
+    handleClose();
+  };
+
+  const handleSubmit = () => {
+    data.approved_by = session.user.name[1];
+    data.password = password;
+
+    axiosInstance
+      .put("approvals/" + data.id + "/", data)
+      .then((response) => {
+        handleSuccessful(true, data.approval_type + "ed successfully!");
+        console.log(response);
+      })
+      .catch((response) => {
+        console.log(response);
+        setIsError(true);
+        setErrorText(response.response.data);
+      });
+  };
+
+  return (
+    <Dialog open={openEnterUserPassword} onClose={handleClose}>
+      <DialogTitle>{data.approval_type + " " + data.type}</DialogTitle>
+      <DialogContent>
+        <DialogContentText>
+          To proceed please enter your password.
+        </DialogContentText>
+        {isError ? <Alert severity="error">{errorText}</Alert> : <></>}
+        <TextField
+          autoFocus
+          margin="normal"
+          id="password"
+          label="Password"
+          type="text"
+          fullWidth
+          variant="standard"
+          autoComplete="off"
+          InputProps={{ inputComponent: MaskPasswordInput }}
+          onChange={(event) => setPassword(event.target.value)}
+        />
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={handleClose}>Cancel</Button>
+        <Button onClick={handleSubmit}>Submit</Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
+EnterUserPassword.propTypes = {
+  data: PropTypes.object.isRequired,
+  openEnterUserPassword: PropTypes.bool.isRequired,
+  setOpenEnterUserPassword: PropTypes.func.isRequired,
+  approvalsMutate: PropTypes.func.isRequired,
+  setIsSuccess: PropTypes.bool.isRequired,
+  setSuccessText: PropTypes.string.isRequired,
+  closeViewApproval: PropTypes.func.isRequired,
+};
 
 const ViewApproval = (props) => {
   const {
@@ -54,9 +141,7 @@ const ViewApproval = (props) => {
     setIsSuccess,
     setSuccessText,
   } = props;
-  const { data: session } = useSession();
-  const [isError, setIsError] = useState(false);
-  const [errorText, setErrorText] = useState(false);
+  const [openEnterUserPassword, setOpenEnterUserPassword] = useState(false);
   const {
     data: barangay,
     error: barangay_error,
@@ -73,30 +158,6 @@ const ViewApproval = (props) => {
     isLoading: province_isLoading,
   } = useSWR("components/province", fetcher);
 
-  const handleSuccessful = (bool, text) => {
-    setIsError(false);
-    setIsSuccess(bool);
-    setSuccessText(text);
-    approvalsMutate();
-    handleClose();
-  };
-
-  const handleSubmit = () => {
-    data.approved_by = session.user.name[1];
-    console.log("DATA", data);
-    axiosInstance
-      .put("approvals/" + data.id + "/", data)
-      .then((response) => {
-        handleSuccessful(true, data.approval_type + "ed successfully!");
-        console.log(response);
-      })
-      .catch((response) => {
-        console.log(response);
-        setIsError(true);
-        setErrorText(response.message);
-      });
-  };
-
   const handleClose = () => {
     setOpenViewApproval(false);
   };
@@ -105,27 +166,41 @@ const ViewApproval = (props) => {
     return;
 
   return (
-    <Dialog open={openViewApproval} onClose={handleClose}>
-      <DialogContent>
-        {data.type == "Owner's Equity" && (
-          <OwnersEquityView
-            data={data}
-            barangay={barangay}
-            municipality={municipality}
-            province={province}
-          />
-        )}
-        {isError ? <Alert severity="error">{errorText}</Alert> : <></>}
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={handleSubmit} variant="contained" color="success">
-          {data.approval_type}
-        </Button>
-        <Button onClick={handleClose} variant="contained" color="error">
-          Close
-        </Button>
-      </DialogActions>
-    </Dialog>
+    <>
+      <Dialog open={openViewApproval} onClose={handleClose}>
+        <DialogContent>
+          {data.type == "Owner's Equity" && (
+            <OwnersEquityView
+              data={data}
+              barangay={barangay}
+              municipality={municipality}
+              province={province}
+            />
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => setOpenEnterUserPassword(true)}
+            variant="contained"
+            color="success"
+          >
+            {data.approval_type}
+          </Button>
+          <Button onClick={handleClose} variant="contained" color="error">
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <EnterUserPassword
+        openEnterUserPassword={openEnterUserPassword}
+        setOpenEnterUserPassword={setOpenEnterUserPassword}
+        data={data}
+        approvalsMutate={approvalsMutate}
+        setIsSuccess={setIsSuccess}
+        setSuccessText={setSuccessText}
+        closeViewApproval={handleClose}
+      />
+    </>
   );
 };
 

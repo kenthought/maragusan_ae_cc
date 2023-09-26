@@ -23,12 +23,10 @@ import { useSession } from "next-auth/react";
 import Typography from "@mui/material/Typography";
 import useSWR from "swr";
 import { ButtonGroup, Divider, Fade } from "@mui/material";
+import { jsPDF } from "jspdf";
+import "jspdf-autotable";
 
 const fetcher = (url) => axiosInstance.get(url).then((res) => res.data);
-
-const ccyFormat = (num) => {
-  return `${num.toFixed(2)}`;
-};
 
 export default function SummaryDialog(props) {
   const { openSummaryDialog, setOpenSummaryDialog } = props;
@@ -45,6 +43,43 @@ export default function SummaryDialog(props) {
 
   const handleClose = () => {
     setOpenSummaryDialog(false);
+  };
+
+  const exportToPDF = () => {
+    const unit = "pt";
+    const size = "A4"; // Use A1, A2, A3 or A4
+    const orientation = "portrait"; // portrait or landscape
+
+    const marginLeft = 40;
+    const doc = new jsPDF(orientation, unit, size);
+
+    doc.setFontSize(12);
+
+    const title = "Owner's equity summary";
+    const headers = [["Account #", "Account name", "Status", "Balance"]];
+
+    const data = summary.map((elt) => [
+      elt.module.account_number,
+      elt.module.account_name,
+      accountStatus.find((x) => x.id === elt.module.account_status).label,
+      numFormat(parseFloat(elt.balance)),
+    ]);
+
+    let content = {
+      startY: 110,
+      head: headers,
+      body: data,
+      theme: "plain",
+    };
+
+    doc.text(title, marginLeft, 50);
+    doc.text(new Date().toDateString(), marginLeft, 70);
+    doc.autoTable(content);
+    doc.save("summary.pdf");
+  };
+
+  const numFormat = (num) => {
+    return `${num.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
   };
 
   useEffect(() => {
@@ -100,7 +135,7 @@ export default function SummaryDialog(props) {
                       }
                     </TableCell>
                     <TableCell align="right">
-                      {ccyFormat(row.balance)}
+                      {numFormat(parseFloat(row.balance))}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -111,6 +146,11 @@ export default function SummaryDialog(props) {
           <Typography>No summary avaiable</Typography>
         )}
       </DialogContent>
+      <DialogActions>
+        <Button variant="contained" color="primary" onClick={exportToPDF}>
+          Print
+        </Button>
+      </DialogActions>
     </Dialog>
   );
 }
