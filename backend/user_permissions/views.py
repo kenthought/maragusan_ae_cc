@@ -8,17 +8,17 @@ from rest_framework import status, permissions
 
 
 # Create your views here.
-class UserPermissions(APIView):
+class UserPermission(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
-    def get_object(self, pk):
+    def get_object(self, user_id):
         try:
-            return UserPermissions.objects.get(pk=pk)
+            return UserPermissions.objects.get(user_id=user_id)
         except UserPermissions.DoesNotExist:
             raise Http404
 
-    def get(self, request, pk, format=None):
-        user_permissions = self.get_object(pk)
+    def get(self, request, user_id, format=None):
+        user_permissions = self.get_object(user_id)
         serializer = UserPermissionsSerializer(user_permissions)
         return Response(serializer.data)
 

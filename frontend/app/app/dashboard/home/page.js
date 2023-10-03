@@ -58,7 +58,8 @@ export default function Home() {
 
   useEffect(() => {
     if (data != null) setItems(data);
-  }, [data]);
+    // if (error) location.reload();
+  }, [data, error]);
 
   const getDailyClosing = (date) => {
     var year = date.getFullYear();

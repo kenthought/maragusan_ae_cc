@@ -1,6 +1,7 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import Cookies from "js-cookie";
+import { cookies } from "next/headers";
 
 export const authOptions = {
   // Configure one or more authentication providers
@@ -34,24 +35,60 @@ export const authOptions = {
         // const cookies = new Cookies();
         // If no error and we have user data, return it
         if (response.ok && user) {
-          Cookies.set("access_token", user.access, {
-            domain: "http://localhost:3000",
-            httpOnly: true,
-            path: "/",
-            sameSite: "strict",
-          });
-          Cookies.set("refresh_token", user.refresh, {
-            domain: "http://localhost:3000",
-            httpOnly: true,
+          const tokenParts = JSON.parse(atob(user.refresh.split(".")[1]));
+          cookies().set({
+            name: "refresh_token",
+            value: user.refresh,
+            httpOnly: false,
             path: "/",
             sameSite: "strict",
           });
 
-          const tokenParts = JSON.parse(atob(user.refresh.split(".")[1]));
+          cookies().set({
+            name: "access_token",
+            value: user.refresh,
+            httpOnly: false,
+            path: "/",
+            sameSite: "strict",
+          });
+
+          if (tokenParts.is_admin == true) {
+            cookies().set({
+              name: "permissions",
+              value: JSON.stringify({ admin: true }),
+              httpOnly: false,
+              path: "/",
+              sameSite: "strict",
+            });
+          } else {
+            const permission = await fetch(
+              "http://127.0.0.1:8000/api/user_permissions/" +
+                tokenParts.user_id,
+              {
+                method: "GET",
+                headers: {
+                  Authorization: "JWT " + user.access,
+                  "Content-Type": "application/json",
+                  accept: "application/json",
+                },
+              }
+            );
+
+            const resp = await permission.json();
+            if (resp.permissions) {
+              cookies().set({
+                name: "permissions",
+                value: resp.permissions,
+                httpOnly: false,
+                path: "/",
+                sameSite: "strict",
+              });
+            } else return null;
+          }
 
           return {
             id: tokenParts.user_id.toString(),
-            name: [tokenParts.name, tokenParts.user_id],
+            name: [tokenParts.name, tokenParts.user_id, tokenParts.is_admin],
             email: tokenParts.email + ";" + user.access + ";" + user.refresh,
           };
         }

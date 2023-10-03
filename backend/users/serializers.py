@@ -13,6 +13,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         token["user_id"] = user.id
         token["name"] = user.first_name
         token["email"] = user.email
+        token["is_admin"] = user.is_admin
 
         return token
 
@@ -30,6 +31,7 @@ class UserViewSerializer(serializers.ModelSerializer):
             "last_name",
             "is_staff",
             "is_active",
+            "is_admin",
             "business_code",
             "branch_code",
         ]
@@ -48,6 +50,7 @@ class UserSerializer(serializers.ModelSerializer):
             "last_name",
             "is_staff",
             "is_active",
+            "is_admin",
             "business_code",
             "branch_code",
             "branch",
