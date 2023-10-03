@@ -39,6 +39,7 @@ urlpatterns = [
         DailyClosingToday.as_view(),
     ),
     path("api/users/", include("users.urls")),
+    path("api/user_permissions/", include("user_permissions.urls")),
     path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("api-auth/", include("rest_framework.urls", namespace="rest_framework")),

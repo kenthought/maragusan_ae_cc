@@ -40,27 +40,18 @@ import Cookies from "js-cookie";
 import Loading from "../utils/loading";
 
 const drawerWidth = 240;
-
-// ugly code
-const setupTokens = (session) => {
-  const splitToken = session.user.email.split(";");
-
-  Cookies.set("access_token", splitToken[1], { expires: 7 });
-
-  Cookies.set("refresh_token", splitToken[2], { expires: 7 });
-};
-
 export default function DashboardLayout({ children, window }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { data: session, status } = useSession();
   const [openComponents, setOpenComponents] = useState(false);
   const [openMenu, setOpenMenu] = useState(false);
+  const [permissions, setPermissions] = useState({});
 
   useEffect(() => {
     if (status === "authenticated") {
-      setupTokens(session);
+      setPermissions(JSON.parse(Cookies.get("permissions")));
     }
-  });
+  }, [status]);
 
   const logout = () => {
     // blacklist tokens in database and remove from local storage
@@ -69,6 +60,7 @@ export default function DashboardLayout({ children, window }) {
     });
     Cookies.remove("access_token");
     Cookies.remove("refresh_token");
+    Cookies.remove("permissions");
     axiosInstance.defaults.headers["Authorization"] = null;
 
     signOut({ callbackUrl: "http://localhost:3000/login" });
@@ -84,37 +76,42 @@ export default function DashboardLayout({ children, window }) {
       label: "Assets",
       path: "assets",
       icon: <BusinessCenterIcon />,
+      access: permissions.admin || permissions.assets,
     },
     {
       id: 1,
       label: "Bank Account",
       path: "bank_account",
       icon: <AccountBalanceIcon />,
+      access: permissions.admin || permissions.bank_account,
     },
     {
       id: 2,
       label: "Owners Equity",
       path: "owners_equity",
       icon: <BalanceIcon />,
-      access: "admin",
+      access: permissions.admin || permissions.owners_equity,
     },
     {
       id: 3,
       label: "Expenses",
       path: "expenses",
       icon: <BalanceIcon />,
+      access: permissions.admin || permissions.expenses,
     },
     {
       id: 4,
       label: "Payables",
       path: "payables",
       icon: <AccountBalanceIcon />,
+      access: permissions.admin || permissions.payables,
     },
     {
       id: 5,
       label: "Receivables",
       path: "receivables",
       icon: <AccountBalanceIcon />,
+      access: permissions.admin || permissions.receivables,
     },
   ];
 
@@ -211,16 +208,45 @@ export default function DashboardLayout({ children, window }) {
           {openMenu ? <ExpandLess /> : <ExpandMore />}
         </ListItemButton>
         <Collapse in={openMenu} timeout="auto" unmountOnExit>
-          {menuitems.map((menu) => (
-            <ListItem key={menu.id} disablePadding>
+          {menuitems.map((menu) => {
+            if (menu.access)
+              return (
+                <ListItem key={menu.id} disablePadding>
+                  <ListItemButton
+                    href={"/dashboard/" + menu.path}
+                    LinkComponent={Link}
+                    sx={{ pl: 4 }}
+                  >
+                    <ListItemIcon>{menu.icon}</ListItemIcon>
+                    <ListItemText
+                      primary={menu.label}
+                      primaryTypographyProps={{
+                        fontSize: 15,
+                        fontWeight: "medium",
+                        lineHeight: "20px",
+                        mb: "2px",
+                      }}
+                    />
+                  </ListItemButton>
+                </ListItem>
+              );
+          })}
+        </Collapse>
+      </List>
+      <Divider />
+      {(permissions.admin || permissions.approvals) && (
+        <>
+          <List>
+            <ListItem disablePadding>
               <ListItemButton
-                href={"/dashboard/" + menu.path}
+                href={"/dashboard/approvals"}
                 LinkComponent={Link}
-                sx={{ pl: 4 }}
               >
-                <ListItemIcon>{menu.icon}</ListItemIcon>
+                <ListItemIcon>
+                  <LogoutIcon color="primary" />
+                </ListItemIcon>
                 <ListItemText
-                  primary={menu.label}
+                  primary={"Approvals"}
                   primaryTypographyProps={{
                     fontSize: 15,
                     fontWeight: "medium",
@@ -228,68 +254,72 @@ export default function DashboardLayout({ children, window }) {
                     mb: "2px",
                   }}
                 />
-                {menu.access == "admin" && (
-                  <Chip label="A" color="primary" size="small" />
-                )}
               </ListItemButton>
             </ListItem>
-          ))}
-        </Collapse>
-      </List>
-      <Divider />
-      <List>
-        <ListItem disablePadding>
-          <ListItemButton href={"/dashboard/approvals"} LinkComponent={Link}>
-            <ListItemIcon>
-              <LogoutIcon color="primary" />
-            </ListItemIcon>
-            <ListItemText
-              primary={"Approvals"}
-              primaryTypographyProps={{
-                fontSize: 15,
-                fontWeight: "medium",
-                lineHeight: "20px",
-                mb: "2px",
+          </List>
+          <Divider />
+        </>
+      )}
+      {(permissions.admin || permissions.component) && (
+        <>
+          <List>
+            {/* components */}
+            <ListItemButton
+              onClick={() => {
+                setOpenComponents(!openComponents);
+                if (openMenu) setOpenMenu(false);
               }}
-            />{" "}
-            <Chip label="A" color="primary" size="small" />
-          </ListItemButton>
-        </ListItem>
-      </List>
-      <Divider />
-      <List>
-        {/* components */}
-        <ListItemButton
-          onClick={() => {
-            setOpenComponents(!openComponents);
-            if (openMenu) setOpenMenu(false);
-          }}
-        >
-          <ListItemIcon>
-            <TableRowsIcon color="primary" />
-          </ListItemIcon>
-          <ListItemText
-            primary="Components"
-            primaryTypographyProps={{
-              fontSize: 15,
-              fontWeight: "medium",
-              lineHeight: "20px",
-              mb: "2px",
-            }}
-          />
-          {openComponents ? <ExpandLess /> : <ExpandMore />}
-        </ListItemButton>
-        <Collapse in={openComponents} timeout="auto" unmountOnExit>
-          {componentItems.map((components) => (
-            <List component="div" key={components.id} disablePadding>
-              <ListItemButton
-                href={"/dashboard/components/" + components.path}
-                LinkComponent={Link}
-                sx={{ pl: 4 }}
-              >
-                <ListItemIcon>{components.icon}</ListItemIcon>
+            >
+              <ListItemIcon>
+                <TableRowsIcon color="primary" />
+              </ListItemIcon>
+              <ListItemText
+                primary="Components"
+                primaryTypographyProps={{
+                  fontSize: 15,
+                  fontWeight: "medium",
+                  lineHeight: "20px",
+                  mb: "2px",
+                }}
+              />
+              {openComponents ? <ExpandLess /> : <ExpandMore />}
+            </ListItemButton>
+            <Collapse in={openComponents} timeout="auto" unmountOnExit>
+              {componentItems.map((components) => (
+                <List component="div" key={components.id} disablePadding>
+                  <ListItemButton
+                    href={"/dashboard/components/" + components.path}
+                    LinkComponent={Link}
+                    sx={{ pl: 4 }}
+                  >
+                    <ListItemIcon>{components.icon}</ListItemIcon>
+                    <ListItemText
+                      primary={components.label}
+                      primaryTypographyProps={{
+                        fontSize: 15,
+                        fontWeight: "medium",
+                        lineHeight: "20px",
+                        mb: "2px",
+                      }}
+                    />
+                  </ListItemButton>
+                </List>
+              ))}
+            </Collapse>
+          </List>
+          <Divider />
+        </>
+      )}
+      {(permissions.admin || permissions.user) && (
+        <>
+          <List>
+            <ListItem disablePadding>
+              <ListItemButton href={"/dashboard/users"} LinkComponent={Link}>
+                <ListItemIcon>
+                  <PersonIcon color="primary" />
+                </ListItemIcon>
                 <ListItemText
-                  primary={components.label}
+                  primary={"Users"}
                   primaryTypographyProps={{
                     fontSize: 15,
                     fontWeight: "medium",
@@ -298,30 +328,11 @@ export default function DashboardLayout({ children, window }) {
                   }}
                 />
               </ListItemButton>
-            </List>
-          ))}
-        </Collapse>
-      </List>
-      <Divider />
-      <List>
-        <ListItem disablePadding>
-          <ListItemButton href={"/dashboard/users"} LinkComponent={Link}>
-            <ListItemIcon>
-              <PersonIcon color="primary" />
-            </ListItemIcon>
-            <ListItemText
-              primary={"Users"}
-              primaryTypographyProps={{
-                fontSize: 15,
-                fontWeight: "medium",
-                lineHeight: "20px",
-                mb: "2px",
-              }}
-            />
-          </ListItemButton>
-        </ListItem>
-      </List>
-      <Divider />
+            </ListItem>
+          </List>
+          <Divider />
+        </>
+      )}
       <List>
         <ListItem disablePadding>
           <ListItemButton onClick={logout}>
