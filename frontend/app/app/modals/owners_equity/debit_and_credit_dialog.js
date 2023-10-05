@@ -48,6 +48,7 @@ export default function DebitDialog(props) {
   const [controlNumber, setControlNumber] = useState("");
 
   const handleClose = () => {
+    setControlNumber("")
     setOpenDebitAndCreditDialog(false);
   };
 

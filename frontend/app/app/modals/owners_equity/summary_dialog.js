@@ -69,7 +69,8 @@ export default function SummaryDialog(props) {
       startY: 110,
       head: headers,
       body: data,
-      theme: "plain",
+      theme: "grid",
+      headStyles: { fillColor: [25, 118, 210] },
     };
 
     doc.text(title, marginLeft, 50);
