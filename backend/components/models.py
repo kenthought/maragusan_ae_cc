@@ -55,7 +55,7 @@ class Municipality(models.Model):
 
 
 class Barangay(models.Model):
-    barangay = models.CharField(max_length=100, unique=True)
+    barangay = models.CharField(max_length=100)
     municipality = models.ForeignKey(
         Municipality, related_name="barangay", on_delete=models.PROTECT
     )

@@ -112,7 +112,8 @@ export default function LedgerDialog(props) {
       startY: 110,
       head: headers,
       body: data,
-      theme: "plain",
+      theme: "grid",
+      headStyles: { fillColor: [25, 118, 210] },
     };
 
     doc.text(new Date().toDateString(), 450, 20);
