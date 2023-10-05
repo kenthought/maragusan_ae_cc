@@ -293,6 +293,8 @@ export default function Approvals() {
     </>
   );
 
+  if (error) return <Typography>Unable to fetch data!</Typography>;
+
   if (approvals_isLoading) return <Loading />;
 
   return (

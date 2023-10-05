@@ -69,7 +69,7 @@ export default function LedgerDialog(props) {
     setOpenLedgerDialog(false);
   };
 
-  if (ledger_isLoading) return <Loading />;
+  if (ledger_isLoading) return;
 
   return (
     <>

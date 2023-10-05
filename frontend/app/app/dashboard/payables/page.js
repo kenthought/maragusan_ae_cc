@@ -329,6 +329,10 @@ export default function Payables() {
     </>
   );
 
+  if (error) return <Typography>Unable to fetch data!</Typography>;
+
+  if (isLoading) return <Loading />;
+
   return (
     <>
       <Typography

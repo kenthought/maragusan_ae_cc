@@ -242,6 +242,10 @@ export default function Expenses() {
     </>
   );
 
+  if (error) return <Typography>Unable to fetch data!</Typography>;
+
+  if (isLoading) return <Loading />;
+
   return (
     <>
       <Typography

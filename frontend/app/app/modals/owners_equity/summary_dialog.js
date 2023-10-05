@@ -83,10 +83,6 @@ export default function SummaryDialog(props) {
     return `${num.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
   };
 
-  useEffect(() => {
-    console.log(summary);
-  }, [summary]);
-
   if (summary_isLoading) return;
 
   if (summary_error) return <div>Unable to fetch summary!</div>;
