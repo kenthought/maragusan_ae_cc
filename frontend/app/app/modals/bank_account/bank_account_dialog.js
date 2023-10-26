@@ -4,6 +4,7 @@ import TextField from "@mui/material/TextField";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
+import Autocomplete from "@mui/material/Autocomplete";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import DialogTitle from "@mui/material/DialogTitle";
@@ -65,10 +66,21 @@ export default function BankAccountDialog(props) {
     { id: 2, label: "Inactive" },
     { id: 3, label: "Bad Debts" },
   ]);
+  const [barangayData, setBarangayData] = useState(null);
 
   useEffect(() => {
     setNewData(editData);
-  }, [editData]);
+    if (isEditing) setBarangayData(editData.barangay);
+  }, [editData, isEditing]);
+
+  const generateControlNumber = () => {
+    var number;
+    do {
+      number = Math.floor(Math.random() * 9999);
+    } while (number < 1);
+
+    return number;
+  };
 
   const handleEditChange = (event) => {
     const value = event.target.value;
@@ -91,28 +103,35 @@ export default function BankAccountDialog(props) {
   const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    const postData = {
+    var postData = {
       control_number: data.get("control_number"),
-      account_number: data.get("account_number"),
       account_name: data.get("account_name"),
       account_type: data.get("account_type"),
       bank: data.get("bank"),
       bank_branch: data.get("bank_branch"),
       purok_street: data.get("purok_street"),
-      barangay: data.get("barangay"),
-      municipality: data.get("municipality"),
-      province: data.get("province"),
+      barangay: barangayData.id,
+      municipality: barangayData.municipality.id,
+      province: barangayData.municipality.province.id,
       account_status: !isEditing ? 1 : data.get("account_status"),
+      under_approval: !isEditing ? 1 : 0,
       user: session.user.name[1],
     };
 
     console.log(postData);
 
-    if (!isEditing)
+    if (!isEditing) {
+      postData.forApproval = {
+        type: "Bank Account",
+        approval_type: "Add",
+        old_data: { ...postData },
+        new_data: { ...postData },
+        submitted_by: session.user.name[1],
+      };
       axiosInstance
         .post("bank_account/", postData)
         .then((response) => {
-          handleSuccessful(true, "Bank Account added successfully!");
+          handleSuccessful(true, "Submitted for approval!");
           console.log(response);
         })
         .catch((response) => {
@@ -120,11 +139,39 @@ export default function BankAccountDialog(props) {
           setIsError(true);
           setErrorText(response.message);
         });
-    else
+    } else {
+      // axiosInstance
+      //   .put("bank_account/" + editData.id + "/", postData)
+      //   .then((response) => {
+      //     handleSuccessful(true, "Bank Account edited successfully!");
+      //     console.log(response);
+      //   })
+      //   .catch((response) => {
+      //     console.log(response);
+      //     setIsError(true);
+      //     setErrorText(response.message);
+      //   });
+
+      const old_data = editData;
+      old_data.bank = editData.bank.id;
+      old_data.barangay = editData.barangay.id;
+      old_data.municipality = editData.municipality.id;
+      old_data.province = editData.province.id;
+
+      const forApproval = {
+        type: "Bank Account",
+        approval_type: "Edit",
+        module_id: editData.id,
+        account_number: editData.account_number,
+        old_data: old_data,
+        new_data: postData,
+        submitted_by: session.user.name[1],
+      };
+
       axiosInstance
-        .put("bank_account/" + editData.id + "/", postData)
+        .post("approvals/", forApproval)
         .then((response) => {
-          handleSuccessful(true, "Bank Account edited successfully!");
+          handleSuccessful(true, "Submitted for approval!");
           console.log(response);
         })
         .catch((response) => {
@@ -132,6 +179,7 @@ export default function BankAccountDialog(props) {
           setIsError(true);
           setErrorText(response.message);
         });
+    }
   };
 
   if (
@@ -155,61 +203,33 @@ export default function BankAccountDialog(props) {
             <TextField
               margin="normal"
               required
-              autoFocus
               fullWidth
               id="control_number"
               label="Control number"
               name="control_number"
               type="text"
+              value={generateControlNumber().toString()}
               size="small"
+              autoComplete="off"
+              readOnly
             />
           ) : (
             <TextField
               margin="normal"
               required
-              autoFocus
               fullWidth
               id="control_number"
               label="Control number"
               name="control_number"
               value={newData.control_number || ""}
-              onChange={handleEditChange}
               type="text"
               size="small"
+              autoComplete="off"
+              readOnly
             />
           )}
           <Grid container spacing={2}>
-            <Grid item xs={6}>
-              {/* Account Number */}
-              {!isEditing ? (
-                <TextField
-                  margin="normal"
-                  required
-                  autoFocus
-                  fullWidth
-                  id="account_number"
-                  label="Account number"
-                  name="account_number"
-                  type="text"
-                  size="small"
-                />
-              ) : (
-                <TextField
-                  margin="normal"
-                  required
-                  autoFocus
-                  fullWidth
-                  id="account_number"
-                  label="Account number"
-                  name="account_number"
-                  value={newData.account_number || ""}
-                  onChange={handleEditChange}
-                  type="text"
-                  size="small"
-                />
-              )}
-            </Grid>
-            <Grid item xs={6}>
+            <Grid item xs={12}>
               {/* Account Name */}
               {!isEditing ? (
                 <TextField
@@ -420,142 +440,106 @@ export default function BankAccountDialog(props) {
           )}
           {/* Barangay */}
           {!isEditing ? (
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="barangay"
-              name="barangay"
-              label="Barangay"
-              select
-              error={barangay_error}
+            <Autocomplete
+              disablePortal
+              getOptionLabel={(option) => option.barangay}
+              options={barangay}
               size="small"
-            >
-              {barangay.map((option) => (
-                <MenuItem key={option.id} value={option.id.toString()}>
-                  {option.barangay}
-                </MenuItem>
-              ))}
-            </TextField>
+              onChange={(event, newInputValue) => {
+                if (newInputValue != null) setBarangayData(newInputValue);
+              }}
+              renderOption={(props, option) => {
+                return (
+                  <li {...props} key={option.id}>
+                    {option.barangay}
+                  </li>
+                );
+              }}
+              renderTags={(tagValue, getTagProps) => {
+                return tagValue.map((option, index) => (
+                  <Chip
+                    {...getTagProps({ index })}
+                    key={option}
+                    label={option}
+                  />
+                ));
+              }}
+              renderInput={(params) => (
+                <TextField
+                  margin="normal"
+                  required
+                  id="barangay"
+                  label="Barangay"
+                  name="barangay"
+                  fullWidth
+                  {...params}
+                />
+              )}
+            />
           ) : (
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="barangay"
-              name="barangay"
-              label="Barangay"
-              value={
-                newData.barangay
-                  ? newData.barangay.id
-                    ? newData.barangay.id
-                    : newData.barangay
-                  : ""
-              }
-              onChange={handleEditChange}
-              select
-              error={barangay_error}
+            <Autocomplete
+              disablePortal
+              getOptionLabel={(option) => option.barangay}
+              options={barangay}
               size="small"
-            >
-              {barangay.map((option) => (
-                <MenuItem key={option.id} value={option.id.toString()}>
-                  {option.barangay}
-                </MenuItem>
-              ))}
-            </TextField>
+              value={newData.barangay || null}
+              onChange={(event, newInputValue) => {
+                setBarangayData(newInputValue);
+              }}
+              inputValue={barangayData ? barangayData.barangay : ""}
+              renderOption={(props, option) => {
+                return (
+                  <li {...props} key={option.id}>
+                    {option.barangay}
+                  </li>
+                );
+              }}
+              renderTags={(tagValue, getTagProps) => {
+                return tagValue.map((option, index) => (
+                  <Chip
+                    {...getTagProps({ index })}
+                    key={option}
+                    label={option}
+                  />
+                ));
+              }}
+              renderInput={(params) => (
+                <TextField
+                  margin="normal"
+                  required
+                  id="barangay"
+                  label="Barangay"
+                  name="barangay"
+                  fullWidth
+                  {...params}
+                />
+              )}
+            />
           )}
           {/* Municipality */}
-          {!isEditing ? (
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="municipality"
-              name="municipality"
-              label="Municipality"
-              select
-              error={municipality_error}
-              size="small"
-            >
-              {municipality.map((option) => (
-                <MenuItem key={option.id} value={option.id.toString()}>
-                  {option.municipality}
-                </MenuItem>
-              ))}
-            </TextField>
-          ) : (
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="municipality"
-              name="municipality"
-              label="Municipality"
-              value={
-                newData.municipality
-                  ? newData.municipality.id
-                    ? newData.municipality.id
-                    : newData.municipality
-                  : ""
-              }
-              onChange={handleEditChange}
-              select
-              error={municipality_error}
-              size="small"
-            >
-              {municipality.map((option) => (
-                <MenuItem key={option.id} value={option.id.toString()}>
-                  {option.municipality}
-                </MenuItem>
-              ))}
-            </TextField>
-          )}
+          <TextField
+            margin="normal"
+            fullWidth
+            label="Municipality"
+            value={barangayData ? barangayData.municipality.municipality : ""}
+            onChange={handleEditChange}
+            type="text"
+            size="small"
+            readOnly
+          />
           {/* Province */}
-          {!isEditing ? (
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="province"
-              name="province"
-              label="Province"
-              select
-              error={province_error}
-              size="small"
-            >
-              {province.map((option) => (
-                <MenuItem key={option.id} value={option.id.toString()}>
-                  {option.province}
-                </MenuItem>
-              ))}
-            </TextField>
-          ) : (
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="province"
-              name="province"
-              label="Province"
-              value={
-                newData.province
-                  ? newData.province.id
-                    ? newData.province.id
-                    : newData.province
-                  : ""
-              }
-              onChange={handleEditChange}
-              select
-              error={province_error}
-              size="small"
-            >
-              {province.map((option) => (
-                <MenuItem key={option.id} value={option.id.toString()}>
-                  {option.province}
-                </MenuItem>
-              ))}
-            </TextField>
-          )}
+          <TextField
+            margin="normal"
+            fullWidth
+            label="Province"
+            value={
+              barangayData ? barangayData.municipality.province.province : ""
+            }
+            onChange={handleEditChange}
+            type="text"
+            size="small"
+            readOnly
+          />
           {isError ? <Alert severity="error">{errorText}</Alert> : <></>}
         </DialogContent>
         <DialogActions>

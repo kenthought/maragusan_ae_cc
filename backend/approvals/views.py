@@ -6,6 +6,8 @@ from approvals.serializers import (
 )
 from owners_equity.models import OwnersEquity
 from owners_equity.serializers import OwnersEquityWriteSerializer
+from bank_accounts.models import BankAccount
+from bank_accounts.serializers import BankAccountWriteSerializer
 from django.http import Http404
 from django.db.models import F
 from rest_framework.views import APIView
@@ -40,6 +42,27 @@ class ApprovalList(APIView):
 
             except OwnersEquity.DoesNotExist:
                 raise Http404
+        elif type == "Bank Account":
+            try:
+                data = {
+                    "under_approval": True,
+                }
+                bank_account = BankAccount.objects.get(pk=pk)
+                bank_account_serializer = BankAccountWriteSerializer(
+                    bank_account, data=data, partial=True
+                )
+
+                if bank_account_serializer.is_valid():
+                    bank_account_serializer.save()
+                else:
+                    return Response(
+                        bank_account_serializer.errors,
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+
+            except BankAccount.DoesNotExist:
+                raise Http404
+
         else:
             raise Http404
 
@@ -100,6 +123,23 @@ class ApprovalDetail(APIView):
                         status=status.HTTP_400_BAD_REQUEST,
                     )
             except OwnersEquity.DoesNotExist:
+                raise Http404
+        elif data["type"] == "Bank Account":
+            try:
+                if data["approval_type"] == "Add":
+                    data["new_data"]["under_approval"] = 0
+                bank_account = BankAccount.objects.get(pk=data["module_id"])
+                bank_account_serializer = BankAccountWriteSerializer(
+                    bank_account, data=data["new_data"]
+                )
+                if bank_account_serializer.is_valid():
+                    bank_account_serializer.save()
+                else:
+                    return Response(
+                        bank_account_serializer.errors,
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+            except BankAccount.DoesNotExist:
                 raise Http404
         else:
             raise Http404

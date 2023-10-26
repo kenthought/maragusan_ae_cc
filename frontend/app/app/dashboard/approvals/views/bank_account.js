@@ -9,8 +9,12 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 
-export default function OwnersEquityView(props) {
-  const { data, barangay, municipality, province } = props;
+export default function BankAccountView(props) {
+  const { data, barangay, municipality, province, bank } = props;
+  const [accountType] = useState([
+    { id: 1, label: "Current" },
+    { id: 2, label: "Savings" },
+  ]);
   const [accountStatus] = useState([
     { id: 1, label: "Active", value: true },
     { id: 2, label: "Inactive", value: false },
@@ -37,6 +41,25 @@ export default function OwnersEquityView(props) {
               <TableRow>
                 <TableCell>Account name</TableCell>
                 <TableCell>{data.new_data.account_name}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Account type</TableCell>
+                <TableCell>
+                  {
+                    accountType.find((x) => x.id == data.new_data.account_type)
+                      .label
+                  }
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Bank</TableCell>
+                <TableCell>
+                  {bank.find((x) => x.id == data.new_data.bank).bank}
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Bank branch</TableCell>
+                <TableCell>{data.new_data.bank_branch}</TableCell>
               </TableRow>
               <TableRow>
                 <TableCell>Purok/Street</TableCell>
@@ -121,6 +144,35 @@ export default function OwnersEquityView(props) {
                 <TableCell>Account name</TableCell>
                 <TableCell>{data.old_data.account_name}</TableCell>
                 <TableCell>{data.new_data.account_name}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Account type</TableCell>
+                <TableCell>
+                  {
+                    accountType.find((x) => x.id == data.old_data.account_type)
+                      .label
+                  }
+                </TableCell>
+                <TableCell>
+                  {
+                    accountType.find((x) => x.id == data.new_data.account_type)
+                      .label
+                  }
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Bank</TableCell>
+                <TableCell>
+                  {bank.find((x) => x.id == data.old_data.bank).bank}
+                </TableCell>
+                <TableCell>
+                  {bank.find((x) => x.id == data.new_data.bank).bank}
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Bank branch</TableCell>
+                <TableCell>{data.old_data.bank_branch}</TableCell>
+                <TableCell>{data.new_data.bank_branch}</TableCell>
               </TableRow>
               <TableRow>
                 <TableCell>Purok/Street</TableCell>

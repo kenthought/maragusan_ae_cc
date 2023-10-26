@@ -19,6 +19,6 @@ export const MaskPasswordInput = forwardRef(function TextMaskCustom(
 });
 
 MaskPasswordInput.propTypes = {
-  name: PropTypes.string.isRequired,
+  name: PropTypes.string,
   onChange: PropTypes.func.isRequired,
 };

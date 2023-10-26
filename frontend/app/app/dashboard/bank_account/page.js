@@ -24,6 +24,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import SearchIcon from "@mui/icons-material/Search";
 import BankAccountDialog from "@/app/modals/bank_account/bank_account_dialog";
 import LedgerDialog from "@/app/modals/bank_account/ledger_dialog";
+import SummaryDialog from "@/app/modals/bank_account/summary_dialog";
 import Success from "@/app/utils/success";
 import Loading from "@/app/utils/loading";
 import useSWR from "swr";
@@ -58,7 +59,6 @@ const BankAccountInformation = (props) => {
     <Button key="two" onClick={() => setOpenLedgerDialog(true)}>
       Ledger
     </Button>,
-    <Button key="three">Summary</Button>,
     <Button
       key="four"
       startIcon={<EditIcon />}
@@ -79,7 +79,7 @@ const BankAccountInformation = (props) => {
   if (error) return <Typography>Unable to fetch data!</Typography>;
 
   return (
-    <Card sx={{ padding: 2, position: "relative" }}>
+    <Card sx={{ padding: 2, position: "relative", width: 600 }}>
       <Typography component="h2" variant="h6" color="primary" marginBottom={2}>
         Bank Records Information
       </Typography>
@@ -88,9 +88,16 @@ const BankAccountInformation = (props) => {
         aria-label="outlined primary button group"
         sx={{ marginBottom: 2 }}
         size="small"
+        disabled={data.under_approval}
       >
         {buttons}
       </ButtonGroup>
+
+      {data.under_approval && (
+        <Box>
+          <Chip label="For approval" color="warning" />
+        </Box>
+      )}
       <Grid item xs={8}></Grid>
       <Box>
         <Grid
@@ -181,24 +188,28 @@ const BankAccountInformation = (props) => {
           <Grid item xs={12}>
             <Divider />
           </Grid>
-          <Grid item xs={12} md={4}>
-            <Typography>Account status:</Typography>
-          </Grid>
-          <Grid item xs={12} md={8}>
-            <Chip
-              label={accountStatus[data.account_status - 1].label}
-              color={
-                accountStatus[data.account_status - 1].id == 1
-                  ? "success"
-                  : accountStatus[data.account_status - 1].id == 2
-                  ? "error"
-                  : "secondary"
-              }
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <Divider />
-          </Grid>
+          {!data.under_approval && (
+            <>
+              <Grid item xs={12} md={4}>
+                <Typography>Account status:</Typography>
+              </Grid>
+              <Grid item xs={12} md={8}>
+                <Chip
+                  label={accountStatus[data.account_status - 1].label}
+                  color={
+                    accountStatus[data.account_status - 1].id == 1
+                      ? "success"
+                      : accountStatus[data.account_status - 1].id == 2
+                      ? "error"
+                      : "secondary"
+                  }
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <Divider />
+              </Grid>
+            </>
+          )}
           <Grid item xs={12} md={4}>
             <Typography>Date created:</Typography>
           </Grid>
@@ -220,6 +231,7 @@ export default function BankAccount() {
   const { data, error, isLoading, mutate } = useSWR("/bank_account", fetcher);
   const [openBankAccountDialog, setOpenBankAccountDialog] = useState(false);
   const [openLedgerDialog, setOpenLedgerDialog] = useState(false);
+  const [openSummaryDialog, setOpenSummaryDialog] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [successText, setSuccessText] = useState("");
   const [isEditing, setIsEditing] = useState(false);
@@ -242,6 +254,7 @@ export default function BankAccount() {
         freeSolo
         id="asynchronous-demo"
         open={open}
+        sx={{ width: 385, mt: 2 }}
         onOpen={() => {
           setOpen(true);
         }}
@@ -316,9 +329,17 @@ export default function BankAccount() {
         >
           Add
         </Button>
+        <Button
+          variant="outlined"
+          color="primary"
+          onClick={() => setOpenSummaryDialog(true)}
+          sx={{ ml: 2 }}
+        >
+          Summary
+        </Button>
       </Typography>
       {search}
-      <Box elevation={0} sx={{ padding: 2 }}>
+      <Box elevation={0} sx={{ mt: 4 }}>
         <Box sx={{ textAlign: "center" }}>
           <Success
             isSuccess={isSuccess}
@@ -329,7 +350,6 @@ export default function BankAccount() {
             <Fade in={true}>
               <Box
                 sx={{
-                  padding: 2,
                   textAlign: "left",
                   justifyItems: "bottom",
                 }}
@@ -356,6 +376,10 @@ export default function BankAccount() {
         isEditing={isEditing}
         setIsEditing={setIsEditing}
         editData={editData}
+      />
+      <SummaryDialog
+        openSummaryDialog={openSummaryDialog}
+        setOpenSummaryDialog={setOpenSummaryDialog}
       />
       {selected && (
         <>

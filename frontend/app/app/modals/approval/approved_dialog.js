@@ -27,6 +27,7 @@ import Typography from "@mui/material/Typography";
 import useSWR from "swr";
 import Loading from "@/app/utils/loading";
 import OwnersEquityView from "@/app/dashboard/approvals/views/owners_equity";
+import BankAccount from "@/app/dashboard/approvals/views/bank_account";
 
 const fetcher = (url) => axiosInstance.get(url).then((res) => res.data);
 
@@ -48,12 +49,22 @@ const ViewApproval = (props) => {
     error: province_error,
     isLoading: province_isLoading,
   } = useSWR("components/province", fetcher);
+  const {
+    data: bank,
+    error: bank_error,
+    isLoading: bank_isLoading,
+  } = useSWR("components/bank", fetcher);
 
   const handleClose = () => {
     setOpenViewApproval(false);
   };
 
-  if (barangay_isLoading || municipality_isLoading || province_isLoading)
+  if (
+    barangay_isLoading ||
+    municipality_isLoading ||
+    province_isLoading ||
+    bank_isLoading
+  )
     return;
 
   return (
@@ -62,6 +73,15 @@ const ViewApproval = (props) => {
         {data.type == "Owner's Equity" && (
           <OwnersEquityView
             data={data}
+            barangay={barangay}
+            municipality={municipality}
+            province={province}
+          />
+        )}
+        {data.type == "Bank Account" && (
+          <BankAccount
+            data={data}
+            bank={bank}
             barangay={barangay}
             municipality={municipality}
             province={province}
@@ -79,7 +99,6 @@ const ViewApproval = (props) => {
 
 ViewApproval.propTypes = {
   data: PropTypes.object.isRequired,
-  api: PropTypes.string.isRequired,
   openViewApproval: PropTypes.bool.isRequired,
   setOpenViewApproval: PropTypes.func.isRequired,
 };
@@ -88,7 +107,6 @@ export default function ApprovedDialog(props) {
   const { openApproved, setOpenApproved } = props;
   const [data, setData] = useState({});
   const [openViewApproval, setOpenViewApproval] = useState(false);
-  const [api, setAPI] = useState("");
   const {
     data: approved,
     error: approved_error,

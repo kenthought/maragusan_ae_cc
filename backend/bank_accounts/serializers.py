@@ -2,8 +2,8 @@ from rest_framework import serializers
 from .models import BankAccount, Ledger
 from components.serializers import (
     BankSerializer,
-    BarangaySerializer,
-    MunicipalitySerializer,
+    BarangayViewSerializer,
+    MunicipalityViewSerializer,
     ProvinceSerializer,
 )
 from users.serializers import UserSerializer
@@ -11,8 +11,8 @@ from users.serializers import UserSerializer
 
 class BankAccountViewSerializer(serializers.ModelSerializer):
     bank = BankSerializer()
-    barangay = BarangaySerializer()
-    municipality = MunicipalitySerializer()
+    barangay = BarangayViewSerializer()
+    municipality = MunicipalityViewSerializer()
     province = ProvinceSerializer()
     user = UserSerializer()
 
@@ -32,6 +32,7 @@ class BankAccountViewSerializer(serializers.ModelSerializer):
             "province",
             "account_status",
             "user",
+            "under_approval",
             "created_at",
         ]
 
@@ -53,6 +54,7 @@ class BankAccountWriteSerializer(serializers.ModelSerializer):
             "province",
             "account_status",
             "user",
+            "under_approval",
             "created_at",
         ]
 
