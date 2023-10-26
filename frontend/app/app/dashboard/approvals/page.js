@@ -44,6 +44,7 @@ import axiosInstance from "@/app/axios";
 import PropTypes from "prop-types";
 import { useSession } from "next-auth/react";
 import OwnersEquityView from "./views/owners_equity";
+import BankAccount from "./views/bank_account";
 import { MaskPasswordInput } from "@/app/utils/mask_password_input";
 
 const fetcher = (url) => axiosInstance.get(url).then((res) => res.data);
@@ -127,8 +128,8 @@ EnterUserPassword.propTypes = {
   openEnterUserPassword: PropTypes.bool.isRequired,
   setOpenEnterUserPassword: PropTypes.func.isRequired,
   approvalsMutate: PropTypes.func.isRequired,
-  setIsSuccess: PropTypes.bool.isRequired,
-  setSuccessText: PropTypes.string.isRequired,
+  setIsSuccess: PropTypes.func.isRequired,
+  setSuccessText: PropTypes.func.isRequired,
   closeViewApproval: PropTypes.func.isRequired,
 };
 
@@ -157,12 +158,22 @@ const ViewApproval = (props) => {
     error: province_error,
     isLoading: province_isLoading,
   } = useSWR("components/province", fetcher);
+  const {
+    data: bank,
+    error: bank_error,
+    isLoading: bank_isLoading,
+  } = useSWR("components/bank", fetcher);
 
   const handleClose = () => {
     setOpenViewApproval(false);
   };
 
-  if (barangay_isLoading || municipality_isLoading || province_isLoading)
+  if (
+    barangay_isLoading ||
+    municipality_isLoading ||
+    province_isLoading ||
+    bank_isLoading
+  )
     return;
 
   return (
@@ -175,6 +186,15 @@ const ViewApproval = (props) => {
               barangay={barangay}
               municipality={municipality}
               province={province}
+            />
+          )}
+          {data.type == "Bank Account" && (
+            <BankAccount
+              data={data}
+              barangay={barangay}
+              municipality={municipality}
+              province={province}
+              bank={bank}
             />
           )}
         </DialogContent>
@@ -206,6 +226,8 @@ const ViewApproval = (props) => {
 
 ViewApproval.propTypes = {
   data: PropTypes.object.isRequired,
+  setIsSuccess: PropTypes.func.isRequired,
+  setSuccessText: PropTypes.func.isRequired,
   openViewApproval: PropTypes.bool.isRequired,
   setOpenViewApproval: PropTypes.func.isRequired,
   approvalsMutate: PropTypes.func.isRequired,
@@ -226,7 +248,7 @@ export default function Approvals() {
   const loading = open && options.length === 0;
   const [isSuccess, setIsSuccess] = useState(false);
   const [selected, setSelected] = useState(null);
-  const [successText, setSuccessText] = useState(false);
+  const [successText, setSuccessText] = useState("");
 
   useEffect(() => {
     if (!open) {
@@ -293,7 +315,7 @@ export default function Approvals() {
     </>
   );
 
-  if (error) return <Typography>Unable to fetch data!</Typography>;
+  if (approvals_error) return <Typography>Unable to fetch data!</Typography>;
 
   if (approvals_isLoading) return <Loading />;
 
@@ -403,10 +425,12 @@ export default function Approvals() {
           setIsSuccess={setIsSuccess}
         />
       )}
-      <ApprovedDialog
-        openApproved={openApproved}
-        setOpenApproved={setOpenApproved}
-      />
+      {openApproved && (
+        <ApprovedDialog
+          openApproved={openApproved}
+          setOpenApproved={setOpenApproved}
+        />
+      )}
     </>
   );
 }
