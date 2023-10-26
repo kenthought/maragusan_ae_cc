@@ -358,7 +358,6 @@ export default function BankAccountDialog(props) {
                 <TextField
                   margin="normal"
                   required
-                  autoFocus
                   fullWidth
                   id="bank_branch"
                   label="Bank Branch"
@@ -370,7 +369,6 @@ export default function BankAccountDialog(props) {
                 <TextField
                   margin="normal"
                   required
-                  autoFocus
                   fullWidth
                   id="bank_branch"
                   label="Bank Branch"
@@ -416,7 +414,6 @@ export default function BankAccountDialog(props) {
             <TextField
               margin="normal"
               required
-              autoFocus
               fullWidth
               id="purok_street"
               label="Purok/Street"
@@ -428,7 +425,6 @@ export default function BankAccountDialog(props) {
             <TextField
               margin="normal"
               required
-              autoFocus
               fullWidth
               id="purok_street"
               label="Purok/Street"
