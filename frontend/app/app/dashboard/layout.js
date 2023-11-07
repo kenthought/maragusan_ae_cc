@@ -49,7 +49,9 @@ export default function DashboardLayout({ children, window }) {
 
   useEffect(() => {
     if (status === "authenticated") {
-      setPermissions(JSON.parse(Cookies.get("permissions")));
+      if (Cookies.get("permissions"))
+        setPermissions(JSON.parse(Cookies.get("permissions")));
+      else logout();
     }
   }, [status]);
 
