@@ -26,8 +26,9 @@ import { useSession } from "next-auth/react";
 import Typography from "@mui/material/Typography";
 import useSWR from "swr";
 import Loading from "@/app/utils/loading";
-import OwnersEquityView from "@/app/dashboard/approvals/views/owners_equity";
+import OwnersEquity from "@/app/dashboard/approvals/views/owners_equity";
 import BankAccount from "@/app/dashboard/approvals/views/bank_account";
+import Expenses from "@/app/dashboard/approvals/views/expenses";
 
 const fetcher = (url) => axiosInstance.get(url).then((res) => res.data);
 
@@ -54,6 +55,11 @@ const ViewApproval = (props) => {
     error: bank_error,
     isLoading: bank_isLoading,
   } = useSWR("components/bank", fetcher);
+  const {
+    data: expenses_category,
+    error: expenses_category_error,
+    isLoading: expenses_category_isLoading,
+  } = useSWR("components/expenses_category", fetcher);
 
   const handleClose = () => {
     setOpenViewApproval(false);
@@ -63,7 +69,8 @@ const ViewApproval = (props) => {
     barangay_isLoading ||
     municipality_isLoading ||
     province_isLoading ||
-    bank_isLoading
+    bank_isLoading ||
+    expenses_category_isLoading
   )
     return;
 
@@ -71,7 +78,7 @@ const ViewApproval = (props) => {
     <Dialog open={openViewApproval} onClose={handleClose}>
       <DialogContent>
         {data.type == "Owner's Equity" && (
-          <OwnersEquityView
+          <OwnersEquity
             data={data}
             barangay={barangay}
             municipality={municipality}
@@ -86,6 +93,9 @@ const ViewApproval = (props) => {
             municipality={municipality}
             province={province}
           />
+        )}
+        {data.type == "Expenses" && (
+          <Expenses data={data} expenses_category={expenses_category} />
         )}
       </DialogContent>
       <DialogActions>

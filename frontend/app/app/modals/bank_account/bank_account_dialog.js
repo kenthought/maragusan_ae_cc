@@ -12,6 +12,7 @@ import Alert from "@mui/material/Alert";
 import MenuItem from "@mui/material/MenuItem";
 import PropTypes from "prop-types";
 import axiosInstance from "@/app/axios";
+import Chip from "@mui/material/Chip";
 import { useSession } from "next-auth/react";
 import Typography from "@mui/material/Typography";
 import useSWR from "swr";
@@ -357,7 +358,6 @@ export default function BankAccountDialog(props) {
                 <TextField
                   margin="normal"
                   required
-                  autoFocus
                   fullWidth
                   id="bank_branch"
                   label="Bank Branch"
@@ -369,7 +369,6 @@ export default function BankAccountDialog(props) {
                 <TextField
                   margin="normal"
                   required
-                  autoFocus
                   fullWidth
                   id="bank_branch"
                   label="Bank Branch"
@@ -415,7 +414,6 @@ export default function BankAccountDialog(props) {
             <TextField
               margin="normal"
               required
-              autoFocus
               fullWidth
               id="purok_street"
               label="Purok/Street"
@@ -427,7 +425,6 @@ export default function BankAccountDialog(props) {
             <TextField
               margin="normal"
               required
-              autoFocus
               fullWidth
               id="purok_street"
               label="Purok/Street"
@@ -451,7 +448,11 @@ export default function BankAccountDialog(props) {
               renderOption={(props, option) => {
                 return (
                   <li {...props} key={option.id}>
-                    {option.barangay}
+                    {option.barangay +
+                      ", " +
+                      option.municipality.municipality +
+                      ", " +
+                      option.municipality.province.province}
                   </li>
                 );
               }}
@@ -490,7 +491,11 @@ export default function BankAccountDialog(props) {
               renderOption={(props, option) => {
                 return (
                   <li {...props} key={option.id}>
-                    {option.barangay}
+                    {option.barangay +
+                      ", " +
+                      option.municipality.municipality +
+                      ", " +
+                      option.municipality.province.province}
                   </li>
                 );
               }}

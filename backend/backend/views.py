@@ -150,7 +150,7 @@ class DailyClosingToday(APIView):
             obj = item
             obj["account_name"] = item["expenses"]["account_name"]
             obj["account_number"] = item["expenses"]["account_number"]
-            obj["ledger"] = "Bank Account"
+            obj["ledger"] = "Expenses"
             array.append(obj)
 
         # Payables

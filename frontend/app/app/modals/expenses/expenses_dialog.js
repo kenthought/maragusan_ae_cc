@@ -50,6 +50,15 @@ export default function ExpensesDialog(props) {
     setNewData(editData);
   }, [editData]);
 
+  const generateControlNumber = () => {
+    var number;
+    do {
+      number = Math.floor(Math.random() * 9999);
+    } while (number < 1);
+
+    return number;
+  };
+
   const handleEditChange = (event) => {
     const value = event.target.value;
     setNewData({ ...newData, [event.target.name]: value });
@@ -71,22 +80,30 @@ export default function ExpensesDialog(props) {
   const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    const postData = {
+    var postData = {
       control_number: data.get("control_number"),
       account_name: data.get("account_name"),
       expenses_description: data.get("expenses_description"),
       expenses_category: data.get("expenses_category"),
       account_status: !isEditing ? 1 : data.get("account_status"),
+      under_approval: !isEditing ? 1 : 0,
       user: session.user.name[1],
     };
 
     console.log(postData);
 
-    if (!isEditing)
+    if (!isEditing) {
+      postData.forApproval = {
+        type: "Expenses",
+        approval_type: "Add",
+        old_data: { ...postData },
+        new_data: { ...postData },
+        submitted_by: session.user.name[1],
+      };
       axiosInstance
         .post("expenses/", postData)
         .then((response) => {
-          handleSuccessful(true, "Expenses added successfully!");
+          handleSuccessful(true, "Submitted for approval!");
           console.log(response);
         })
         .catch((response) => {
@@ -94,11 +111,36 @@ export default function ExpensesDialog(props) {
           setIsError(true);
           setErrorText(response.message);
         });
-    else
+    } else {
+      // axiosInstance
+      //   .put("expenses/" + editData.id + "/", postData)
+      //   .then((response) => {
+      //     handleSuccessful(true, "Expenses edited successfully!");
+      //     console.log(response);
+      //   })
+      //   .catch((response) => {
+      //     console.log(response);
+      //     setIsError(true);
+      //     setErrorText(response.message);
+      //   });
+
+      const old_data = editData;
+      old_data.expenses_category = editData.expenses_category.id;
+
+      const forApproval = {
+        type: "Expenses",
+        approval_type: "Edit",
+        module_id: editData.id,
+        account_number: editData.account_number,
+        old_data: old_data,
+        new_data: postData,
+        submitted_by: session.user.name[1],
+      };
+
       axiosInstance
-        .put("expenses/" + editData.id + "/", postData)
+        .post("approvals/", forApproval)
         .then((response) => {
-          handleSuccessful(true, "Expenses edited successfully!");
+          handleSuccessful(true, "Submitted for approval!");
           console.log(response);
         })
         .catch((response) => {
@@ -106,6 +148,7 @@ export default function ExpensesDialog(props) {
           setIsError(true);
           setErrorText(response.message);
         });
+    }
   };
 
   if (expenses_category_isLoading) return;
@@ -127,7 +170,10 @@ export default function ExpensesDialog(props) {
               label="Control number"
               name="control_number"
               type="text"
+              value={generateControlNumber().toString()}
               size="small"
+              autoComplete="off"
+              readOnly
             />
           ) : (
             <TextField
@@ -139,9 +185,10 @@ export default function ExpensesDialog(props) {
               label="Control number"
               name="control_number"
               value={newData.control_number || ""}
-              onChange={handleEditChange}
               type="text"
               size="small"
+              autoComplete="off"
+              readOnly
             />
           )}
           {/* Account Name */}
@@ -178,7 +225,6 @@ export default function ExpensesDialog(props) {
             <TextField
               margin="normal"
               required
-              autoFocus
               fullWidth
               id="expenses_description"
               label="Expenses Description"
@@ -192,7 +238,6 @@ export default function ExpensesDialog(props) {
             <TextField
               margin="normal"
               required
-              autoFocus
               fullWidth
               id="expenses_description"
               label="Expenses Description"

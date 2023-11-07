@@ -45,6 +45,7 @@ import PropTypes from "prop-types";
 import { useSession } from "next-auth/react";
 import OwnersEquityView from "./views/owners_equity";
 import BankAccount from "./views/bank_account";
+import Expenses from "./views/expenses";
 import { MaskPasswordInput } from "@/app/utils/mask_password_input";
 
 const fetcher = (url) => axiosInstance.get(url).then((res) => res.data);
@@ -163,6 +164,11 @@ const ViewApproval = (props) => {
     error: bank_error,
     isLoading: bank_isLoading,
   } = useSWR("components/bank", fetcher);
+  const {
+    data: expenses_category,
+    error: expenses_category_error,
+    isLoading: expenses_category_isLoading,
+  } = useSWR("components/expenses_category", fetcher);
 
   const handleClose = () => {
     setOpenViewApproval(false);
@@ -172,7 +178,8 @@ const ViewApproval = (props) => {
     barangay_isLoading ||
     municipality_isLoading ||
     province_isLoading ||
-    bank_isLoading
+    bank_isLoading ||
+    expenses_category_isLoading
   )
     return;
 
@@ -196,6 +203,9 @@ const ViewApproval = (props) => {
               province={province}
               bank={bank}
             />
+          )}
+          {data.type == "Expenses" && (
+            <Expenses data={data} expenses_category={expenses_category} />
           )}
         </DialogContent>
         <DialogActions>

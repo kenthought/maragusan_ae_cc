@@ -140,13 +140,15 @@ export default function SummaryDialog(props) {
             </Table>
           </TableContainer>
         ) : (
-          <Typography>No summary avaiable</Typography>
+          <Typography>No summary available</Typography>
         )}
       </DialogContent>
       <DialogActions>
-        <Button variant="contained" color="primary" onClick={exportToPDF}>
-          Print
-        </Button>
+        {summary.length != 0 && (
+          <Button variant="contained" color="primary" onClick={exportToPDF}>
+            Print
+          </Button>
+        )}
       </DialogActions>
     </Dialog>
   );

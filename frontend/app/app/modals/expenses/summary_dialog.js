@@ -34,7 +34,7 @@ export default function SummaryDialog(props) {
     data: summary,
     error: summary_error,
     isLoading: summary_isLoading,
-  } = useSWR("balance/Bank Account", fetcher);
+  } = useSWR("balance/Expenses", fetcher);
   const [accountStatus] = useState([
     { id: 1, label: "Active", value: true },
     { id: 2, label: "Inactive", value: false },
@@ -55,7 +55,7 @@ export default function SummaryDialog(props) {
 
     doc.setFontSize(12);
 
-    const title = "Bank account summary";
+    const title = "Expenses summary";
     const headers = [["Account #", "Account name", "Status", "Balance"]];
 
     const data = summary.map((elt) => [
@@ -76,7 +76,7 @@ export default function SummaryDialog(props) {
     doc.text(title, marginLeft, 50);
     doc.text(new Date().toDateString(), marginLeft, 70);
     doc.autoTable(content);
-    doc.save("bank_records_summary.pdf");
+    doc.save("expenses_summary.pdf");
   };
 
   const numFormat = (num) => {
@@ -94,7 +94,7 @@ export default function SummaryDialog(props) {
       fullWidth
       maxWidth="lg"
     >
-      <DialogTitle>Bank account summary</DialogTitle>
+      <DialogTitle>Expenses summary</DialogTitle>
       <DialogContent>
         <Typography mb={1}>{new Date().toDateString()}</Typography>
         {summary.length != 0 ? (

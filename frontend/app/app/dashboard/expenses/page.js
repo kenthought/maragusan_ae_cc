@@ -24,6 +24,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import SearchIcon from "@mui/icons-material/Search";
 import ExpensesDialog from "@/app/modals/expenses/expenses_dialog";
 import LedgerDialog from "@/app/modals/expenses/ledger_dialog";
+import SummaryDialog from "@/app/modals/expenses/summary_dialog";
 import Success from "@/app/utils/success";
 import Loading from "@/app/utils/loading";
 import useSWR from "swr";
@@ -52,7 +53,6 @@ const ExpensesInformation = (props) => {
     <Button key="two" onClick={() => setOpenLedgerDialog(true)}>
       Ledger
     </Button>,
-    <Button key="three">Summary</Button>,
     <Button
       key="four"
       startIcon={<EditIcon />}
@@ -73,7 +73,7 @@ const ExpensesInformation = (props) => {
   if (error) return <Typography>Unable to fetch data!</Typography>;
 
   return (
-    <Card sx={{ padding: 2, position: "relative" }}>
+    <Card sx={{ padding: 2, position: "relative", width: 600 }}>
       <Typography component="h2" variant="h6" color="primary" marginBottom={2}>
         Expenses Information
       </Typography>
@@ -82,9 +82,16 @@ const ExpensesInformation = (props) => {
         aria-label="outlined primary button group"
         sx={{ marginBottom: 2 }}
         size="small"
+        disabled={data.under_approval}
       >
         {buttons}
       </ButtonGroup>
+
+      {data.under_approval && (
+        <Box>
+          <Chip label="For approval" color="warning" />
+        </Box>
+      )}
       <Grid item xs={8}></Grid>
       <Box>
         <Grid
@@ -130,24 +137,28 @@ const ExpensesInformation = (props) => {
           <Grid item xs={12}>
             <Divider />
           </Grid>
-          <Grid item xs={12} md={4}>
-            <Typography>Account status:</Typography>
-          </Grid>
-          <Grid item xs={12} md={8}>
-            <Chip
-              label={accountStatus[data.account_status - 1].label}
-              color={
-                accountStatus[data.account_status - 1].id == 1
-                  ? "success"
-                  : accountStatus[data.account_status - 1].id == 2
-                  ? "error"
-                  : "secondary"
-              }
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <Divider />
-          </Grid>
+          {!data.under_approval && (
+            <>
+              <Grid item xs={12} md={4}>
+                <Typography>Account status:</Typography>
+              </Grid>
+              <Grid item xs={12} md={8}>
+                <Chip
+                  label={accountStatus[data.account_status - 1].label}
+                  color={
+                    accountStatus[data.account_status - 1].id == 1
+                      ? "success"
+                      : accountStatus[data.account_status - 1].id == 2
+                      ? "error"
+                      : "secondary"
+                  }
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <Divider />
+              </Grid>
+            </>
+          )}
           <Grid item xs={12} md={4}>
             <Typography>Date created:</Typography>
           </Grid>
@@ -169,6 +180,7 @@ export default function Expenses() {
   const { data, error, isLoading, mutate } = useSWR("/expenses", fetcher);
   const [openExpensesDialog, setOpenExpensesDialog] = useState(false);
   const [openLedgerDialog, setOpenLedgerDialog] = useState(false);
+  const [openSummaryDialog, setOpenSummaryDialog] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [successText, setSuccessText] = useState("");
   const [isEditing, setIsEditing] = useState(false);
@@ -191,6 +203,7 @@ export default function Expenses() {
         freeSolo
         id="asynchronous-demo"
         open={open}
+        sx={{ width: 385, mt: 2 }}
         onOpen={() => {
           setOpen(true);
         }}
@@ -265,9 +278,17 @@ export default function Expenses() {
         >
           Add
         </Button>
+        <Button
+          variant="outlined"
+          color="primary"
+          onClick={() => setOpenSummaryDialog(true)}
+          sx={{ ml: 2 }}
+        >
+          Summary
+        </Button>
       </Typography>
       {search}
-      <Box elevation={0} sx={{ padding: 2 }}>
+      <Box elevation={0} sx={{ mt: 4 }}>
         <Box sx={{ textAlign: "center" }}>
           <Success
             isSuccess={isSuccess}
@@ -278,7 +299,6 @@ export default function Expenses() {
             <Fade in={true}>
               <Box
                 sx={{
-                  padding: 2,
                   textAlign: "left",
                   justifyItems: "bottom",
                 }}
@@ -305,6 +325,10 @@ export default function Expenses() {
         isEditing={isEditing}
         setIsEditing={setIsEditing}
         editData={editData}
+      />
+      <SummaryDialog
+        openSummaryDialog={openSummaryDialog}
+        setOpenSummaryDialog={setOpenSummaryDialog}
       />
       {selected && (
         <>
