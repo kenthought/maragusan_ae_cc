@@ -216,4 +216,5 @@ DebitDialog.propTypes = {
   mutate: PropTypes.func.isRequired,
   setIsSuccess: PropTypes.func.isRequired,
   setSuccessText: PropTypes.func.isRequired,
+  balance: PropTypes.number.isRequired,
 };
