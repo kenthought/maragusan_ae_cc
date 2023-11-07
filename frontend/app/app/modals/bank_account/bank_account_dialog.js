@@ -448,7 +448,11 @@ export default function BankAccountDialog(props) {
               renderOption={(props, option) => {
                 return (
                   <li {...props} key={option.id}>
-                    {option.barangay}
+                    {option.barangay +
+                      ", " +
+                      option.municipality.municipality +
+                      ", " +
+                      option.municipality.province.province}
                   </li>
                 );
               }}
@@ -487,7 +491,11 @@ export default function BankAccountDialog(props) {
               renderOption={(props, option) => {
                 return (
                   <li {...props} key={option.id}>
-                    {option.barangay}
+                    {option.barangay +
+                      ", " +
+                      option.municipality.municipality +
+                      ", " +
+                      option.municipality.province.province}
                   </li>
                 );
               }}

@@ -308,9 +308,14 @@ export default function OwnersEquityDialog(props) {
                 if (newInputValue != null) setBarangayData(newInputValue);
               }}
               renderOption={(props, option) => {
+                console.log(option);
                 return (
                   <li {...props} key={option.id}>
-                    {option.barangay}
+                    {option.barangay +
+                      ", " +
+                      option.municipality.municipality +
+                      ", " +
+                      option.municipality.province.province}
                   </li>
                 );
               }}
@@ -349,7 +354,11 @@ export default function OwnersEquityDialog(props) {
               renderOption={(props, option) => {
                 return (
                   <li {...props} key={option.id}>
-                    {option.barangay}
+                    {option.barangay +
+                      ", " +
+                      option.municipality.municipality +
+                      ", " +
+                      option.municipality.province.province}
                   </li>
                 );
               }}
