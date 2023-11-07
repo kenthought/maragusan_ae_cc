@@ -28,6 +28,8 @@ import Success from "../../utils/success";
 import Loading from "@/app/utils/loading";
 import DebitAndCreditDialog from "./debit_and_credit_dialog";
 import useSWR from "swr";
+import { jsPDF } from "jspdf";
+import "jspdf-autotable";
 
 const fetcher = (url) => axiosInstance.get(url).then((res) => res.data);
 
@@ -41,8 +43,8 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
   },
 }));
 
-const ccyFormat = (num) => {
-  return `${num.toFixed(2)}`;
+const numFormat = (num) => {
+  return `${num.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
 };
 
 const Transition = forwardRef(function Transition(props, ref) {
@@ -72,6 +74,65 @@ export default function LedgerDialog(props) {
   const handleClose = () => {
     setIsSuccess(false);
     setOpenLedgerDialog(false);
+  };
+
+  const exportToPDF = () => {
+    const unit = "pt";
+    const size = "A4"; // Use A1, A2, A3 or A4
+    const orientation = "landscape"; // portrait or landscape
+
+    const marginLeft = 40;
+    const doc = new jsPDF(orientation, unit, size);
+
+    doc.setFontSize(12);
+
+    const title = "Bank ledger";
+    const headers = [
+      [
+        "Date",
+        "Invoice #",
+        "Particulars",
+        "Debit",
+        "Credit",
+        "Balance",
+        "Trans no.",
+        "User",
+        "Time",
+        "Receipt date",
+        "Receipt type",
+        "Supplier",
+      ],
+    ];
+
+    const data = ledger.map((elt) => [
+      new Date(elt.created_at).toLocaleDateString(),
+      elt.invoice_number,
+      elt.particulars,
+      numFormat(parseFloat(elt.debit)),
+      numFormat(parseFloat(elt.credit)),
+      numFormat(parseFloat(elt.balance)),
+      elt.trans_number,
+      elt.user.first_name,
+      new Date(elt.created_at).toLocaleTimeString(),
+      new Date(elt.receipt_date).toLocaleDateString(),
+      receiptType[elt.receipt_type - 1].label,
+      elt.supplier.supplier,
+    ]);
+
+    let content = {
+      startY: 110,
+      head: headers,
+      body: data,
+      theme: "grid",
+      headStyles: { fillColor: [25, 118, 210] },
+    };
+
+    doc.text(new Date().toDateString(), 700, 20);
+    doc.text(title, marginLeft, 50);
+    doc.text("Account number: " + selected.account_number, marginLeft, 70);
+    doc.text("Account name: " + selected.account_name, 250, 70);
+    doc.autoTable(content);
+    doc.save("expenses_soa.pdf");
   };
 
   if (ledger_isLoading) return;
@@ -172,13 +233,13 @@ export default function LedgerDialog(props) {
                       <TableCell align="right">{row.invoice_number}</TableCell>
                       <TableCell align="right">{row.particulars}</TableCell>
                       <TableCell align="right">
-                        {ccyFormat(parseFloat(row.debit))}
+                        {numFormat(parseFloat(row.debit))}
                       </TableCell>
                       <TableCell align="right">
-                        {ccyFormat(parseFloat(row.credit))}
+                        {numFormat(parseFloat(row.credit))}
                       </TableCell>
                       <TableCell align="right">
-                        {ccyFormat(parseFloat(row.balance))}
+                        {numFormat(parseFloat(row.balance))}
                       </TableCell>
                       <TableCell align="right">{row.trans_number}</TableCell>
                       <TableCell align="right">{row.user.first_name}</TableCell>
@@ -201,7 +262,7 @@ export default function LedgerDialog(props) {
                   <TableRow>
                     <TableCell colSpan={12} align="left">
                       <Typography component="div" padding={2}>
-                        Balance: {ledger[ledger.length - 1].balance}
+                        Balance: {numFormat(ledger[ledger.length - 1].balance)}
                       </Typography>
                     </TableCell>
                   </TableRow>
@@ -234,7 +295,9 @@ export default function LedgerDialog(props) {
           >
             Credit
           </Button>
-          <Button variant="contained">Print Soa</Button>
+          <Button variant="contained" onClick={exportToPDF}>
+            Print Soa
+          </Button>
           <Button variant="contained" onClick={handleClose} color="error">
             Close
           </Button>
@@ -250,6 +313,11 @@ export default function LedgerDialog(props) {
             mutate={mutate}
             setIsSuccess={setIsSuccess}
             setSuccessText={setSuccessText}
+            balance={
+              ledger.length != 0
+                ? numFormat(ledger[ledger.length - 1].balance)
+                : 0
+            }
           />
         </>
       )}

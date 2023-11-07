@@ -18,6 +18,7 @@ class ExpensesViewSerializer(serializers.ModelSerializer):
             "expenses_category",
             "account_status",
             "user",
+            "under_approval",
             "created_at",
         ]
 
@@ -34,6 +35,7 @@ class ExpensesWriteSerializer(serializers.ModelSerializer):
             "expenses_category",
             "account_status",
             "user",
+            "under_approval",
             "created_at",
         ]
 

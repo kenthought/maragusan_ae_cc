@@ -8,6 +8,8 @@ from owners_equity.models import OwnersEquity
 from owners_equity.serializers import OwnersEquityWriteSerializer
 from bank_accounts.models import BankAccount
 from bank_accounts.serializers import BankAccountWriteSerializer
+from expenses.models import Expenses
+from expenses.serializers import ExpensesWriteSerializer
 from django.http import Http404
 from django.db.models import F
 from rest_framework.views import APIView
@@ -61,6 +63,24 @@ class ApprovalList(APIView):
                     )
 
             except BankAccount.DoesNotExist:
+                raise Http404
+        elif type == "Expenses":
+            try:
+                data = {"under_approval": True}
+                expenses = Expenses.objects.get(pk=pk)
+                expenses_serializer = ExpensesWriteSerializer(
+                    expenses, data=data, partial=True
+                )
+
+                if expenses_serializer.is_valid():
+                    expenses_serializer.save()
+                else:
+                    return Response(
+                        expenses_serializer.errors,
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+
+            except Expenses.DoesNotExist:
                 raise Http404
 
         else:
@@ -140,6 +160,23 @@ class ApprovalDetail(APIView):
                         status=status.HTTP_400_BAD_REQUEST,
                     )
             except BankAccount.DoesNotExist:
+                raise Http404
+        elif data["type"] == "Expenses":
+            try:
+                if data["approval_type"] == "Add":
+                    data["new_data"]["under_approval"] = 0
+                expenses = Expenses.objects.get(pk=data["module_id"])
+                expenses_serializer = ExpensesWriteSerializer(
+                    expenses, data=data["new_data"]
+                )
+                if expenses_serializer.is_valid():
+                    expenses_serializer.save()
+                else:
+                    return Response(
+                        expenses_serializer.errors,
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+            except Expenses.DoesNotExist:
                 raise Http404
         else:
             raise Http404
