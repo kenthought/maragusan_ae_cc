@@ -440,7 +440,7 @@ export default function DashboardLayout({ children, window }) {
           <Toolbar />
           <Box>
             <Fade in={true}>
-              <Container component="main">
+              <Container maxWidth component="main">
                 <div>{children}</div>
               </Container>
             </Fade>
