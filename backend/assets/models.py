@@ -6,7 +6,7 @@ from django.conf import settings
 class Asset(models.Model):
     id = models.BigAutoField(primary_key=True)
     account_number = models.CharField(
-        blank=True, null=True, max_length=100, editable=False, unique=True
+        blank=True, null=True, max_length=100, editable=True, unique=True
     )
     control_number = models.CharField(max_length=100)
     account_name = models.CharField(max_length=100)

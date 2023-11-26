@@ -23,6 +23,7 @@ class AssetViewSerializer(serializers.ModelSerializer):
             "asset_type",
             "account_status",
             "user",
+            "under_approval",
             "created_at",
         ]
 
@@ -39,6 +40,7 @@ class AssetWriteSerializer(serializers.ModelSerializer):
             "asset_type",
             "account_status",
             "user",
+            "under_approval",
             "created_at",
         ]
 
