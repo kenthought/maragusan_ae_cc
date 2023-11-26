@@ -54,6 +54,15 @@ export default function AssetDialog(props) {
     setNewData(editData);
   }, [editData]);
 
+  const generateControlNumber = () => {
+    var number;
+    do {
+      number = Math.floor(Math.random() * 9999);
+    } while (number < 1);
+
+    return number;
+  };
+
   const handleEditChange = (event) => {
     const value = event.target.value;
     setNewData({ ...newData, [event.target.name]: value });
@@ -75,22 +84,30 @@ export default function AssetDialog(props) {
   const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    const postData = {
+    var postData = {
       control_number: data.get("control_number"),
       account_name: data.get("account_name"),
       asset_description: data.get("asset_description"),
       asset_type: data.get("asset_type"),
       account_status: !isEditing ? 1 : data.get("account_status"),
+      under_approval: !isEditing ? 1 : 0,
       user: session.user.name[1],
     };
 
     console.log(postData);
 
-    if (!isEditing)
+    if (!isEditing) {
+      postData.forApproval = {
+        type: "Assets",
+        approval_type: "Add",
+        old_data: { ...postData },
+        new_data: { ...postData },
+        submitted_by: session.user.name[1],
+      };
       axiosInstance
         .post("assets/", postData)
         .then((response) => {
-          handleSuccessful(true, "Asset added successfully!");
+          handleSuccessful(true, "Submitted for approval!");
           console.log(response);
         })
         .catch((response) => {
@@ -98,11 +115,36 @@ export default function AssetDialog(props) {
           setIsError(true);
           setErrorText(response.message);
         });
-    else
+    } else {
+      // axiosInstance
+      //   .put("assets/" + editData.id + "/", postData)
+      //   .then((response) => {
+      //     handleSuccessful(true, "Asset edited successfully!");
+      //     console.log(response);
+      //   })
+      //   .catch((response) => {
+      //     console.log(response);
+      //     setIsError(true);
+      //     setErrorText(response.message);
+      //   });
+
+      const old_data = editData;
+      old_data.asset_type = editData.asset_type.id;
+
+      const forApproval = {
+        type: "Assets",
+        approval_type: "Edit",
+        module_id: editData.id,
+        account_number: editData.account_number,
+        old_data: old_data,
+        new_data: postData,
+        submitted_by: session.user.name[1],
+      };
+
       axiosInstance
-        .put("assets/" + editData.id + "/", postData)
+        .post("approvals/", forApproval)
         .then((response) => {
-          handleSuccessful(true, "Asset edited successfully!");
+          handleSuccessful(true, "Submitted for approval!");
           console.log(response);
         })
         .catch((response) => {
@@ -110,6 +152,7 @@ export default function AssetDialog(props) {
           setIsError(true);
           setErrorText(response.message);
         });
+    }
   };
 
   if (asset_type_isLoading) return <Loading />;
@@ -131,7 +174,10 @@ export default function AssetDialog(props) {
               label="Control number"
               name="control_number"
               type="text"
+              value={generateControlNumber().toString()}
               size="small"
+              autoComplete="off"
+              readOnly
             />
           ) : (
             <TextField
@@ -143,9 +189,10 @@ export default function AssetDialog(props) {
               label="Control number"
               name="control_number"
               value={newData.control_number || ""}
-              onChange={handleEditChange}
               type="text"
               size="small"
+              autoComplete="off"
+              readOnly
             />
           )}
           {/* Account Name */}
@@ -181,7 +228,6 @@ export default function AssetDialog(props) {
             <TextField
               margin="normal"
               required
-              autoFocus
               fullWidth
               id="asset_description"
               label="Asset Description"
@@ -195,7 +241,6 @@ export default function AssetDialog(props) {
             <TextField
               margin="normal"
               required
-              autoFocus
               fullWidth
               id="asset_description"
               label="Asset Description"

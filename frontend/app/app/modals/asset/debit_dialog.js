@@ -23,6 +23,8 @@ import { useSession } from "next-auth/react";
 import Typography from "@mui/material/Typography";
 import useSWR from "swr";
 import { ButtonGroup, Divider, Fade } from "@mui/material";
+import { NumericFormatCustom } from "@/app/utils/numberic_format";
+import { MaskControlNumber } from "@/app/utils/mask_control_number";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -34,8 +36,8 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
   },
 }));
 
-const ccyFormat = (num) => {
-  return `${num.toFixed(2)}`;
+const numFormat = (num) => {
+  return `${num.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
 };
 
 export default function DebitDialog(props) {
@@ -53,6 +55,7 @@ export default function DebitDialog(props) {
   const [errorText, setErrorText] = useState(false);
   const [openAssetTransactionTable, setOpenAssetTransactionTable] =
     useState(false);
+  const [controlNumber, setControlNumber] = useState("");
 
   const handleClose = () => {
     setOpenDebitDialog(false);
@@ -77,7 +80,15 @@ export default function DebitDialog(props) {
     event.preventDefault();
     setRows([]);
     const data = new FormData(event.currentTarget);
-    var amount = parseInt(data.get("amount"));
+    const amount = parseFloat(data.get("amount").replace(/\,/g, ""), 10);
+
+    if (selected.control_number != controlNumber) {
+      setIsError(true);
+      setErrorText("Invalid control number");
+      return;
+    } else {
+      setIsError(false);
+    }
 
     for (var i = 0; i <= data.get("depreciation_term"); i++) {
       const postData = {
@@ -133,7 +144,6 @@ export default function DebitDialog(props) {
     <Dialog
       open={openAssetTransactionTable}
       onClose={handleCloseAssetTransactionTable}
-      fullWidth
       maxWidth="md"
     >
       <DialogTitle>Asset Transaction Table</DialogTitle>
@@ -174,12 +184,18 @@ export default function DebitDialog(props) {
                       ? "Asset purchase value"
                       : "Depreciation Schedule"}
                   </TableCell>
-                  <TableCell align="right">{ccyFormat(row.debit)}</TableCell>
-                  <TableCell align="right">{ccyFormat(row.credit)}</TableCell>
+                  <TableCell align="right">
+                    {numFormat(parseFloat(row.debit))}
+                  </TableCell>
+                  <TableCell align="right">
+                    {numFormat(parseFloat(row.credit))}
+                  </TableCell>
                   <TableCell align="right">
                     {index == 0
-                      ? ccyFormat(row.debit - row.credit)
-                      : ccyFormat(rows[0].debit - row.credit * index)}
+                      ? numFormat(parseFloat(row.debit - row.credit))
+                      : numFormat(
+                          parseFloat(rows[0].debit - row.credit * index)
+                        )}
                   </TableCell>
                 </TableRow>
               ))}
@@ -215,15 +231,11 @@ export default function DebitDialog(props) {
   if (selected === null) return;
 
   return (
-    <Dialog
-      open={openDebitDialog}
-      onClose={handleClose}
-      fullWidth
-      maxWidth="lg"
-    >
+    <Dialog open={openDebitDialog} onClose={handleClose}>
       <DialogTitle>Debit</DialogTitle>
       <Box component="form" onSubmit={handleGenerate}>
         <DialogContent>
+          {isError ? <Alert severity="error">{errorText}</Alert> : <></>}
           <Grid container spacing={2} marginBottom={1}>
             <Grid item xs={12}>
               <TextField
@@ -243,13 +255,13 @@ export default function DebitDialog(props) {
                 <TextField
                   margin="dense"
                   fullWidth
-                  autoFocus
                   required
                   label="Invoice #"
                   id="invoice_number"
                   name="invoice_number"
                   type="text"
                   size="small"
+                  autoComplete="off"
                 />
               </Box>
             </Grid>
@@ -292,6 +304,8 @@ export default function DebitDialog(props) {
                   name="amount"
                   type="text"
                   size="small"
+                  InputProps={{ inputComponent: NumericFormatCustom }}
+                  autoComplete="off"
                 />
               </Box>
             </Grid>
@@ -305,9 +319,13 @@ export default function DebitDialog(props) {
                   id="control_number"
                   name="control_number"
                   type="text"
-                  value={selected.control_number}
+                  InputProps={{ inputComponent: MaskControlNumber }}
+                  value={controlNumber}
                   size="small"
-                  readOnly
+                  onChange={(event) => {
+                    setControlNumber(event.target.value);
+                  }}
+                  autoComplete="off"
                 />
               </Box>
             </Grid>

@@ -62,6 +62,7 @@ export default function DebitDialog(props) {
 
   const handleClose = () => {
     setControlNumber("");
+    setReceiptDate(null);
     setOpenDebitAndCreditDialog(false);
   };
 
@@ -295,5 +296,5 @@ DebitDialog.propTypes = {
   mutate: PropTypes.func.isRequired,
   setIsSuccess: PropTypes.func.isRequired,
   setSuccessText: PropTypes.func.isRequired,
-  balance: PropTypes.number.isRequired,
+  balance: PropTypes.string.isRequired,
 };

@@ -10,6 +10,8 @@ from bank_accounts.models import BankAccount
 from bank_accounts.serializers import BankAccountWriteSerializer
 from expenses.models import Expenses
 from expenses.serializers import ExpensesWriteSerializer
+from assets.models import Asset
+from assets.serializers import AssetWriteSerializer
 from django.http import Http404
 from django.db.models import F
 from rest_framework.views import APIView
@@ -81,6 +83,24 @@ class ApprovalList(APIView):
                     )
 
             except Expenses.DoesNotExist:
+                raise Http404
+        elif type == "Assets":
+            try:
+                data = {"under_approval": True}
+                assets = Asset.objects.get(pk=pk)
+                assets_serializer = AssetWriteSerializer(
+                    assets, data=data, partial=True
+                )
+
+                if assets_serializer.is_valid():
+                    assets_serializer.save()
+                else:
+                    return Response(
+                        assets_serializer.errors,
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+
+            except Asset.DoesNotExist:
                 raise Http404
 
         else:
@@ -177,6 +197,21 @@ class ApprovalDetail(APIView):
                         status=status.HTTP_400_BAD_REQUEST,
                     )
             except Expenses.DoesNotExist:
+                raise Http404
+        elif data["type"] == "Assets":
+            try:
+                if data["approval_type"] == "Add":
+                    data["new_data"]["under_approval"] = 0
+                assets = Asset.objects.get(pk=data["module_id"])
+                assets_serializer = AssetWriteSerializer(assets, data=data["new_data"])
+                if assets_serializer.is_valid():
+                    assets_serializer.save()
+                else:
+                    return Response(
+                        assets_serializer.errors,
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+            except Asset.DoesNotExist:
                 raise Http404
         else:
             raise Http404

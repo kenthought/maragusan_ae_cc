@@ -6,7 +6,7 @@ from django.conf import settings
 class Asset(models.Model):
     id = models.BigAutoField(primary_key=True)
     account_number = models.CharField(
-        blank=True, null=True, max_length=100, editable=False, unique=True
+        blank=True, null=True, max_length=100, editable=True, unique=True
     )
     control_number = models.CharField(max_length=100)
     account_name = models.CharField(max_length=100)
@@ -15,6 +15,7 @@ class Asset(models.Model):
         "components.AssetType", related_name="asset", on_delete=models.PROTECT
     )
     account_status = models.IntegerField(default=1)
+    under_approval = models.BooleanField(default=True)
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL, related_name="asset", on_delete=models.PROTECT
     )
@@ -27,7 +28,7 @@ class Asset(models.Model):
         super().save(*args, **kwargs)
 
         if self.account_number == None:
-            self.account_number = "000" + str(self.id)
+            self.account_number = str(self.id).zfill(5)
             # You need to call save two times since the id value is not accessible at creation
             super().save()
 

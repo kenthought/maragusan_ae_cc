@@ -86,7 +86,7 @@ export default function LedgerDialog(props) {
 
     doc.setFontSize(12);
 
-    const title = "Bank ledger";
+    const title = "Expenses ledger";
     const headers = [
       [
         "Date",

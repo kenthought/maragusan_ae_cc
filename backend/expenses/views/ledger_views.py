@@ -77,15 +77,13 @@ class LedgerList(APIView):
 
     def post(self, request, format=None):
         ledger_serializer = LedgerWriteSerializer(data=request.data)
-
         if ledger_serializer.is_valid():
-            ledger_serializer.save()
             balance_update = self.update_balance(request.data)
             if balance_update == "Balance updated":
                 ledger_serializer.save()
-                return Response(ledger_serializer.data, status=status.HTTP_201_CREATED)
             else:
                 return Response(balance_update)
+            return Response(ledger_serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(ledger_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

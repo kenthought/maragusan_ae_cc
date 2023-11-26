@@ -18,6 +18,7 @@ class ExpensesList(APIView):
             approval_serializer = ApprovalWriteSerializer(data=data)
             if approval_serializer.is_valid():
                 approval_serializer.save()
+            return "Success"
         except:
             raise Http404
 

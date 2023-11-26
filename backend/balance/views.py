@@ -10,6 +10,8 @@ from bank_accounts.models import BankAccount
 from bank_accounts.serializers import BankAccountViewSerializer
 from expenses.models import Expenses
 from expenses.serializers import ExpensesViewSerializer
+from assets.models import Asset
+from assets.serializers import AssetViewSerializer
 from django.http import Http404
 from django.db.models import F
 from rest_framework.views import APIView
@@ -62,6 +64,10 @@ class BalanceDetail(APIView):
             if type == "Expenses":
                 expenses = Expenses.objects.get(id=obj["module_id"])
                 module = ExpensesViewSerializer(expenses)
+
+            if type == "Asset":
+                asset = Asset.objects.get(id=obj["module_id"])
+                module = AssetViewSerializer(asset)
 
             obj["module"] = module.data
             array.append(obj)

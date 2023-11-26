@@ -84,9 +84,9 @@ class LedgerList(APIView):
             balance_update = self.update_balance(request.data)
             if balance_update == "Balance updated":
                 ledger_serializer.save()
-                return Response(ledger_serializer.data, status=status.HTTP_201_CREATED)
             else:
                 return Response(balance_update)
+            return Response(ledger_serializer.data, status=status.HTTP_201_CREATED)
         return Response(ledger_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
