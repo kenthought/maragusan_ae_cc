@@ -14,15 +14,17 @@ class ApprovalWriteSerializer(serializers.ModelSerializer):
             "module_id",
             "old_data",
             "new_data",
-            "approved_by",
-            "approved_date",
+            "remarks",
+            "state",
+            "approver",
+            "date_executed",
             "submitted_by",
             "created_at",
         ]
 
 
 class ApprovalViewSerializer(serializers.ModelSerializer):
-    approved_by = UserSerializer()
+    approver = UserSerializer()
     submitted_by = UserSerializer()
 
     class Meta:
@@ -35,8 +37,10 @@ class ApprovalViewSerializer(serializers.ModelSerializer):
             "module_id",
             "old_data",
             "new_data",
-            "approved_by",
-            "approved_date",
+            "remarks",
+            "state",
+            "approver",
+            "date_executed",
             "submitted_by",
             "created_at",
         ]

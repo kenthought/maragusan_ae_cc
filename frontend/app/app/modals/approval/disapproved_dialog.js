@@ -30,6 +30,7 @@ import OwnersEquity from "@/app/dashboard/approvals/views/owners_equity";
 import BankAccount from "@/app/dashboard/approvals/views/bank_account";
 import Expenses from "@/app/dashboard/approvals/views/expenses";
 import Assets from "@/app/dashboard/approvals/views/assets";
+import { Card, CardContent } from "@mui/material";
 
 const fetcher = (url) => axiosInstance.get(url).then((res) => res.data);
 
@@ -107,6 +108,21 @@ const ViewApproval = (props) => {
         {data.type == "Assets" && (
           <Assets data={data} asset_type={asset_type} />
         )}
+        <Card
+          sx={{
+            mt: 2,
+          }}
+          variant="outlined"
+        >
+          <CardContent>
+            <Typography variant="body2" color="text.secondary">
+              Remarks:
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              {data.remarks}
+            </Typography>
+          </CardContent>
+        </Card>
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose} variant="contained" color="error">
@@ -121,31 +137,37 @@ ViewApproval.propTypes = {
   data: PropTypes.object.isRequired,
   openViewApproval: PropTypes.bool.isRequired,
   setOpenViewApproval: PropTypes.func.isRequired,
+  remarks: PropTypes.string.isRequired,
 };
 
-export default function ApprovedDialog(props) {
-  const { openApproved, setOpenApproved } = props;
+export default function DisapprovedDialog(props) {
+  const { openDisapproved, setOpenDisapproved } = props;
   const [data, setData] = useState({});
   const [openViewApproval, setOpenViewApproval] = useState(false);
   const {
-    data: approved,
-    error: approved_error,
-    isLoading: approved_isLoading,
-  } = useSWR("approvals/approved", fetcher, { refreshInterval: 1000 });
+    data: disapproved,
+    error: disapproved_error,
+    isLoading: disapproved_isLoading,
+  } = useSWR("approvals/disapproved", fetcher, { refreshInterval: 1000 });
 
   const handleClose = () => {
-    setOpenApproved(false);
+    setOpenDisapproved(false);
   };
 
-  if (approved_isLoading) return;
+  if (disapproved_isLoading) return;
 
   return (
-    <Dialog open={openApproved} onClose={handleClose} maxWidth="lg" fullWidth>
-      <DialogTitle>Approved list</DialogTitle>
+    <Dialog
+      open={openDisapproved}
+      onClose={handleClose}
+      maxWidth="lg"
+      fullWidth
+    >
+      <DialogTitle>Disapproved list</DialogTitle>
       <DialogContent>
         <Box elevation={0} sx={{ padding: 2 }}>
           <Box sx={{ textAlign: "center" }}>
-            {approved.length != 0 ? (
+            {disapproved.length != 0 ? (
               <TableContainer component={Paper}>
                 <Table
                   sx={{ minWidth: 650 }}
@@ -154,7 +176,7 @@ export default function ApprovedDialog(props) {
                 >
                   <TableHead>
                     <TableRow>
-                      <TableCell>Approved date & time</TableCell>
+                      <TableCell>Disapproved date & time</TableCell>
                       <TableCell align="right">Approval</TableCell>
                       <TableCell align="right">Type</TableCell>
                       <TableCell align="right">Account #</TableCell>
@@ -164,7 +186,7 @@ export default function ApprovedDialog(props) {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {approved.map((row) => {
+                    {disapproved.map((row) => {
                       // const data = JSON.parse(row.data);
                       return (
                         <TableRow
@@ -233,7 +255,7 @@ export default function ApprovedDialog(props) {
   );
 }
 
-ApprovedDialog.propTypes = {
-  openApproved: PropTypes.bool.isRequired,
-  setOpenApproved: PropTypes.func.isRequired,
+DisapprovedDialog.propTypes = {
+  openDisapproved: PropTypes.bool.isRequired,
+  setOpenDisapproved: PropTypes.func.isRequired,
 };
