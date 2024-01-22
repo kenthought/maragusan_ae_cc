@@ -160,13 +160,13 @@ const DisapproveRemarks = (props) => {
 
   const handleClose = () => {
     setOpenDisapproveRemarks(false);
-    setOpenEnterUserPassword(true);
   };
 
   const handleSubmit = () => {
     if (disapproveRemarks != "") {
       setIsError(false);
       setIsDisapprove(true);
+      setOpenEnterUserPassword(true);
       handleClose();
     } else {
       setIsError(true);
