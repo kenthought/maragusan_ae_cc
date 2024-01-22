@@ -107,8 +107,8 @@ class ApprovalList(APIView):
             raise Http404
 
     def get(self, request, format=None):
-        approval = Approval.objects.order_by("-created_at").exclude(
-            approved_by__isnull=False
+        approval = Approval.objects.order_by("-created_at").filter(
+            state=Approval.UNDER_APPROVAL
         )
         serializer = ApprovalViewSerializer(approval, many=True)
         return Response(serializer.data)
@@ -125,13 +125,33 @@ class ApprovalList(APIView):
             return Response(approval_serializer.data, status=status.HTTP_201_CREATED)
         return Response(approval_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class UserApprovalList(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, format=None):
+        approval = Approval.objects.order_by("-created_at").filter(
+            submitted_by=request.user.id
+        )
+        serializer = ApprovalViewSerializer(approval, many=True)
+        return Response(serializer.data)
 
 class ApprovedList(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, format=None):
-        approval = Approval.objects.order_by("-created_at").exclude(
-            approved_by__isnull=True
+        approval = Approval.objects.order_by("-created_at").filter(
+            state=Approval.APPROVED
+        )
+        serializer = ApprovalViewSerializer(approval, many=True)
+        return Response(serializer.data)
+
+
+class DisapprovedList(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, format=None):
+        approval = Approval.objects.order_by("-created_at").filter(
+            state=Approval.DISAPPROVED
         )
         serializer = ApprovalViewSerializer(approval, many=True)
         return Response(serializer.data)
@@ -149,68 +169,131 @@ class ApprovalDetail(APIView):
     def update_data(self, data):
         if data["type"] == "Owner's Equity":
             try:
-                if data["approval_type"] == "Add":
-                    data["new_data"]["under_approval"] = 0
                 owners_equity = OwnersEquity.objects.get(pk=data["module_id"])
-                owners_equity_serializer = OwnersEquityWriteSerializer(
-                    owners_equity, data=data["new_data"]
-                )
-                if owners_equity_serializer.is_valid():
-                    owners_equity_serializer.save()
-                else:
-                    return Response(
-                        owners_equity_serializer.errors,
-                        status=status.HTTP_400_BAD_REQUEST,
+                if data["is_disapprove"] is False:
+                    if data["approval_type"] == "Add":
+                        data["new_data"]["under_approval"] = False
+                    owners_equity_serializer = OwnersEquityWriteSerializer(
+                        owners_equity, data=data["new_data"]
                     )
+                    if owners_equity_serializer.is_valid():
+                        owners_equity_serializer.save()
+                    else:
+                        return Response(
+                            owners_equity_serializer.errors,
+                            status=status.HTTP_400_BAD_REQUEST,
+                        )
+                else:
+                    temp = {"under_approval": False}
+                    if data["approval_type"] != "Add":
+                        owners_equity_serializer = OwnersEquityWriteSerializer(owners_equity, data=temp, partial=True)
+                        if owners_equity_serializer.is_valid():
+                            owners_equity_serializer.save()
+                        else:
+                            return Response(
+                                owners_equity_serializer.errors,
+                                status=status.HTTP_400_BAD_REQUEST,
+                            )
+                    else:
+                        owners_equity.delete()
+
             except OwnersEquity.DoesNotExist:
                 raise Http404
+
         elif data["type"] == "Bank Account":
             try:
-                if data["approval_type"] == "Add":
-                    data["new_data"]["under_approval"] = 0
                 bank_account = BankAccount.objects.get(pk=data["module_id"])
-                bank_account_serializer = BankAccountWriteSerializer(
-                    bank_account, data=data["new_data"]
-                )
-                if bank_account_serializer.is_valid():
-                    bank_account_serializer.save()
-                else:
-                    return Response(
-                        bank_account_serializer.errors,
-                        status=status.HTTP_400_BAD_REQUEST,
+                if data["is_disapprove"] is False:
+                    if data["approval_type"] == "Add":
+                        data["new_data"]["under_approval"] = False
+                    bank_account_serializer = BankAccountWriteSerializer(
+                        bank_account, data=data["new_data"]
                     )
+                    if bank_account_serializer.is_valid():
+                        bank_account_serializer.save()
+                    else:
+                        return Response(
+                            bank_account_serializer.errors,
+                            status=status.HTTP_400_BAD_REQUEST,
+                        )
+                else:
+                    temp = {"under_approval": False}
+                    if data["approval_type"] != "Add":
+                        bank_account_serializer = BankAccountWriteSerializer(bank_account, data=temp, partial=True)
+                        if bank_account_serializer.is_valid():
+                            bank_account_serializer.save()
+                        else:
+                            return Response(
+                                bank_account_serializer.errors,
+                                status=status.HTTP_400_BAD_REQUEST,
+                            )
+                    else:
+                        bank_account.delete()
+
             except BankAccount.DoesNotExist:
                 raise Http404
+
         elif data["type"] == "Expenses":
             try:
-                if data["approval_type"] == "Add":
-                    data["new_data"]["under_approval"] = 0
                 expenses = Expenses.objects.get(pk=data["module_id"])
-                expenses_serializer = ExpensesWriteSerializer(
-                    expenses, data=data["new_data"]
-                )
-                if expenses_serializer.is_valid():
-                    expenses_serializer.save()
-                else:
-                    return Response(
-                        expenses_serializer.errors,
-                        status=status.HTTP_400_BAD_REQUEST,
+                if data["is_disapprove"] is False:
+                    if data["approval_type"] == "Add":
+                        data["new_data"]["under_approval"] = False
+                    expenses_serializer = ExpensesWriteSerializer(
+                        expenses, data=data["new_data"]
                     )
+                    if expenses_serializer.is_valid():
+                        expenses_serializer.save()
+                    else:
+                        return Response(
+                            expenses_serializer.errors,
+                            status=status.HTTP_400_BAD_REQUEST,
+                        )
+                else:
+                    temp = {"under_approval": False}
+                    if data["approval_type"] != "Add":
+                        expenses_serializer = ExpensesWriteSerializer(expenses, data=temp, partial=True)
+                        if expenses_serializer.is_valid():
+                            expenses_serializer.save()
+                        else:
+                            return Response(
+                                expenses_serializer.errors,
+                                status=status.HTTP_400_BAD_REQUEST,
+                            )
+                    else:
+                        expenses.delete()
+
             except Expenses.DoesNotExist:
                 raise Http404
+
         elif data["type"] == "Assets":
             try:
-                if data["approval_type"] == "Add":
-                    data["new_data"]["under_approval"] = 0
                 assets = Asset.objects.get(pk=data["module_id"])
-                assets_serializer = AssetWriteSerializer(assets, data=data["new_data"])
-                if assets_serializer.is_valid():
-                    assets_serializer.save()
+                if data["is_disapprove"] is False:
+                    if data["approval_type"] == "Add":
+                        data["new_data"]["under_approval"] = False
+                    assets_serializer = AssetWriteSerializer(assets, data=data["new_data"])
+                    if assets_serializer.is_valid():
+                        assets_serializer.save()
+                    else:
+                        return Response(
+                            assets_serializer.errors,
+                            status=status.HTTP_400_BAD_REQUEST,
+                        )
                 else:
-                    return Response(
-                        assets_serializer.errors,
-                        status=status.HTTP_400_BAD_REQUEST,
-                    )
+                    temp = {"under_approval": False}
+                    if data["approval_type"] != "Add":
+                        assets_serializer = AssetWriteSerializer(assets, data=temp, partial=True)
+                        if assets_serializer.is_valid():
+                            assets_serializer.save()
+                        else:
+                            return Response(
+                                assets_serializer.errors,
+                                status=status.HTTP_400_BAD_REQUEST,
+                            )
+                    else:
+                        assets.delete()
+
             except Asset.DoesNotExist:
                 raise Http404
         else:
@@ -229,8 +312,10 @@ class ApprovalDetail(APIView):
             approval = self.get_object(pk)
             self.update_data(request.data)
             data = {
-                "approved_by": request.data["approved_by"],
-                "approved_date": datetime.today().strftime("%m/%d/%Y %H:%M:%S"),
+                "approver": request.data["approver"],
+                "date_executed": datetime.today().strftime("%m/%d/%Y %H:%M:%S"),
+                "state": Approval.DISAPPROVED if request.data["is_disapprove"] else Approval.APPROVED,
+                "remarks": request.data["remarks"] if request.data["is_disapprove"] else None
             }
             approval_serializer = ApprovalWriteSerializer(
                 approval, data=data, partial=True

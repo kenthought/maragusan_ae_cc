@@ -236,6 +236,25 @@ export default function DashboardLayout({ children, window }) {
         </Collapse>
       </List>
       <Divider />
+      <List>
+        <ListItem disablePadding>
+          <ListItemButton href={"/dashboard/my_approvals"} LinkComponent={Link}>
+            <ListItemIcon>
+              <LogoutIcon color="primary" />
+            </ListItemIcon>
+            <ListItemText
+              primary={"My Approvals"}
+              primaryTypographyProps={{
+                fontSize: 15,
+                fontWeight: "medium",
+                lineHeight: "20px",
+                mb: "2px",
+              }}
+            />
+          </ListItemButton>
+        </ListItem>
+      </List>
+      <Divider />
       {(permissions.admin || permissions.approvals) && (
         <>
           <List>

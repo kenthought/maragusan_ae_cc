@@ -23,6 +23,7 @@ class UserAdminConfig(UserAdmin):
         "middle_name",
         "last_name",
         "is_active",
+        "is_admin",
         "is_staff",
     )
     ordering = ("-date_joined",)
@@ -34,6 +35,7 @@ class UserAdminConfig(UserAdmin):
         "middle_name",
         "last_name",
         "is_active",
+        "is_admin",
         "is_staff",
     )
     fieldsets = (
@@ -49,8 +51,7 @@ class UserAdminConfig(UserAdmin):
                 )
             },
         ),
-        ("Permissions", {"fields": ("is_staff", "is_active")}),
-        ("Personal", {"fields": ("about",)}),
+        ("Permissions", {"fields": ("is_admin", "is_staff", "is_active")}),
     )
     formfield_overrides = {
         models.TextField: {"widget": Textarea(attrs={"rows": 20, "cols": 60})},
@@ -69,6 +70,7 @@ class UserAdminConfig(UserAdmin):
                     "password1",
                     "password2",
                     "is_active",
+                    "is_admin",
                     "is_staff",
                 ),
             },

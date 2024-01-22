@@ -37,6 +37,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import SearchIcon from "@mui/icons-material/Search";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import ApprovedDialog from "@/app/modals/approval/approved_dialog";
+import DisapprovedDialog from "@/app/modals/approval/disapproved_dialog";
 import Success from "@/app/utils/success";
 import Loading from "@/app/utils/loading";
 import useSWR from "swr";
@@ -59,6 +60,8 @@ const EnterUserPassword = (props) => {
     setIsSuccess,
     setSuccessText,
     approvalsMutate,
+    isDisapprove,
+    disapproveRemarks,
     closeViewApproval,
   } = props;
   const [password, setPassword] = useState("");
@@ -80,13 +83,19 @@ const EnterUserPassword = (props) => {
   };
 
   const handleSubmit = () => {
-    data.approved_by = session.user.name[1];
+    data.is_disapprove = isDisapprove;
+    data.remarks = disapproveRemarks;
+    data.approver = session.user.name[1];
     data.password = password;
 
     axiosInstance
       .put("approvals/" + data.id + "/", data)
       .then((response) => {
-        handleSuccessful(true, data.approval_type + "ed successfully!");
+        handleSuccessful(
+          true,
+          (!isDisapprove ? data.approval_type + "ed" : "Disapproved") +
+            " successfully!"
+        );
         console.log(response);
       })
       .catch((response) => {
@@ -132,7 +141,76 @@ EnterUserPassword.propTypes = {
   approvalsMutate: PropTypes.func.isRequired,
   setIsSuccess: PropTypes.func.isRequired,
   setSuccessText: PropTypes.func.isRequired,
+  isDisapprove: PropTypes.bool.isRequired,
+  disapproveRemarks: PropTypes.string.isRequired,
   closeViewApproval: PropTypes.func.isRequired,
+};
+
+const DisapproveRemarks = (props) => {
+  const {
+    openDisapproveRemarks,
+    setOpenDisapproveRemarks,
+    setOpenEnterUserPassword,
+    setIsDisapprove,
+    disapproveRemarks,
+    setDisapproveRemarks,
+  } = props;
+
+  const [isError, setIsError] = useState(false);
+
+  const handleClose = () => {
+    setOpenDisapproveRemarks(false);
+    setOpenEnterUserPassword(true);
+  };
+
+  const handleSubmit = () => {
+    if (disapproveRemarks != "") {
+      setIsError(false);
+      setIsDisapprove(true);
+      handleClose();
+    } else {
+      setIsError(true);
+    }
+  };
+
+  return (
+    <Dialog open={openDisapproveRemarks} onClose={handleClose}>
+      <DialogTitle>Remarks</DialogTitle>
+      <DialogContent>
+        <DialogContentText>Disapprove Remarks</DialogContentText>
+        {isError ? (
+          <Alert severity="error">Please enter remarks!</Alert>
+        ) : (
+          <></>
+        )}
+        <TextField
+          autoFocus
+          margin="normal"
+          id="remarks"
+          label="Remarks"
+          type="textarea"
+          multiline
+          rows={5}
+          fullWidth
+          autoComplete="off"
+          onChange={(event) => setDisapproveRemarks(event.target.value)}
+        />
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={handleClose}>Cancel</Button>
+        <Button onClick={handleSubmit}>Submit</Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
+DisapproveRemarks.propTypes = {
+  openDisapproveRemarks: PropTypes.bool.isRequired,
+  setOpenDisapproveRemarks: PropTypes.func.isRequired,
+  setOpenEnterUserPassword: PropTypes.func.isRequired,
+  setIsDisapprove: PropTypes.func.isRequired,
+  disapproveRemarks: PropTypes.string.isRequired,
+  setDisapproveRemarks: PropTypes.func.isRequired,
 };
 
 const ViewApproval = (props) => {
@@ -145,6 +223,9 @@ const ViewApproval = (props) => {
     setSuccessText,
   } = props;
   const [openEnterUserPassword, setOpenEnterUserPassword] = useState(false);
+  const [openDisapproveRemarks, setOpenDisapproveRemarks] = useState(false);
+  const [isDisapprove, setIsDisapprove] = useState(false);
+  const [disapproveRemarks, setDisapproveRemarks] = useState("");
   const {
     data: barangay,
     error: barangay_error,
@@ -226,11 +307,26 @@ const ViewApproval = (props) => {
           >
             {data.approval_type}
           </Button>
+          <Button
+            onClick={() => setOpenDisapproveRemarks(true)}
+            variant="contained"
+            color="secondary"
+          >
+            Disapprove
+          </Button>
           <Button onClick={handleClose} variant="contained" color="error">
             Close
           </Button>
         </DialogActions>
       </Dialog>
+      <DisapproveRemarks
+        openDisapproveRemarks={openDisapproveRemarks}
+        setOpenDisapproveRemarks={setOpenDisapproveRemarks}
+        setOpenEnterUserPassword={setOpenEnterUserPassword}
+        setIsDisapprove={setIsDisapprove}
+        disapproveRemarks={disapproveRemarks}
+        setDisapproveRemarks={setDisapproveRemarks}
+      />
       <EnterUserPassword
         openEnterUserPassword={openEnterUserPassword}
         setOpenEnterUserPassword={setOpenEnterUserPassword}
@@ -238,6 +334,8 @@ const ViewApproval = (props) => {
         approvalsMutate={approvalsMutate}
         setIsSuccess={setIsSuccess}
         setSuccessText={setSuccessText}
+        isDisapprove={isDisapprove}
+        disapproveRemarks={disapproveRemarks}
         closeViewApproval={handleClose}
       />
     </>
@@ -265,6 +363,7 @@ export default function Approvals() {
   const [data, setData] = useState({});
   const [openViewApproval, setOpenViewApproval] = useState(false);
   const [openApproved, setOpenApproved] = useState(false);
+  const [openDisapproved, setOpenDisapproved] = useState(false);
   const loading = open && options.length === 0;
   const [isSuccess, setIsSuccess] = useState(false);
   const [selected, setSelected] = useState(null);
@@ -352,10 +451,18 @@ export default function Approvals() {
         <Button
           variant="outlined"
           onClick={() => setOpenApproved(true)}
-          color="primary"
+          color="success"
           sx={{ marginLeft: 2 }}
         >
           Approved
+        </Button>
+        <Button
+          variant="outlined"
+          onClick={() => setOpenDisapproved(true)}
+          color="warning"
+          sx={{ marginLeft: 2 }}
+        >
+          Disapproved
         </Button>
       </Typography>
       {search}
@@ -449,6 +556,12 @@ export default function Approvals() {
         <ApprovedDialog
           openApproved={openApproved}
           setOpenApproved={setOpenApproved}
+        />
+      )}
+      {openDisapproved && (
+        <DisapprovedDialog
+          openDisapproved={openDisapproved}
+          setOpenDisapproved={setOpenDisapproved}
         />
       )}
     </>
