@@ -8,6 +8,7 @@ export default function middleware(request) {
   if (request.cookies.has("permissions")) {
     let permissionCookie = request.cookies.get("permissions");
     var permission = JSON.parse(permissionCookie.value);
+    console.log(permission);
     if (!permission.admin) {
       if (request.nextUrl.pathname.startsWith("/dashboard")) {
         let url = request.nextUrl.pathname.replace("/dashboard/", "");
@@ -16,7 +17,7 @@ export default function middleware(request) {
           if (!permission["components"])
             return NextResponse.redirect(request.nextUrl.origin);
         } else {
-          if (!permission[url] && url != "home") {
+          if (!permission[url] && url != "home" && url != "my_approvals") {
             return NextResponse.redirect(request.nextUrl.origin);
           }
         }

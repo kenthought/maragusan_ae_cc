@@ -51,7 +51,7 @@ export default function UserDialog(props) {
   const [userAccess, setUserAccess] = useState("");
   const [grantedAccess, setGrantedAccess] = useState({
     assets: false,
-    bank_accounts: false,
+    bank_account: false,
     components: false,
     expenses: false,
     owners_equity: false,

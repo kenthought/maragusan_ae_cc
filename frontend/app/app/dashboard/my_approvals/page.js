@@ -16,6 +16,7 @@ import styled from "@emotion/styled";
 import useSWR from "swr";
 import Tooltip, { tooltipClasses } from "@mui/material/Tooltip";
 import axiosInstance from "@/app/axios";
+import Loading from "@/app/utils/loading";
 import { Card, CardContent } from "@mui/material";
 
 const fetcher = (url) => axiosInstance.get(url).then((res) => res.data);
@@ -101,7 +102,9 @@ export default function MyApprovals() {
   } = useSWR("approvals/user", fetcher);
   const tooltipRef = createRef();
 
-  if (userApprovals_isLoading) return;
+  if (userApprovals_error)
+    return <Typography>Unable to fetch data!</Typography>;
+  if (userApprovals_isLoading) return <Loading />;
 
   return (
     <>
