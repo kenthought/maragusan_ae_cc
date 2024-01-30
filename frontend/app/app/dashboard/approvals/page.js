@@ -48,6 +48,7 @@ import OwnersEquityView from "./views/owners_equity";
 import BankAccount from "./views/bank_account";
 import Expenses from "./views/expenses";
 import Assets from "./views/assets";
+import Payables from "./views/payables";
 import { MaskPasswordInput } from "@/app/utils/mask_password_input";
 
 const fetcher = (url) => axiosInstance.get(url).then((res) => res.data);
@@ -297,6 +298,14 @@ const ViewApproval = (props) => {
           )}
           {data.type == "Assets" && (
             <Assets data={data} asset_type={asset_type} />
+          )}
+          {data.type == "Payables" && (
+            <Payables
+              data={data}
+              barangay={barangay}
+              municipality={municipality}
+              province={province}
+            />
           )}
         </DialogContent>
         <DialogActions>

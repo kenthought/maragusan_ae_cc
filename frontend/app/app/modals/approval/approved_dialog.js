@@ -29,6 +29,7 @@ import Loading from "@/app/utils/loading";
 import OwnersEquity from "@/app/dashboard/approvals/views/owners_equity";
 import BankAccount from "@/app/dashboard/approvals/views/bank_account";
 import Expenses from "@/app/dashboard/approvals/views/expenses";
+import Payables from "@/app/dashboard/approvals/views/assets";
 import Assets from "@/app/dashboard/approvals/views/assets";
 
 const fetcher = (url) => axiosInstance.get(url).then((res) => res.data);
@@ -106,6 +107,14 @@ const ViewApproval = (props) => {
         )}
         {data.type == "Assets" && (
           <Assets data={data} asset_type={asset_type} />
+        )}
+        {data.type == "Payables" && (
+          <Payables
+            data={data}
+            barangay={barangay}
+            municipality={municipality}
+            province={province}
+          />
         )}
       </DialogContent>
       <DialogActions>
