@@ -1,16 +1,16 @@
 from rest_framework import serializers
 from .models import Payables, Contacts, Ledger
 from components.serializers import (
-    BarangaySerializer,
-    MunicipalitySerializer,
+    BarangayViewSerializer,
+    MunicipalityViewSerializer,
     ProvinceSerializer,
 )
 from users.serializers import UserSerializer
 
 
 class PayablesViewSerializer(serializers.ModelSerializer):
-    barangay = BarangaySerializer()
-    municipality = MunicipalitySerializer()
+    barangay = BarangayViewSerializer()
+    municipality = MunicipalityViewSerializer()
     province = ProvinceSerializer()
     user = UserSerializer()
 
@@ -30,6 +30,7 @@ class PayablesViewSerializer(serializers.ModelSerializer):
             "province",
             "term",
             "user",
+            "under_approval",
             "created_at",
         ]
 
@@ -57,6 +58,7 @@ class PayablesWriteSerializer(serializers.ModelSerializer):
             "province",
             "term",
             "user",
+            "under_approval",
             "created_at",
         ]
 
@@ -70,7 +72,6 @@ class LedgerWriteSerializer(serializers.ModelSerializer):
             "particulars",
             "debit",
             "credit",
-            "control_number",
             "payables",
             "user",
             "created_at",
@@ -89,7 +90,6 @@ class LedgerViewSerializer(serializers.ModelSerializer):
             "particulars",
             "debit",
             "credit",
-            "control_number",
             "trans_number",
             "payables",
             "user",

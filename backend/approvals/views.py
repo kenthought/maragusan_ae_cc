@@ -12,6 +12,8 @@ from expenses.models import Expenses
 from expenses.serializers import ExpensesWriteSerializer
 from assets.models import Asset
 from assets.serializers import AssetWriteSerializer
+from payables.models import Payables
+from payables.serializers import PayablesWriteSerializer
 from django.http import Http404
 from django.db.models import F
 from rest_framework.views import APIView
@@ -101,6 +103,25 @@ class ApprovalList(APIView):
                     )
 
             except Asset.DoesNotExist:
+                raise Http404
+
+        elif type == "Payables":
+            try:
+                data = {"under_approval": True}
+                payables = Payables.objects.get(pk=pk)
+                payables_serializer = PayablesWriteSerializer(
+                    payables, data=data, partial=True
+                )
+
+                if payables_serializer.is_valid():
+                    payables_serializer.save()
+                else:
+                    return Response(
+                        payables_serializer.errors,
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+            
+            except Payables.DoesNotExist:
                 raise Http404
 
         else:
@@ -295,6 +316,37 @@ class ApprovalDetail(APIView):
                         assets.delete()
 
             except Asset.DoesNotExist:
+                raise Http404
+            
+        elif data["type"] == "Payables":
+            try:
+                payables = Payables.objects.get(pk=data["module_id"])
+                if data["is_disapprove"] is False:
+                    if data["approval_type"] == "Add":
+                        data["new_data"]["under_approval"] = False
+                    payables_serializer = PayablesWriteSerializer(payables, data=data["new_data"])
+                    if payables_serializer.is_valid():
+                        payables_serializer.save()
+                    else:
+                        return Response(
+                            payables_serializer.errors,
+                            status=status.HTTP_400_BAD_REQUEST,
+                        )
+                else:
+                    temp = {"under_approval": False}
+                    if data["approval_type"] != "Add":
+                        payables_serializer = PayablesWriteSerializer(payables, data=temp, partial=True)
+                        if payables_serializer.is_valid():
+                            payables_serializer.save()
+                        else:
+                            return Response(
+                                payables_serializer.errors,
+                                status=status.HTTP_400_BAD_REQUEST,
+                            )
+                    else:
+                        payables.delete()
+
+            except Payables.DoesNotExist:
                 raise Http404
         else:
             raise Http404

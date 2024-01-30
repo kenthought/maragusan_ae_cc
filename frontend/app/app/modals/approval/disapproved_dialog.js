@@ -108,6 +108,14 @@ const ViewApproval = (props) => {
         {data.type == "Assets" && (
           <Assets data={data} asset_type={asset_type} />
         )}
+        {data.type == "Payables" && (
+          <Payables
+            data={data}
+            barangay={barangay}
+            municipality={municipality}
+            province={province}
+          />
+        )}
         <Card
           sx={{
             mt: 2,

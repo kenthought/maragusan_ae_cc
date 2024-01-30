@@ -30,6 +30,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import SearchIcon from "@mui/icons-material/Search";
 import PayablesDialog from "@/app/modals/payables/payables_dialog";
 import LedgerDialog from "@/app/modals/payables/ledger_dialog";
+import SummaryDialog from "@/app/modals/payables/summary_dialog";
 import Success from "@/app/utils/success";
 import Loading from "@/app/utils/loading";
 import useSWR from "swr";
@@ -71,7 +72,6 @@ const PayablesInformation = (props) => {
     <Button key="two" onClick={() => setOpenLedgerDialog(true)}>
       Ledger
     </Button>,
-    <Button key="three">Summary</Button>,
     <Button
       key="four"
       startIcon={<EditIcon />}
@@ -92,18 +92,26 @@ const PayablesInformation = (props) => {
   if (error) return <Typography>Unable to fetch data!</Typography>;
 
   return (
-    <Card sx={{ padding: 2, position: "relative" }}>
+    <Card sx={{ padding: 2, position: "relative", width: 600 }}>
       <Typography component="h2" variant="h6" color="primary" marginBottom={2}>
         Payables Information
       </Typography>
+
       <ButtonGroup
         variant="contained"
         aria-label="outlined primary button group"
         sx={{ marginBottom: 2 }}
         size="small"
+        disabled={data.under_approval}
       >
         {buttons}
       </ButtonGroup>
+
+      {data.under_approval && (
+        <Box>
+          <Chip label="For approval" color="warning" />
+        </Box>
+      )}
       <Grid item xs={8}></Grid>
       <Box>
         <Grid
@@ -132,6 +140,17 @@ const PayablesInformation = (props) => {
             <Divider />
           </Grid>
           <Grid item xs={12} md={4}>
+            <Typography>Payment arrangement:</Typography>
+          </Grid>
+          <Grid item xs={12} md={8}>
+            <Typography>
+              {paymentArrangement[data.payment_arrangement - 1].label}
+            </Typography>
+          </Grid>
+          <Grid item xs={12}>
+            <Divider />
+          </Grid>
+          <Grid item xs={12} md={4}>
             <Typography>Account type:</Typography>
           </Grid>
           <Grid item xs={12} md={8}>
@@ -141,12 +160,10 @@ const PayablesInformation = (props) => {
             <Divider />
           </Grid>
           <Grid item xs={12} md={4}>
-            <Typography>Payment arrangement:</Typography>
+            <Typography>Term:</Typography>
           </Grid>
           <Grid item xs={12} md={8}>
-            <Typography>
-              {paymentArrangement[data.payment_arrangement - 1].label}
-            </Typography>
+            <Typography>{data.term}</Typography>
           </Grid>
           <Grid item xs={12}>
             <Divider />
@@ -184,7 +201,7 @@ const PayablesInformation = (props) => {
           <Grid item xs={12} md={8}>
             <Typography>{data.province.province}</Typography>
           </Grid>
-          <Grid item xs={12}>
+          {/* <Grid item xs={12}>
             <Divider />
           </Grid>
           <Grid item xs={12} md={4}>
@@ -213,7 +230,7 @@ const PayablesInformation = (props) => {
                 </Table>
               </TableContainer>
             ) : null}
-          </Grid>
+          </Grid> */}
           <Grid item xs={12}>
             <Divider />
           </Grid>
@@ -256,6 +273,7 @@ export default function Payables() {
   const { data, error, isLoading, mutate } = useSWR("/payables", fetcher);
   const [openPayablesDialog, setOpenPayablesDialog] = useState(false);
   const [openLedgerDialog, setOpenLedgerDialog] = useState(false);
+  const [openSummaryDialog, setOpenSummaryDialog] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [successText, setSuccessText] = useState("");
   const [isEditing, setIsEditing] = useState(false);
@@ -278,6 +296,7 @@ export default function Payables() {
         freeSolo
         id="asynchronous-demo"
         open={open}
+        sx={{ width: 385, mt: 2 }}
         onOpen={() => {
           setOpen(true);
         }}
@@ -342,7 +361,7 @@ export default function Payables() {
         gutterBottom
         marginBottom={2}
       >
-        Payables Information
+        Payables
         <Button
           variant="outlined"
           startIcon={<AddIcon />}
@@ -351,6 +370,14 @@ export default function Payables() {
           sx={{ marginLeft: 2 }}
         >
           Add
+        </Button>
+        <Button
+          variant="outlined"
+          color="primary"
+          onClick={() => setOpenSummaryDialog(true)}
+          sx={{ ml: 2 }}
+        >
+          Summary
         </Button>
       </Typography>
       {search}
@@ -392,6 +419,10 @@ export default function Payables() {
         isEditing={isEditing}
         setIsEditing={setIsEditing}
         editData={editData}
+      />
+      <SummaryDialog
+        openSummaryDialog={openSummaryDialog}
+        setOpenSummaryDialog={setOpenSummaryDialog}
       />
       {selected && (
         <>
