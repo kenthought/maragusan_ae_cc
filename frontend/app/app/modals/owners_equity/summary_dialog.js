@@ -76,7 +76,7 @@ export default function SummaryDialog(props) {
     doc.text(title, marginLeft, 50);
     doc.text(new Date().toDateString(), marginLeft, 70);
     doc.autoTable(content);
-    doc.save("summary.pdf");
+    doc.save("owners_equity_summary.pdf");
   };
 
   const numFormat = (num) => {
