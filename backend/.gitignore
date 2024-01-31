@@ -1,0 +1,9 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+*.pyc
+__pycache__/
+*.py[cod]
+migrations/
+!migrations/__init__.py
+.venv
+/venv
