@@ -1,10 +1,10 @@
-import { useState, Fragment } from "react";
+import { useState, Fragment, useRef } from "react";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import TextField from "@mui/material/TextField";
 import MenuItem from "@mui/material/MenuItem";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
+import Chip from "@mui/material/Chip";
+import Autocomplete from "@mui/material/Autocomplete";
 import PropTypes from "prop-types";
 
 export default function AccountForm(props) {
@@ -30,8 +30,10 @@ export default function AccountForm(props) {
     { id: 4, label: "Customer" },
   ]);
   const [barangay] = useState(optionsData.barangay);
-  const [municipality] = useState(optionsData.municipality);
-  const [province] = useState(optionsData.province);
+  const [users] = useState(optionsData.users);
+  const [barangayData, setBarangayData] = useState(null);
+  const [inputValue, setInputValue] = useState("");
+  const barangayRef = useRef();
 
   return (
     <Fragment>
@@ -39,9 +41,8 @@ export default function AccountForm(props) {
         Account Information
       </Typography>
       <Grid container spacing={3}>
-        <Grid item xs={12}>
+        {/* <Grid item xs={12}>
           <TextField
-            required
             id="control_number"
             name="control_number"
             label="Control number"
@@ -50,8 +51,10 @@ export default function AccountForm(props) {
             variant="standard"
             value={inputData.control_number || ""}
             onChange={handleInputChange}
+            autoComplete="off"
+            readOnly
           />
-        </Grid>
+        </Grid> */}
         <Grid item xs={12}>
           <TextField
             required
@@ -160,7 +163,7 @@ export default function AccountForm(props) {
         Address
       </Typography>
       <Grid container spacing={3}>
-        <Grid item xs={12} sm={6}>
+        <Grid item xs={12} sm={12}>
           <TextField
             id="purok_street"
             name="purok_street"
@@ -172,13 +175,60 @@ export default function AccountForm(props) {
             onChange={handleInputChange}
           />
         </Grid>
-        <Grid item xs={12} sm={6}>
+        <Grid item xs={12} sm={12}>
+          {/* <Autocomplete
+            disablePortal
+            ref={barangayRef}
+            id="barangay"
+            name="barangay"
+            getOptionLabel={(option) =>
+              option.barangay +
+              ", " +
+              option.municipality.municipality +
+              ", " +
+              option.municipality.province.province
+            }
+            options={barangay}
+            // value={barangayData}
+            onChange={(event, newInputValue) => {
+              if (newInputValue != null) {
+                setBarangayData(newInputValue);
+              }
+            }}
+            renderOption={(props, option) => {
+              return (
+                <li {...props} key={option.id}>
+                  {option.barangay +
+                    ", " +
+                    option.municipality.municipality +
+                    ", " +
+                    option.municipality.province.province}
+                </li>
+              );
+            }}
+            renderTags={(tagValue, getTagProps) => {
+              return tagValue.map((option, index) => (
+                <Chip {...getTagProps({ index })} key={option} label={option} />
+              ));
+            }}
+            renderInput={(params) => (
+              <TextField
+                fullWidth
+                id="barangay"
+                name="barangay"
+                label="Barangay/Municipality/Province"
+                size="small"
+                variant="standard"
+                {...params}
+              />
+            )}
+          /> */}
           <TextField
             required
             fullWidth
             id="barangay"
             name="barangay"
-            label="Barangay"
+            label="Barangay/Municipality/Province"
             select
             size="small"
             variant="standard"
@@ -186,6 +236,8 @@ export default function AccountForm(props) {
               isEditing
                 ? inputData.barangay
                   ? inputData.barangay.id
+                    ? inputData.barangay.id
+                    : inputData.barangay || ""
                   : ""
                 : inputData.barangay || ""
             }
@@ -193,59 +245,11 @@ export default function AccountForm(props) {
           >
             {barangay.map((option) => (
               <MenuItem key={option.id} value={option.id.toString()}>
-                {option.barangay}
-              </MenuItem>
-            ))}
-          </TextField>
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <TextField
-            required
-            fullWidth
-            id="municipality"
-            name="municipality"
-            label="Municipality"
-            select
-            size="small"
-            variant="standard"
-            value={
-              isEditing
-                ? inputData.municipality
-                  ? inputData.municipality.id
-                  : ""
-                : inputData.municipality || ""
-            }
-            onChange={handleInputChange}
-          >
-            {municipality.map((option) => (
-              <MenuItem key={option.id} value={option.id.toString()}>
-                {option.municipality}
-              </MenuItem>
-            ))}
-          </TextField>
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <TextField
-            required
-            fullWidth
-            id="province"
-            name="province"
-            label="Province"
-            select
-            size="small"
-            variant="standard"
-            value={
-              isEditing
-                ? inputData.province
-                  ? inputData.province.id
-                  : ""
-                : inputData.province || ""
-            }
-            onChange={handleInputChange}
-          >
-            {province.map((option) => (
-              <MenuItem key={option.id} value={option.id.toString()}>
-                {option.province}
+                {option.barangay +
+                  ", " +
+                  option.municipality.municipality +
+                  ", " +
+                  option.municipality.province.province}
               </MenuItem>
             ))}
           </TextField>
@@ -268,15 +272,17 @@ export default function AccountForm(props) {
             value={
               isEditing
                 ? inputData.co_maker
-                  ? inputData.co_maker // add id
+                  ? inputData.co_maker.id
+                    ? inputData.co_maker.id
+                    : inputData.co_maker || ""
                   : ""
                 : inputData.co_maker || ""
             }
             onChange={handleInputChange}
           >
-            {province.map((option) => (
+            {users.map((option) => (
               <MenuItem key={option.id} value={option.id.toString()}>
-                {option.province}
+                {option.first_name}
               </MenuItem>
             ))}
           </TextField>
@@ -294,15 +300,17 @@ export default function AccountForm(props) {
             value={
               isEditing
                 ? inputData.agent
-                  ? inputData.agent // add id
+                  ? inputData.agent.id
+                    ? inputData.agent.id
+                    : inputData.agent || ""
                   : ""
                 : inputData.agent || ""
             }
             onChange={handleInputChange}
           >
-            {province.map((option) => (
+            {users.map((option) => (
               <MenuItem key={option.id} value={option.id.toString()}>
-                {option.province}
+                {option.first_name}
               </MenuItem>
             ))}
           </TextField>

@@ -3,8 +3,6 @@ from rest_framework.urlpatterns import format_suffix_patterns
 from receivables.views.receivables_views import *
 from receivables.views.ledger_views import *
 
-# from receivables.views.ledger_views import *
-
 urlpatterns = [
     path("", ReceivablesList.as_view()),
     path("<int:pk>/", ReceivablesDetail.as_view()),

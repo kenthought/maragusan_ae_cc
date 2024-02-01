@@ -62,6 +62,8 @@ export default function SalaryFundsForm(props) {
               isEditing
                 ? inputData.bank
                   ? inputData.bank.id
+                    ? inputData.bank.id
+                    : inputData.bank || ""
                   : ""
                 : inputData.bank || ""
             }
@@ -141,8 +143,8 @@ export default function SalaryFundsForm(props) {
         <Grid item xs={12}>
           <TextField
             required
-            id="registered_name"
-            name="registered_name"
+            id="funds_registered_name"
+            name="funds_registered_name"
             label="Registered name"
             fullWidth
             variant="standard"

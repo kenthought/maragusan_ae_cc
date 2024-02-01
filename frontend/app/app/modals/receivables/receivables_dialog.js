@@ -31,7 +31,16 @@ const fetcher = (url) => axiosInstance.get(url).then((res) => res.data);
 
 const steps = ["Account", "Work", "Salary/Funds", "Review"];
 
-function getStepContent(
+const generateControlNumber = () => {
+  var number;
+  do {
+    number = Math.floor(Math.random() * 9999);
+  } while (number < 1);
+
+  return number;
+};
+
+const getStepContent = (
   step,
   optionsData,
   inputData,
@@ -39,15 +48,17 @@ function getStepContent(
   countError,
   setCountError,
   isEditing
-) {
+) => {
+  if (!isEditing && inputData != {})
+    inputData.control_number = generateControlNumber().toString();
+
   switch (step) {
     case 0:
       return (
         <AccountForm
           optionsData={{
             barangay: optionsData.barangay,
-            municipality: optionsData.municipality,
-            province: optionsData.province,
+            users: optionsData.users,
           }}
           inputData={inputData}
           handleInputChange={handleInputChange}
@@ -96,7 +107,7 @@ function getStepContent(
         />
       );
   }
-}
+};
 export default function ReceivablesDialog(props) {
   const {
     openReceivablesDialog,
@@ -134,6 +145,11 @@ export default function ReceivablesDialog(props) {
     error: bank_error,
     isLoading: bank_isLoading,
   } = useSWR("components/bank", fetcher);
+  const {
+    data: users,
+    error: users_error,
+    isLoading: users_isLoading,
+  } = useSWR("users/", fetcher);
   const [isError, setIsError] = useState(false);
   const [errorText, setErrorText] = useState(false);
   const { data: session } = useSession();
@@ -141,8 +157,19 @@ export default function ReceivablesDialog(props) {
   const [countError, setCountError] = useState(0);
 
   useEffect(() => {
-    if (editData != null) setInputData(editData);
-  }, [editData]);
+    if (isEditing) {
+      setActiveStep(0);
+      setInputData({ ...editData });
+    }
+  }, [editData, isEditing]);
+
+  const clearObject = (data, setter) => {
+    setter(() => {
+      for (const property in data) delete data[property];
+
+      return data;
+    });
+  };
 
   const handleNext = () => {
     setActiveStep(activeStep + 1);
@@ -154,13 +181,14 @@ export default function ReceivablesDialog(props) {
 
   const handleInputChange = (event) => {
     const value = event.target.value;
+    console.log(value);
     setInputData({ ...inputData, [event.target.name]: value });
   };
 
   const handleClose = () => {
     if (isEditing) {
-      setInputData({});
       setActiveStep(0);
+      clearObject(inputData, setInputData);
     }
     setOpenReceivablesDialog(false);
     setIsEditing(false);
@@ -171,7 +199,7 @@ export default function ReceivablesDialog(props) {
     setIsSuccess(bool);
     setSuccessText(text);
     setActiveStep(0);
-    setInputData({});
+    clearObject(inputData, setInputData);
     mutate();
     handleClose();
   };
@@ -186,10 +214,17 @@ export default function ReceivablesDialog(props) {
       inputData.user = session.user.name[1];
       if (!isEditing) {
         inputData.account_status = 1;
+        inputData.forApproval = {
+          type: "Receivables",
+          approval_type: "Add",
+          old_data: { ...inputData },
+          new_data: { ...inputData },
+          submitted_by: session.user.name[1],
+        };
         axiosInstance
           .post("receivables/", inputData)
           .then((response) => {
-            handleSuccessful(true, "Receivables added successfully!");
+            handleSuccessful(true, "Submitted for approval!");
             console.log(response);
           })
           .catch((response) => {
@@ -197,23 +232,52 @@ export default function ReceivablesDialog(props) {
             setIsError(true);
             setErrorText(response.message);
           });
-      } else inputData.bank = inputData.bank.id;
-      inputData.barangay = inputData.barangay.id;
-      inputData.company = inputData.company.id;
-      inputData.municipality = inputData.municipality.id;
-      inputData.province = inputData.province.id;
+      } else {
+        // axiosInstance
+        //   .put("receivables/" + editData.id + "/", inputData)
+        //   .then((response) => {
+        //     handleSuccessful(true, "Receivables edited successfully!");
+        //     console.log(response);
+        //   })
+        //   .catch((response) => {
+        //     console.log(response);
+        //     setIsError(true);
+        //     setErrorText(response.message);
+        //   });
 
-      axiosInstance
-        .put("receivables/" + editData.id + "/", inputData)
-        .then((response) => {
-          handleSuccessful(true, "Receivables edited successfully!");
-          console.log(response);
-        })
-        .catch((response) => {
-          console.log(response);
-          setIsError(true);
-          setErrorText(response.message);
-        });
+        if (inputData.bank.id) inputData.bank = inputData.bank.id;
+        if (inputData.barangay.id) inputData.barangay = inputData.barangay.id;
+        if (inputData.company.id) inputData.company = inputData.company.id;
+        if (inputData.co_maker.id) inputData.co_maker = inputData.co_maker.id;
+        if (inputData.agent.id) inputData.agent = inputData.agent.id;
+        inputData.under_approval = 0;
+
+        const old_data = editData;
+
+        console.log("dialog", inputData);
+
+        const forApproval = {
+          type: "Receivables",
+          approval_type: "Edit",
+          module_id: editData.id,
+          account_number: editData.account_number,
+          old_data: old_data,
+          new_data: inputData,
+          submitted_by: session.user.name[1],
+        };
+
+        axiosInstance
+          .post("approvals/", forApproval)
+          .then((response) => {
+            handleSuccessful(true, "Submitted for approval!");
+            console.log(response);
+          })
+          .catch((response) => {
+            console.log(response);
+            setIsError(true);
+            setErrorText(response.message);
+          });
+      }
     }
   };
 
@@ -222,7 +286,8 @@ export default function ReceivablesDialog(props) {
     municipality_isLoading ||
     province_isLoading ||
     company_isLoading ||
-    bank_isLoading
+    bank_isLoading ||
+    users_isLoading
   )
     return;
 
@@ -261,6 +326,7 @@ export default function ReceivablesDialog(props) {
               province: province,
               company: company,
               bank: bank,
+              users: users,
             },
             inputData,
             handleInputChange,

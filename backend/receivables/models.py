@@ -6,7 +6,7 @@ from django.conf import settings
 class Receivables(models.Model):
     id = models.BigAutoField(primary_key=True)
     account_number = models.CharField(
-        blank=True, null=True, max_length=100, editable=False, unique=True
+        blank=True, null=True, max_length=100, editable=True, unique=True
     )
     control_number = models.CharField(max_length=100)
     account_name = models.CharField(max_length=100)
@@ -25,23 +25,15 @@ class Receivables(models.Model):
     barangay = models.ForeignKey(
         "components.Barangay", related_name="receivables", on_delete=models.PROTECT
     )
-    municipality = models.ForeignKey(
-        "components.Municipality", related_name="receivables", on_delete=models.PROTECT
-    )
-    province = models.ForeignKey(
-        "components.Province", related_name="receivables", on_delete=models.PROTECT
-    )
-    # change to user when add user is available
     co_maker = models.ForeignKey(
-        "components.Province",
-        related_name="receivables_co_maker",
-        on_delete=models.PROTECT,
+        settings.AUTH_USER_MODEL, 
+        related_name="receivables_co_maker", 
+        on_delete=models.PROTECT
     )
-    # change to user when add user is available
     agent = models.ForeignKey(
-        "components.Province",
-        related_name="receivables_agent",
-        on_delete=models.PROTECT,
+        settings.AUTH_USER_MODEL, 
+        related_name="receivables_agent", 
+        on_delete=models.PROTECT
     )
     company = models.ForeignKey(
         "components.Company",
@@ -67,6 +59,7 @@ class Receivables(models.Model):
     send_to = models.IntegerField()
     funds_registered_name = models.CharField(max_length=100)
     funds_account_number = models.CharField(max_length=100)
+    under_approval = models.BooleanField(default=True)
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL, related_name="receivables", on_delete=models.PROTECT
     )
@@ -79,7 +72,7 @@ class Receivables(models.Model):
         super().save(*args, **kwargs)
 
         if self.account_number == None:
-            self.account_number = "000" + str(self.id)
+            self.account_number = str(self.id).zfill(5)
             # You need to call save two times since the id value is not accessible at creation
             super().save()
 

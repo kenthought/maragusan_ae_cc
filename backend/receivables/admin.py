@@ -16,8 +16,6 @@ class ReceivablesAdmin(admin.ModelAdmin):
         "contact_number2",
         "purok_street",
         "barangay",
-        "municipality",
-        "province",
         "account_category",
         "account_status",
         "co_maker",

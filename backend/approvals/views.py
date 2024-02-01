@@ -14,6 +14,8 @@ from assets.models import Asset
 from assets.serializers import AssetWriteSerializer
 from payables.models import Payables
 from payables.serializers import PayablesWriteSerializer
+from receivables.models import Receivables
+from receivables.serializers import ReceivablesWriteSerializer
 from django.http import Http404
 from django.db.models import F
 from rest_framework.views import APIView
@@ -122,6 +124,24 @@ class ApprovalList(APIView):
                     )
             
             except Payables.DoesNotExist:
+                raise Http404
+        
+        elif type == "Receivables":
+            try:
+                data = {"under_approval": True}
+                receivables = Receivables.objects.get(pk=pk)
+                receivables_serializer = ReceivablesWriteSerializer(
+                    receivables, data=data, partial=True
+                )
+
+                if receivables_serializer.is_valid():
+                    receivables_serializer.save()
+                else:
+                    return Response(
+                        receivables_serializer.errors,
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+            except Receivables.DoesNotExist:
                 raise Http404
 
         else:
@@ -348,6 +368,39 @@ class ApprovalDetail(APIView):
 
             except Payables.DoesNotExist:
                 raise Http404
+
+        
+        elif data["type"] == "Receivables":
+            try:
+                receivables = Receivables.objects.get(pk=data["module_id"])
+                if data["is_disapprove"] is False:
+                    if data["approval_type"] == "Add":
+                        data["new_data"]["under_approval"] = False
+                    receivables_serializer = ReceivablesWriteSerializer(receivables, data=data["new_data"])
+                    if receivables_serializer.is_valid():
+                        receivables_serializer.save()
+                    else:
+                        return Response(
+                            receivables_serializer.errors,
+                            status=status.HTTP_400_BAD_REQUEST
+                        )
+                else:
+                    temp = {"under_approval": False}
+                    if data["approval_type"] != "Add":
+                        receivables_serializer = ReceivablesWriteSerializer(receivables, data=temp, partial=True)
+                        if receivables_serializer.is_valid():
+                            receivables_serializer.save()
+                        else:
+                            return Response(
+                                receivables_serializer.errors,
+                                status=status.HTTP_400_BAD_REQUEST,
+                            )
+                    else:
+                        receivables.delete()
+            
+            except Receivables.DoesNotExist:
+                raise Http404
+
         else:
             raise Http404
 

@@ -211,7 +211,6 @@ export default function DashboardLayout({ children, window }) {
         </ListItemButton>
         <Collapse in={openMenu} timeout="auto" unmountOnExit>
           {menuitems.map((menu) => {
-            console.log(menu);
             if (menu.access)
               return (
                 <ListItem key={menu.id} disablePadding>

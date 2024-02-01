@@ -1,9 +1,7 @@
 from rest_framework import serializers
 from .models import Receivables, Ledger
 from components.serializers import (
-    BarangaySerializer,
-    MunicipalitySerializer,
-    ProvinceSerializer,
+    BarangayViewSerializer,
     BankSerializer,
     CompanyViewSerializer,
 )
@@ -11,11 +9,11 @@ from users.serializers import UserSerializer
 
 
 class ReceivablesViewSerializer(serializers.ModelSerializer):
-    barangay = BarangaySerializer()
-    municipality = MunicipalitySerializer()
-    province = ProvinceSerializer()
+    barangay = BarangayViewSerializer()
     bank = BankSerializer()
     company = CompanyViewSerializer()
+    co_maker = UserSerializer()
+    agent = UserSerializer()
     user = UserSerializer()
 
     class Meta:
@@ -32,8 +30,6 @@ class ReceivablesViewSerializer(serializers.ModelSerializer):
             "contact_number2",
             "purok_street",
             "barangay",
-            "municipality",
-            "province",
             "account_category",
             "account_status",
             "co_maker",
@@ -56,6 +52,7 @@ class ReceivablesViewSerializer(serializers.ModelSerializer):
             "funds_registered_name",
             "funds_account_number",
             "user",
+            "under_approval",
             "created_at",
         ]
 
@@ -75,8 +72,6 @@ class ReceivablesWriteSerializer(serializers.ModelSerializer):
             "contact_number2",
             "purok_street",
             "barangay",
-            "municipality",
-            "province",
             "account_category",
             "account_status",
             "co_maker",
@@ -98,6 +93,7 @@ class ReceivablesWriteSerializer(serializers.ModelSerializer):
             "send_to",
             "funds_registered_name",
             "funds_account_number",
+            "under_approval",
             "user",
             "created_at",
         ]
@@ -112,7 +108,6 @@ class LedgerWriteSerializer(serializers.ModelSerializer):
             "particulars",
             "debit",
             "credit",
-            "control_number",
             "receivables",
             "user",
             "created_at",
