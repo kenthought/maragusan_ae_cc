@@ -14,6 +14,8 @@ from assets.models import Asset
 from assets.serializers import AssetViewSerializer
 from receivables.models import Receivables
 from receivables.serializers import ReceivablesViewSerializer
+from income.models import Income
+from income.serializers import IncomeViewSerializer
 from payables.models import Payables
 from payables.serializers import PayablesViewSerializer
 from django.http import Http404
@@ -80,6 +82,10 @@ class BalanceDetail(APIView):
             if type == "Receivables":
                 receivables = Receivables.objects.get(id=obj["module_id"])
                 module = ReceivablesViewSerializer(receivables)
+
+            if type == "Income":
+                income = Income.objects.get(id=obj["module_id"])
+                module = IncomeViewSerializer(income)
 
             obj["module"] = module.data
             array.append(obj)

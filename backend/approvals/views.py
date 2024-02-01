@@ -16,6 +16,8 @@ from payables.models import Payables
 from payables.serializers import PayablesWriteSerializer
 from receivables.models import Receivables
 from receivables.serializers import ReceivablesWriteSerializer
+from income.models import Income
+from income.serializers import IncomeWriteSerializer
 from django.http import Http404
 from django.db.models import F
 from rest_framework.views import APIView
@@ -142,6 +144,24 @@ class ApprovalList(APIView):
                         status=status.HTTP_400_BAD_REQUEST
                     )
             except Receivables.DoesNotExist:
+                raise Http404
+        
+        elif type == "Income":
+            try:
+                data = {"under_approval": True}
+                income = Income.objects.get(pk=pk)
+                income_serializer = IncomeWriteSerializer(
+                    income, data=data, partial=True
+                )
+
+                if income_serializer.is_valid():
+                    income_serializer.save()
+                else:
+                    return Response(
+                        income_serializer.errors,
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+            except Income.DoesNotExist:
                 raise Http404
 
         else:
@@ -399,6 +419,38 @@ class ApprovalDetail(APIView):
                         receivables.delete()
             
             except Receivables.DoesNotExist:
+                raise Http404
+
+        
+        elif data["type"] == "Income":
+            try:
+                income = Income.objects.get(pk=data["module_id"])
+                if data["is_disapprove"] is False:
+                    if data["approval_type"] == "Add":
+                        data["new_data"]["under_approval"] = False
+                    income_serializer = IncomeWriteSerializer(income, data=data["new_data"])
+                    if income_serializer.is_valid():
+                        income_serializer.save()
+                    else:
+                        return Response(
+                            income_serializer.errors,
+                            status=status.HTTP_400_BAD_REQUEST
+                        )
+                else:
+                    temp = {"under_approval": False}
+                    if data["approval_type"] != "Add":
+                        income_serializer = IncomeWriteSerializer(income, data=temp, partial=True)
+                        if income_serializer.is_valid():
+                            income_serializer.save()
+                        else:
+                            return Response(
+                                income_serializer.errors,
+                                status=status.HTTP_400_BAD_REQUEST,
+                            )
+                    else:
+                        income.delete()
+            
+            except Income.DoesNotExist:
                 raise Http404
 
         else:

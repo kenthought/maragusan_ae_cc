@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     "expenses",
     "payables",
     "receivables",
+    "income",
     "balance",
     "approvals",
     "components",

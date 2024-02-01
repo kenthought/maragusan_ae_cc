@@ -32,6 +32,7 @@ import Expenses from "@/app/dashboard/approvals/views/expenses";
 import Assets from "@/app/dashboard/approvals/views/assets";
 import Receivables from "@/app/dashboard/approvals/views/receivables";
 import { Card, CardContent } from "@mui/material";
+import Income from "@/app/dashboard/approvals/views/income";
 
 const fetcher = (url) => axiosInstance.get(url).then((res) => res.data);
 
@@ -138,6 +139,7 @@ const ViewApproval = (props) => {
             company={company}
           />
         )}
+        {data.type == "Income" && <Income data={data} />}
         <Card
           sx={{
             mt: 2,
