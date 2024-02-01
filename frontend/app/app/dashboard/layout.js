@@ -122,6 +122,13 @@ export default function DashboardLayout({ children, window }) {
       icon: <AccountBalanceIcon />,
       access: permissions.admin,
     },
+    {
+      id: 7,
+      label: "Financial Report",
+      path: "financial_report",
+      icon: <AccountBalanceIcon />,
+      access: permissions.admin,
+    },
   ];
 
   const componentItems = [

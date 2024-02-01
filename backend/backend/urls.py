@@ -39,6 +39,7 @@ urlpatterns = [
         "api/dailyClosingToday/<int:user_id>/<int:year>/<int:month>/<int:date>",
         DailyClosingToday.as_view(),
     ),
+    path("api/financial-report/", FinancialReport.as_view()),
     path("api/users/", include("users.urls")),
     path("api/user_permissions/", include("user_permissions.urls")),
     path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),

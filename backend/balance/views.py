@@ -87,6 +87,10 @@ class BalanceDetail(APIView):
                 income = Income.objects.get(id=obj["module_id"])
                 module = IncomeViewSerializer(income)
 
+            if type == "Savings":
+                receivables = Receivables.objects.get(id=obj["module_id"])
+                module = ReceivablesViewSerializer(receivables)
+
             obj["module"] = module.data
             array.append(obj)
 

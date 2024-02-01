@@ -26,8 +26,9 @@ from receivables.models import Ledger as ReceivablesLedger
 from django.db import connection
 from django.http import Http404
 from django.shortcuts import get_object_or_404
+from balance.models import Balance
 import datetime
-
+from django.db.models import Sum
 
 # call stored procedures
 class DailyClosingToday(APIView):
@@ -206,3 +207,27 @@ class DailyClosingToday(APIView):
             count = count + 1
 
         return Response(daily_closing)
+
+    
+class FinancialReport(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, format=None):
+        assets = Balance.objects.filter(type="Asset").aggregate(Sum('balance'))
+        bank_account = Balance.objects.filter(type="Bank Account").aggregate(Sum('balance'))
+        receivables = Balance.objects.filter(type="Receivables").aggregate(Sum('balance'))
+        savings = Balance.objects.filter(type="Savings").aggregate(Sum('balance'))
+        expenses = Balance.objects.filter(type="Expenses").aggregate(Sum('balance'))
+        payables = Balance.objects.filter(type="Payables").aggregate(Sum('balance'))
+        owners_equity = Balance.objects.filter(type="Onwer's Equity").aggregate(Sum('balance'))
+
+        return Response( {
+            "assets": assets,
+            "bank_account": bank_account,
+            "receivables": receivables,
+            "savings": savings,
+            "expenses": expenses,
+            "payables": payables,
+            "owners_equity": owners_equity,
+        })
+
