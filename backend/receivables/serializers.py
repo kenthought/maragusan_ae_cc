@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Receivables, Ledger
+from .models import Receivables, Ledger, SavingsLedger
 from components.serializers import (
     BarangayViewSerializer,
     BankSerializer,
@@ -120,6 +120,41 @@ class LedgerViewSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Ledger
+        fields = [
+            "id",
+            "invoice_number",
+            "particulars",
+            "debit",
+            "credit",
+            "control_number",
+            "trans_number",
+            "receivables",
+            "user",
+            "created_at",
+        ]
+
+
+class SavingsLedgerWriteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SavingsLedger
+        fields = [
+            "id",
+            "invoice_number",
+            "particulars",
+            "debit",
+            "credit",
+            "receivables",
+            "user",
+            "created_at",
+        ]
+
+
+class SavingsLedgerViewSerializer(serializers.ModelSerializer):
+    receivables = ReceivablesViewSerializer()
+    user = UserSerializer()
+
+    class Meta:
+        model = SavingsLedger
         fields = [
             "id",
             "invoice_number",

@@ -58,7 +58,8 @@ export default function LedgerDialog(props) {
     error: ledger_error,
     isLoading: ledger_isLoading,
     mutate,
-  } = useSWR("receivables/ledger/" + selected.id, fetcher);
+  } = useSWR("receivables/savings-ledger/" + selected.id, fetcher);
+  const [funds] = useState([{ id: 1, label: "GCash" }]);
 
   const [openDebitAndCreditDialog, setOpenDebitAndCreditDialog] =
     useState(false);
@@ -81,7 +82,7 @@ export default function LedgerDialog(props) {
 
     doc.setFontSize(12);
 
-    const title = "Receivables ledger";
+    const title = "Savings Account ledger";
     const headers = [
       [
         "Date",
@@ -121,7 +122,7 @@ export default function LedgerDialog(props) {
     doc.text("Account number: " + selected.account_number, marginLeft, 70);
     doc.text("Account name: " + selected.account_name, 250, 70);
     doc.autoTable(content);
-    doc.save("receivables_soa.pdf");
+    doc.save("savings_account_soa.pdf");
   };
 
   if (ledger_isLoading) return <Loading />;
@@ -151,7 +152,7 @@ export default function LedgerDialog(props) {
         </AppBar>
         <DialogContent>
           <Grid container>
-            <Grid item xs={6} md={4}>
+            <Grid item xs={6} md={3}>
               <Box padding={1}>
                 <TextField
                   margin="normal"
@@ -164,7 +165,7 @@ export default function LedgerDialog(props) {
                 />
               </Box>
             </Grid>
-            <Grid item xs={6} md={8}>
+            <Grid item xs={6} md={3}>
               <Box padding={1}>
                 <TextField
                   margin="normal"
@@ -173,6 +174,32 @@ export default function LedgerDialog(props) {
                   size="small"
                   label="Account name"
                   value={selected.account_name}
+                  readOnly
+                />
+              </Box>
+            </Grid>
+            <Grid item xs={6} md={3}>
+              <Box padding={1}>
+                <TextField
+                  margin="normal"
+                  fullWidth
+                  type="text"
+                  size="small"
+                  label="Send to"
+                  value={funds.find((x) => x.id === selected.send_to).label}
+                  readOnly
+                />
+              </Box>
+            </Grid>
+            <Grid item xs={6} md={3}>
+              <Box padding={1}>
+                <TextField
+                  margin="normal"
+                  fullWidth
+                  type="text"
+                  size="small"
+                  label="Account/Mobile no."
+                  value={selected.funds_account_number}
                   readOnly
                 />
               </Box>
@@ -291,7 +318,7 @@ export default function LedgerDialog(props) {
                 ? numFormat(ledger[ledger.length - 1].balance)
                 : 0
             }
-            ledger="receivables"
+            ledger="savings"
           />
         </>
       )}
