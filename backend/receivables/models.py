@@ -111,3 +111,39 @@ class Ledger(models.Model):
             self.trans_number = str(self.id)
             # You need to call save two times since the id value is not accessible at creation
             super().save()
+
+
+class SavingsLedger(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    invoice_number = models.CharField(max_length=100)
+    particulars = models.CharField(max_length=100)
+    debit = models.CharField(default=0, max_length=100)
+    credit = models.CharField(
+        default=0,
+        max_length=100,
+    )
+    control_number = models.CharField(max_length=100)
+    receivables = models.ForeignKey(
+        "receivables.Receivables",
+        related_name="receivables_savings_ledger",
+        on_delete=models.PROTECT,
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        related_name="receivables_savings_ledger",
+        on_delete=models.PROTECT,
+    )
+    trans_number = models.CharField(
+        blank=True, null=True, max_length=100, editable=False, unique=True
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.invoice_number
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if self.trans_number == None:
+            self.trans_number = str(self.id)
+            # You need to call save two times since the id value is not accessible at creation
+            super().save()

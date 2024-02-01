@@ -15,6 +15,7 @@ import TableRow from "@mui/material/TableRow";
 import MenuItem from "@mui/material/MenuItem";
 import Menu from "@mui/material/Menu";
 import Paper from "@mui/material/Paper";
+import Card from "@mui/material/Card";
 import ButtonGroup from "@mui/material/ButtonGroup";
 import Slide from "@mui/material/Slide";
 import AppBar from "@mui/material/AppBar";
@@ -32,8 +33,14 @@ import Success from "../../utils/success";
 import Loading from "@/app/utils/loading";
 import DebitAndCreditDialog from "./debit_and_credit_dialog";
 import useSWR from "swr";
+import { Divider } from "@mui/material";
+import SavingsLedgerDialog from "./savings_ledger_dialog";
 
 const fetcher = (url) => axiosInstance.get(url).then((res) => res.data);
+
+const numFormat = (num) => {
+  return `${num.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
+};
 
 const ErrorTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.body}`]: {
@@ -53,7 +60,7 @@ const Transition = forwardRef(function Transition(props, ref) {
 });
 
 function EnhancedTableToolbar(props) {
-  const { selected } = props;
+  const { selected, setOpenSavingsLedgerDialog } = props;
   const [anchorEl, setAnchorEl] = useState(null);
   const [anchorEl2, setAnchorEl2] = useState(null);
   const open = Boolean(anchorEl);
@@ -98,8 +105,10 @@ function EnhancedTableToolbar(props) {
               label="Payment period"
               fullWidth
               size="small"
+              color="primary"
               InputProps={{ disableUnderline: true }}
               value={selected.account_number}
+              focused
               readOnly
             />
           </Grid>
@@ -109,8 +118,10 @@ function EnhancedTableToolbar(props) {
               label="Terms"
               fullWidth
               size="small"
+              color="primary"
               InputProps={{ disableUnderline: true }}
               value={selected.company.frequency.frequency}
+              focused
               readOnly
             />
           </Grid>
@@ -163,7 +174,12 @@ function EnhancedTableToolbar(props) {
                 Over limit approval
               </Button>
               <Button key="nine">Loans history</Button>
-              <Button key="ten">Savings ledger</Button>
+              <Button
+                key="ten"
+                onClick={() => setOpenSavingsLedgerDialog(true)}
+              >
+                Savings ledger
+              </Button>
             </ButtonGroup>
           </Grid>
         </Grid>
@@ -202,6 +218,7 @@ function EnhancedTableToolbar(props) {
 
 export default function LendingWindow(props) {
   const { openLendingWindow, setOpenLendingWindow, selected } = props;
+  const [openSavingsLedgerDialog, setOpenSavingsLedgerDialog] = useState(false);
   const [funds] = useState([{ id: 1, label: "GCash" }]);
 
   const handleClose = () => {
@@ -229,106 +246,119 @@ export default function LendingWindow(props) {
           </Typography>
         </Toolbar>
       </AppBar>
-      <DialogContent>
-        <Grid container spacing={2}>
+      <DialogContent sx={{ bgcolor: "#EEE" }}>
+        <Grid container spacing={2} height="100%">
           <Grid item xs={12} md={2}>
-            <Grid container>
-              <Grid item xs={12}>
-                <TextField
-                  margin="dense"
-                  label="Account #"
-                  fullWidth
-                  size="small"
-                  variant="standard"
-                  InputProps={{ disableUnderline: true }}
-                  value={selected.account_number}
-                  readOnly
-                />
-                <TextField
-                  margin="dense"
-                  label="Account name"
-                  fullWidth
-                  size="small"
-                  variant="standard"
-                  InputProps={{ disableUnderline: true }}
-                  value={selected.account_name}
-                  readOnly
-                />
+            <Card sx={{ height: "100%", p: 1 }}>
+              <Grid container>
+                <Grid item xs={12}>
+                  <TextField
+                    margin="dense"
+                    label="Account #"
+                    fullWidth
+                    size="small"
+                    variant="standard"
+                    InputProps={{ disableUnderline: true }}
+                    value={selected.account_number}
+                    readOnly
+                  />
+                  <Divider />
+                  <TextField
+                    margin="dense"
+                    label="Account name"
+                    fullWidth
+                    size="small"
+                    variant="standard"
+                    InputProps={{ disableUnderline: true }}
+                    value={selected.account_name}
+                    readOnly
+                  />
+                  <Divider />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    margin="dense"
+                    label="Company"
+                    fullWidth
+                    size="small"
+                    variant="standard"
+                    InputProps={{ disableUnderline: true }}
+                    value={selected.company.company}
+                    readOnly
+                  />
+                  <Divider />
+                  <TextField
+                    margin="dense"
+                    label="Cash advance rate"
+                    fullWidth
+                    size="small"
+                    variant="standard"
+                    InputProps={{ disableUnderline: true }}
+                    value={selected.account_number}
+                    readOnly
+                  />
+                  <Divider />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    margin="dense"
+                    label="Penalty rate"
+                    fullWidth
+                    size="small"
+                    variant="standard"
+                    InputProps={{ disableUnderline: true }}
+                    value={selected.account_name}
+                    readOnly
+                  />
+                  <Divider />
+                  <TextField
+                    margin="dense"
+                    label="Salary schedule:"
+                    fullWidth
+                    size="small"
+                    variant="standard"
+                    InputProps={{ disableUnderline: true }}
+                    value={selected.company.schedule.schedule}
+                    readOnly
+                  />
+                  <Divider />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    margin="dense"
+                    label="Payable limit"
+                    fullWidth
+                    size="small"
+                    variant="standard"
+                    InputProps={{ disableUnderline: true }}
+                    value={selected.account_number}
+                    readOnly
+                  />
+                  <Divider />
+                  <TextField
+                    margin="dense"
+                    label="Limit balance"
+                    fullWidth
+                    size="small"
+                    variant="standard"
+                    InputProps={{ disableUnderline: true }}
+                    value={selected.account_name}
+                    readOnly
+                  />
+                  <Divider />
+                </Grid>
               </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  margin="dense"
-                  label="Company"
-                  fullWidth
-                  size="small"
-                  variant="standard"
-                  InputProps={{ disableUnderline: true }}
-                  value={selected.company.company}
-                  readOnly
-                />
-                <TextField
-                  margin="dense"
-                  label="Cash advance rate"
-                  fullWidth
-                  size="small"
-                  variant="standard"
-                  InputProps={{ disableUnderline: true }}
-                  value={selected.account_number}
-                  readOnly
-                />
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <TextField
-                  margin="dense"
-                  label="Penalty rate"
-                  fullWidth
-                  size="small"
-                  variant="standard"
-                  InputProps={{ disableUnderline: true }}
-                  value={selected.account_name}
-                  readOnly
-                />
-                <TextField
-                  margin="dense"
-                  label="Salary schedule:"
-                  fullWidth
-                  size="small"
-                  variant="standard"
-                  InputProps={{ disableUnderline: true }}
-                  value={selected.company.schedule.schedule}
-                  readOnly
-                />
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <TextField
-                  margin="dense"
-                  label="Payable limit"
-                  fullWidth
-                  size="small"
-                  variant="standard"
-                  InputProps={{ disableUnderline: true }}
-                  value={selected.account_number}
-                  readOnly
-                />
-                <TextField
-                  margin="dense"
-                  label="Limit balance"
-                  fullWidth
-                  size="small"
-                  variant="standard"
-                  InputProps={{ disableUnderline: true }}
-                  value={selected.account_name}
-                  readOnly
-                />
-              </Grid>
-            </Grid>
+            </Card>
           </Grid>
           {/* Table */}
           <Grid item xs={8}>
             <Grid container>
               <Grid item xs={12}>
                 <Paper sx={{ width: "100%" }}>
-                  <EnhancedTableToolbar selected={selected} />
+                  <EnhancedTableToolbar
+                    selected={selected}
+                    setOpenSavingsLedgerDialog={setOpenSavingsLedgerDialog}
+                  />
                   <TableContainer sx={{ maxHeight: 500 }}>
                     <Table
                       sx={{ minWidth: 1500 }}
@@ -417,63 +447,69 @@ export default function LendingWindow(props) {
                   <TableBody>
                     <TableRow>
                       <TableCell colSpan={2}>Loan amount:</TableCell>
-                      <TableCell>123</TableCell>
+                      <TableCell>{numFormat(parseFloat(123))}</TableCell>
                     </TableRow>
                     <TableRow>
                       <TableCell>Deductions:</TableCell>
                       <TableCell>-</TableCell>
-                      <TableCell>123213</TableCell>
+                      <TableCell>{numFormat(parseFloat(123213))}</TableCell>
                     </TableRow>
                     <TableRow>
                       <SuccessTableCell colSpan={2} align="center">
                         Loan balance:
                       </SuccessTableCell>
-                      <SuccessTableCell>123</SuccessTableCell>
+                      <SuccessTableCell>
+                        {numFormat(parseFloat(123))}
+                      </SuccessTableCell>
                     </TableRow>
                     <TableRow>
                       <TableCell colSpan={2}>Deductions:</TableCell>
-                      <TableCell>123</TableCell>
+                      <TableCell>{numFormat(parseFloat(123))}</TableCell>
                     </TableRow>
                     <TableRow>
                       <TableCell colSpan={2}>Prev balance:</TableCell>
-                      <TableCell>123</TableCell>
+                      <TableCell>{numFormat(parseFloat(123))}</TableCell>
                     </TableRow>
                     <TableRow>
                       <TableCell>Penalty:</TableCell>
                       <TableCell>-</TableCell>
-                      <ErrorTableCell>123</ErrorTableCell>
+                      <ErrorTableCell>
+                        {numFormat(parseFloat(123))}
+                      </ErrorTableCell>
                     </TableRow>
                     <TableRow>
                       <TableCell colSpan={2}>Cash advance:</TableCell>
-                      <TableCell>123</TableCell>
+                      <TableCell>{numFormat(parseFloat(123))}</TableCell>
                     </TableRow>
                     <TableRow>
                       <TableCell colSpan={2}>Interest:</TableCell>
-                      <TableCell>123</TableCell>
+                      <TableCell>{numFormat(parseFloat(123))}</TableCell>
                     </TableRow>
                     <TableRow>
                       <TableCell colSpan={2}>Trade:</TableCell>
-                      <TableCell>123</TableCell>
+                      <TableCell>{numFormat(parseFloat(123))}</TableCell>
                     </TableRow>
                     <TableRow>
                       <SuccessTableCell colSpan={2} align="center">
                         Total payables:
                       </SuccessTableCell>
                       <SuccessTableCell sx={{ fontWeight: "bold" }}>
-                        123
+                        {numFormat(parseFloat(123))}
                       </SuccessTableCell>
                     </TableRow>
                     <TableRow>
                       <TableCell colSpan={2} align="center">
                         Total payment:
                       </TableCell>
-                      <TableCell>123</TableCell>
+                      <TableCell>{numFormat(parseFloat(123))}</TableCell>
                     </TableRow>
                     <TableRow>
                       <SuccessTableCell colSpan={2} align="center">
                         Total balance:
                       </SuccessTableCell>
-                      <SuccessTableCell>123</SuccessTableCell>
+                      <SuccessTableCell>
+                        {numFormat(parseFloat(123))}
+                      </SuccessTableCell>
                     </TableRow>
                   </TableBody>
                 </Table>
@@ -485,18 +521,20 @@ export default function LendingWindow(props) {
                   <TableBody>
                     <TableRow>
                       <TableCell colSpan={2}>Loan balance:</TableCell>
-                      <TableCell>123</TableCell>
+                      <TableCell>{numFormat(parseFloat(123))}</TableCell>
                     </TableRow>
                     <TableRow>
                       <TableCell>Total balance:</TableCell>
                       <TableCell>+</TableCell>
-                      <TableCell>123</TableCell>
+                      <TableCell>{numFormat(parseFloat(123))}</TableCell>
                     </TableRow>
                     <TableRow>
                       <SuccessTableCell colSpan={2} align="right">
                         Grand balance:
                       </SuccessTableCell>
-                      <SuccessTableCell>123</SuccessTableCell>
+                      <SuccessTableCell>
+                        {numFormat(parseFloat(123))}
+                      </SuccessTableCell>
                     </TableRow>
                   </TableBody>
                 </Table>
@@ -504,6 +542,12 @@ export default function LendingWindow(props) {
             </Paper>
           </Grid>
         </Grid>
+        <SavingsLedgerDialog
+          openLedgerDialog={openSavingsLedgerDialog}
+          setOpenLedgerDialog={setOpenSavingsLedgerDialog}
+          selected={selected}
+          dialogName="Savings Ledger"
+        />
       </DialogContent>
     </Dialog>
   );

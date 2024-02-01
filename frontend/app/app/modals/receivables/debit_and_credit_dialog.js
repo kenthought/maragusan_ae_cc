@@ -36,6 +36,7 @@ export default function DebitDialog(props) {
     setIsSuccess,
     setSuccessText,
     balance,
+    ledger,
   } = props;
   const [post, setPost] = useState();
   const { data: session } = useSession();
@@ -86,17 +87,30 @@ export default function DebitDialog(props) {
       user: session.user.name[1],
     };
 
-    axiosInstance
-      .post("receivables/ledger/", postData)
-      .then((response) => {
-        handleSuccessful(true, "Ledger posted successfully!");
-        console.log(response);
-      })
-      .catch((response) => {
-        console.log(response);
-        setIsError(true);
-        setErrorText(response.message);
-      });
+    if (ledger === "receivables")
+      axiosInstance
+        .post("receivables/ledger/", postData)
+        .then((response) => {
+          handleSuccessful(true, "Ledger posted successfully!");
+          console.log(response);
+        })
+        .catch((response) => {
+          console.log(response);
+          setIsError(true);
+          setErrorText(response.message);
+        });
+    else
+      axiosInstance
+        .post("receivables/savings-ledger/", postData)
+        .then((response) => {
+          handleSuccessful(true, "Ledger posted successfully!");
+          console.log(response);
+        })
+        .catch((response) => {
+          console.log(response);
+          setIsError(true);
+          setErrorText(response.message);
+        });
   };
 
   if (selected === null) return;
@@ -219,4 +233,5 @@ DebitDialog.propTypes = {
   setIsSuccess: PropTypes.func.isRequired,
   setSuccessText: PropTypes.func.isRequired,
   balance: PropTypes.string.isRequired,
+  ledger: PropTypes.string.isRequired,
 };
