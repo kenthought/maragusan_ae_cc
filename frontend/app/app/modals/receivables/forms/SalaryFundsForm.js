@@ -62,6 +62,8 @@ export default function SalaryFundsForm(props) {
               isEditing
                 ? inputData.bank
                   ? inputData.bank.id
+                    ? inputData.bank.id
+                    : inputData.bank || ""
                   : ""
                 : inputData.bank || ""
             }

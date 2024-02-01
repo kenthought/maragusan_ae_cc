@@ -11,6 +11,38 @@ import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 
+const keys = [
+  { key: "account_name", label: "Account Name" },
+  { key: "spouse_name", label: "Spouse Name" },
+  { key: "credit_terms", label: "Credit Terms" },
+  { key: "credit_limit", label: "Credit Limit" },
+  { key: "contact_number1", label: "Contact number 1" },
+  { key: "contact_number2", label: "Contact Number 2" },
+  { key: "purok_street", label: "Purok Street" },
+  { key: "barangay", label: "Barangay" },
+  { key: "account_category", label: "Account Category" },
+  { key: "account_status", label: "Account Status" },
+  { key: "co_maker", label: "Co-maker" },
+  { key: "agent", label: "Agent" },
+  { key: "company", label: "Company" },
+  { key: "supervisor", label: "Supervisor" },
+  { key: "assignment", label: "Assignment" },
+  { key: "date_hired", label: "Date hired" },
+  { key: "company_id", label: "Company ID" },
+  { key: "company_id_number", label: "Company ID number" },
+  { key: "work_contact_number", label: "Work contact number" },
+  { key: "employment_status", label: "Employment Status" },
+  { key: "bank_account_name", label: "Bank Account Name" },
+  { key: "bank_account_number", label: "Bank Account Number" },
+  { key: "bank", label: "Bank" },
+  { key: "bank_branch", label: "Bank branch" },
+  { key: "card_number", label: "Card number" },
+  { key: "card_pin", label: "Card Pin" },
+  { key: "send_to", label: "Send to" },
+  { key: "funds_registered_name", label: "Registered name" },
+  { key: "funds_account_number", label: "Funds Account number" },
+];
+
 export default function Review(props) {
   const { inputData, optionsData, countError, setCountError, isEditing } =
     props;
@@ -27,7 +59,7 @@ export default function Review(props) {
   const employmentStatus = [
     { id: 1, label: "Regular" },
     { id: 2, label: "Provisional" },
-    { id: 1, label: "Contractual" },
+    { id: 3, label: "Contractual" },
   ];
   const accountCategory = [
     { id: 1, label: "Employee" },
@@ -40,113 +72,16 @@ export default function Review(props) {
   useEffect(() => {
     setCountError(0);
     //ugly code
-    if (!inputData.control_number)
-      setCountError((data) => {
-        return (data += 1);
-      });
-    if (!inputData.account_name)
-      setCountError((data) => {
-        return (data += 1);
-      });
-    if (!inputData.spouse_name)
-      setCountError((data) => {
-        return (data += 1);
-      });
-    if (!inputData.credit_terms)
-      setCountError((data) => {
-        return (data += 1);
-      });
-    if (!inputData.credit_limit)
-      setCountError((data) => {
-        return (data += 1);
-      });
-    if (!inputData.contact_number1)
-      setCountError((data) => {
-        return (data += 1);
-      });
-    if (!inputData.purok_street)
-      setCountError((data) => {
-        return (data += 1);
-      });
-    if (!inputData.barangay)
-      setCountError((data) => {
-        return (data += 1);
-      });
-    if (!inputData.co_maker)
-      setCountError((data) => {
-        return (data += 1);
-      });
-    if (!inputData.agent)
-      setCountError((data) => {
-        return (data += 1);
-      });
-    if (!inputData.company)
-      setCountError((data) => {
-        return (data += 1);
-      });
-    if (!inputData.supervisor)
-      setCountError((data) => {
-        return (data += 1);
-      });
-    if (!inputData.assignment)
-      setCountError((data) => {
-        return (data += 1);
-      });
-    if (!inputData.date_hired)
-      setCountError((data) => {
-        return (data += 1);
-      });
-    if (!inputData.company_id_number)
-      setCountError((data) => {
-        return (data += 1);
-      });
-    if (!inputData.work_contact_number)
-      setCountError((data) => {
-        return (data += 1);
-      });
-    if (!inputData.employment_status)
-      setCountError((data) => {
-        return (data += 1);
-      });
-    if (!inputData.bank_account_name)
-      setCountError((data) => {
-        return (data += 1);
-      });
-    if (!inputData.bank_account_number)
-      setCountError((data) => {
-        return (data += 1);
-      });
-    if (!inputData.bank)
-      setCountError((data) => {
-        return (data += 1);
-      });
-    if (!inputData.bank_branch)
-      setCountError((data) => {
-        return (data += 1);
-      });
-    if (!inputData.card_number)
-      setCountError((data) => {
-        return (data += 1);
-      });
-    if (!inputData.card_pin)
-      setCountError((data) => {
-        return (data += 1);
-      });
-    if (!inputData.send_to)
-      setCountError((data) => {
-        return (data += 1);
-      });
-    if (!inputData.funds_registered_name)
-      setCountError((data) => {
-        return (data += 1);
-      });
-    if (!inputData.funds_account_number)
-      setCountError((data) => {
-        return (data += 1);
-      });
+    keys.map((data) => {
+      if (!inputData[data.key])
+        setCountError((count) => {
+          return (count += 1);
+        });
+    });
 
     console.log("Error Count: ", countError);
     console.log(inputData);
+    console.log("isEditing", isEditing);
   }, [inputData]);
 
   return (
@@ -295,7 +230,7 @@ export default function Review(props) {
             variant="standard"
             value={
               isEditing
-                ? inputData.barangay
+                ? inputData.barangay.id
                   ? barangay.find((x) => x.id == inputData.barangay.id)
                       .barangay +
                     ", " +
@@ -303,6 +238,14 @@ export default function Review(props) {
                       .municipality.municipality +
                     ", " +
                     barangay.find((x) => x.id == inputData.barangay.id)
+                      .municipality.province.province
+                  : inputData.barangay
+                  ? barangay.find((x) => x.id == inputData.barangay).barangay +
+                    ", " +
+                    barangay.find((x) => x.id == inputData.barangay)
+                      .municipality.municipality +
+                    ", " +
+                    barangay.find((x) => x.id == inputData.barangay)
                       .municipality.province.province
                   : ""
                 : inputData.barangay
@@ -334,7 +277,9 @@ export default function Review(props) {
             variant="standard"
             value={
               isEditing
-                ? inputData.co_maker
+                ? inputData.co_maker.id
+                  ? users.find((x) => x.id == inputData.co_maker.id).first_name
+                  : inputData.co_maker
                   ? users.find((x) => x.id == inputData.co_maker).first_name
                   : ""
                 : inputData.co_maker
@@ -355,7 +300,9 @@ export default function Review(props) {
             variant="standard"
             value={
               isEditing
-                ? inputData.agent
+                ? inputData.agent.id
+                  ? users.find((x) => x.id == inputData.agent.id).first_name
+                  : inputData.agent
                   ? users.find((x) => x.id == inputData.agent).first_name
                   : ""
                 : inputData.agent
@@ -381,8 +328,10 @@ export default function Review(props) {
             variant="standard"
             value={
               isEditing
-                ? inputData.company
+                ? inputData.company.id
                   ? company.find((x) => x.id == inputData.company.id).company
+                  : inputData.company
+                  ? company.find((x) => x.id == inputData.company).company
                   : ""
                 : inputData.company
                 ? company.find((x) => x.id == inputData.company).company
@@ -522,8 +471,10 @@ export default function Review(props) {
             variant="standard"
             value={
               isEditing
-                ? inputData.bank
+                ? inputData.bank.id
                   ? bank.find((x) => x.id == inputData.bank.id).bank
+                  : inputData.bank
+                  ? bank.find((x) => x.id == inputData.bank).bank
                   : ""
                 : inputData.bank
                 ? bank.find((x) => x.id == inputData.bank).bank

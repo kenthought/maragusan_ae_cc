@@ -1,65 +1,64 @@
-"use client";
-
 import { Fragment, useEffect, useState } from "react";
 import { useTheme } from "@mui/material/styles";
-import Fade from "@mui/material/Fade";
-import Container from "@mui/material/Container";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
+import Chip from "@mui/material/Chip";
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
 import CircularProgress from "@mui/material/CircularProgress";
 import Divider from "@mui/material/Divider";
 import Button from "@mui/material/Button";
 import ButtonGroup from "@mui/material/ButtonGroup";
-import CssBaseline from "@mui/material/CssBaseline";
-import Skeleton from "@mui/material/Skeleton";
-import Chip from "@mui/material/Chip";
-import Paper from "@mui/material/Paper";
-import Grid from "@mui/material/Grid";
-import Fab from "@mui/material/Fab";
 import Card from "@mui/material/Card";
-import Tooltip from "@mui/material/Tooltip";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
+import Grid from "@mui/material/Grid";
 import MobileStepper from "@mui/material/MobileStepper";
 import KeyboardArrowLeft from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight";
 import SwipeableViews from "react-swipeable-views";
-import { autoPlay } from "react-swipeable-views-utils";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import SearchIcon from "@mui/icons-material/Search";
-import ReceivablesDialog from "@/app/modals/receivables/receivables_dialog";
-import LedgerDialog from "@/app/modals/receivables/ledger_dialog";
-import Success from "@/app/utils/success";
-import Loading from "@/app/utils/loading";
-import useSWR from "swr";
-import axiosInstance from "@/app/axios";
-import PropTypes from "prop-types";
-import LendingWindow from "@/app/modals/receivables/lending_window";
-import { Stack } from "@mui/material";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell, { tableCellClasses } from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
 
-const fetcher = (url) => axiosInstance.get(url).then((res) => res.data);
+const keys = [
+  { key: "account_name", label: "Account Name" },
+  { key: "spouse_name", label: "Spouse Name" },
+  { key: "credit_terms", label: "Credit Terms" },
+  { key: "credit_limit", label: "Credit Limit" },
+  { key: "contact_number1", label: "Contact number 1" },
+  { key: "contact_number2", label: "Contact Number 2" },
+  { key: "purok_street", label: "Purok Street" },
+  { key: "barangay", label: "Barangay" },
+  { key: "account_category", label: "Account Category" },
+  { key: "account_status", label: "Account Status" },
+  { key: "co_maker", label: "Co-maker" },
+  { key: "agent", label: "Agent" },
+  { key: "company", label: "Company" },
+  { key: "supervisor", label: "Supervisor" },
+  { key: "assignment", label: "Assignment" },
+  { key: "date_hired", label: "Date hired" },
+  { key: "company_id", label: "Company ID" },
+  { key: "company_id_number", label: "Company ID number" },
+  { key: "work_contact_number", label: "Work contact number" },
+  { key: "employment_status", label: "Employment Status" },
+  { key: "bank_account_name", label: "Bank Account Name" },
+  { key: "bank_account_number", label: "Bank Account Number" },
+  { key: "bank", label: "Bank" },
+  { key: "bank_branch", label: "Bank branch" },
+  { key: "card_number", label: "Card number" },
+  { key: "card_pin", label: "Card Pin" },
+  { key: "send_to", label: "Send to" },
+  { key: "funds_registered_name", label: "Registered name" },
+  { key: "funds_account_number", label: "Funds Account number" },
+];
 
-const ReceivablesInformation = (props) => {
-  const {
-    id,
-    setEditData,
-    setIsEditing,
-    setReceivablesInfoMutate,
-    setOpenReceivablesDialog,
-    setOpenLedgerDialog,
-    setOpenLendingWindow,
-  } = props;
-  const { data, error, isLoading, mutate } = useSWR(
-    "/receivables/" + id,
-    fetcher
-  );
+export default function ReceivablesView(props) {
+  const { data, barangay, bank, user, company } = props;
   const [creditTerms] = useState([
     { id: 1, value: 1 },
     { id: 2, value: 7 },
@@ -74,7 +73,7 @@ const ReceivablesInformation = (props) => {
     { id: 2, label: "Provisional" },
     { id: 3, label: "Contractual" },
   ]);
-  const [funds] = useState([{ id: 1, label: "GCash" }]);
+  const [funds] = useState([{ id: "1", label: "GCash" }]);
   const [accountStatus] = useState([
     { id: 1, label: "Active", value: true },
     { id: 2, label: "Inactive", value: false },
@@ -86,36 +85,6 @@ const ReceivablesInformation = (props) => {
     { id: 3, label: "Temp charge" },
     { id: 4, label: "Customer" },
   ]);
-
-  useEffect(() => {
-    console.log(data);
-  }, [data]);
-
-  const buttons = [
-    <Button key="one" onClick={() => setOpenLedgerDialog(true)}>
-      Ledger
-    </Button>,
-    <Button
-      key="two"
-      startIcon={<EditIcon />}
-      onClick={() => {
-        setEditData(data);
-        setIsEditing(true);
-        setReceivablesInfoMutate(() => mutate);
-        setOpenReceivablesDialog(true);
-      }}
-      color="secondary"
-    >
-      Edit
-    </Button>,
-  ];
-
-  const buttons2 = [
-    <Button key="five" onClick={() => setOpenLendingWindow(true)}>
-      Lending Window
-    </Button>,
-    <Button key="six">1st Payment Period</Button>,
-  ];
 
   const AccountInformation = () => (
     <Grid container padding={1} spacing={1}>
@@ -132,7 +101,7 @@ const ReceivablesInformation = (props) => {
         <Typography>Account name:</Typography>
       </Grid>
       <Grid item xs={12} md={8}>
-        <Typography>{data.account_name}</Typography>
+        <Typography>{data.new_data.account_name}</Typography>
       </Grid>
       <Grid item xs={12}>
         <Divider />
@@ -141,7 +110,7 @@ const ReceivablesInformation = (props) => {
         <Typography>Spouse name:</Typography>
       </Grid>
       <Grid item xs={12} md={8}>
-        <Typography>{data.spouse_name}</Typography>
+        <Typography>{data.new_data.spouse_name}</Typography>
       </Grid>
       <Grid item xs={12}>
         <Divider />
@@ -150,7 +119,7 @@ const ReceivablesInformation = (props) => {
         <Typography>Purok/Street:</Typography>
       </Grid>
       <Grid item xs={12} md={8}>
-        <Typography>{data.purok_street}</Typography>
+        <Typography>{data.new_data.purok_street}</Typography>
       </Grid>
       <Grid item xs={12}>
         <Divider />
@@ -159,7 +128,9 @@ const ReceivablesInformation = (props) => {
         <Typography>Barangay:</Typography>
       </Grid>
       <Grid item xs={12} md={8}>
-        <Typography>{data.barangay.barangay}</Typography>
+        <Typography>
+          {barangay.find((x) => x.id == data.new_data.barangay).barangay}
+        </Typography>
       </Grid>
       <Grid item xs={12}>
         <Divider />
@@ -168,7 +139,12 @@ const ReceivablesInformation = (props) => {
         <Typography>Municipality:</Typography>
       </Grid>
       <Grid item xs={12} md={8}>
-        <Typography>{data.barangay.municipality.municipality}</Typography>
+        <Typography>
+          {
+            barangay.find((x) => x.id == data.new_data.barangay).municipality
+              .municipality
+          }
+        </Typography>
       </Grid>
       <Grid item xs={12}>
         <Divider />
@@ -177,7 +153,12 @@ const ReceivablesInformation = (props) => {
         <Typography>Province:</Typography>
       </Grid>
       <Grid item xs={12} md={8}>
-        <Typography>{data.barangay.municipality.province.province}</Typography>
+        <Typography>
+          {
+            barangay.find((x) => x.id == data.new_data.barangay).municipality
+              .province.province
+          }
+        </Typography>
       </Grid>
       <Grid item xs={12}>
         <Divider />
@@ -187,11 +168,16 @@ const ReceivablesInformation = (props) => {
       </Grid>
       <Grid item xs={12} md={8}>
         <Chip
-          label={accountStatus.find((x) => x.id === data.account_status).label}
+          label={
+            accountStatus.find((x) => x.id === data.new_data.account_status)
+              .label
+          }
           color={
-            accountStatus.find((x) => x.id == data.account_status).id == 1
+            accountStatus.find((x) => x.id == data.new_data.account_status)
+              .id == 1
               ? "success"
-              : accountStatus.find((x) => x.id == data.account_status).id == 2
+              : accountStatus.find((x) => x.id == data.new_data.account_status)
+                  .id == 2
               ? "error"
               : "secondary"
           }
@@ -204,7 +190,7 @@ const ReceivablesInformation = (props) => {
         <Typography>Credit Terms:</Typography>
       </Grid>
       <Grid item xs={12} md={8}>
-        <Typography>{data.credit_terms} days</Typography>
+        <Typography>{data.new_data.credit_terms} days</Typography>
       </Grid>
       <Grid item xs={12}>
         <Divider />
@@ -213,7 +199,7 @@ const ReceivablesInformation = (props) => {
         <Typography>Credit Limit:</Typography>
       </Grid>
       <Grid item xs={12} md={8}>
-        <Typography>{data.credit_limit}</Typography>
+        <Typography>{data.new_data.credit_limit}</Typography>
       </Grid>
       <Grid item xs={12}>
         <Divider />
@@ -223,7 +209,10 @@ const ReceivablesInformation = (props) => {
       </Grid>
       <Grid item xs={12} md={8}>
         <Typography>
-          {accountCategory.find((x) => x.id === data.account_category).label}
+          {
+            accountCategory.find((x) => x.id === data.new_data.account_category)
+              .label
+          }
         </Typography>
       </Grid>
       <Grid item xs={12}>
@@ -233,7 +222,7 @@ const ReceivablesInformation = (props) => {
         <Typography>Contact number 1:</Typography>
       </Grid>
       <Grid item xs={12} md={8}>
-        <Typography>{data.contact_number1}</Typography>
+        <Typography>{data.new_data.contact_number1}</Typography>
       </Grid>
       <Grid item xs={12}>
         <Divider />
@@ -242,7 +231,7 @@ const ReceivablesInformation = (props) => {
         <Typography>Contact number 2:</Typography>
       </Grid>
       <Grid item xs={12} md={8}>
-        <Typography>{data.contact_number2}</Typography>
+        <Typography>{data.new_data.contact_number2}</Typography>
       </Grid>
       <Grid item xs={12}>
         <Divider />
@@ -265,7 +254,7 @@ const ReceivablesInformation = (props) => {
         <Typography>Account name:</Typography>
       </Grid>
       <Grid item xs={12} md={8}>
-        <Typography>{data.bank_account_name}</Typography>
+        <Typography>{data.new_data.bank_account_name}</Typography>
       </Grid>
       <Grid item xs={12}>
         <Divider />
@@ -274,7 +263,7 @@ const ReceivablesInformation = (props) => {
         <Typography>Bank account number:</Typography>
       </Grid>
       <Grid item xs={12} md={8}>
-        <Typography>{data.bank_account_number}</Typography>
+        <Typography>{data.new_data.bank_account_number}</Typography>
       </Grid>
       <Grid item xs={12}>
         <Divider />
@@ -283,7 +272,9 @@ const ReceivablesInformation = (props) => {
         <Typography>Bank:</Typography>
       </Grid>
       <Grid item xs={12} md={8}>
-        <Typography>{data.bank.bank}</Typography>
+        <Typography>
+          {bank.find((x) => x.id == data.new_data.bank).bank}
+        </Typography>
       </Grid>
       <Grid item xs={12}>
         <Divider />
@@ -292,7 +283,7 @@ const ReceivablesInformation = (props) => {
         <Typography>Bank branch:</Typography>
       </Grid>
       <Grid item xs={12} md={8}>
-        <Typography>{data.bank_branch}</Typography>
+        <Typography>{data.new_data.bank_branch}</Typography>
       </Grid>
       <Grid item xs={12}>
         <Divider />
@@ -301,7 +292,7 @@ const ReceivablesInformation = (props) => {
         <Typography>Card number:</Typography>
       </Grid>
       <Grid item xs={12} md={8}>
-        <Typography>{data.card_number}</Typography>
+        <Typography>{data.new_data.card_number}</Typography>
       </Grid>
       <Grid item xs={12}>
         <Divider />
@@ -310,7 +301,7 @@ const ReceivablesInformation = (props) => {
         <Typography>Card pin:</Typography>
       </Grid>
       <Grid item xs={12} md={8}>
-        <Typography>{data.card_pin}</Typography>
+        <Typography>{data.new_data.card_pin}</Typography>
       </Grid>
       <Grid item xs={12}>
         <Divider />
@@ -325,7 +316,7 @@ const ReceivablesInformation = (props) => {
       </Grid>
       <Grid item xs={12} md={8}>
         <Typography>
-          {funds.find((x) => x.id === data.send_to).label}
+          {funds.find((x) => x.id === data.new_data.send_to).label}
         </Typography>
       </Grid>
       <Grid item xs={12}>
@@ -335,7 +326,7 @@ const ReceivablesInformation = (props) => {
         <Typography>Registered name:</Typography>
       </Grid>
       <Grid item xs={12} md={8}>
-        <Typography>{data.funds_registered_name}</Typography>
+        <Typography>{data.new_data.funds_registered_name}</Typography>
       </Grid>
       <Grid item xs={12}>
         <Divider />
@@ -344,7 +335,7 @@ const ReceivablesInformation = (props) => {
         <Typography>Account number:</Typography>
       </Grid>
       <Grid item xs={12} md={8}>
-        <Typography>{data.funds_account_number}</Typography>
+        <Typography>{data.new_data.funds_account_number}</Typography>
       </Grid>
       <Grid item xs={12}>
         <Divider />
@@ -358,7 +349,9 @@ const ReceivablesInformation = (props) => {
         <Typography>Company:</Typography>
       </Grid>
       <Grid item xs={12} md={8}>
-        <Typography>{data.company.company}</Typography>
+        <Typography>
+          {company.find((x) => x.id == data.new_data.company).company}
+        </Typography>
       </Grid>
       <Grid item xs={12}>
         <Divider />
@@ -367,7 +360,9 @@ const ReceivablesInformation = (props) => {
         <Typography>Company address:</Typography>
       </Grid>
       <Grid item xs={12} md={8}>
-        <Typography>{data.company.address}</Typography>
+        <Typography>
+          {company.find((x) => x.id == data.new_data.company).address}
+        </Typography>
       </Grid>
       <Grid item xs={12}>
         <Divider />
@@ -376,7 +371,7 @@ const ReceivablesInformation = (props) => {
         <Typography>Supervisor:</Typography>
       </Grid>
       <Grid item xs={12} md={8}>
-        <Typography>{data.supervisor}</Typography>
+        <Typography>{data.new_data.supervisor}</Typography>
       </Grid>
       <Grid item xs={12}>
         <Divider />
@@ -385,7 +380,7 @@ const ReceivablesInformation = (props) => {
         <Typography>Assignment:</Typography>
       </Grid>
       <Grid item xs={12} md={8}>
-        <Typography>{data.assignment}</Typography>
+        <Typography>{data.new_data.assignment}</Typography>
       </Grid>
       <Grid item xs={12}>
         <Divider />
@@ -394,7 +389,7 @@ const ReceivablesInformation = (props) => {
         <Typography>Company ID:</Typography>
       </Grid>
       <Grid item xs={12} md={8}>
-        <Typography>{data.company_id_number}</Typography>
+        <Typography>{data.new_data.company_id_number}</Typography>
       </Grid>
       <Grid item xs={12}>
         <Divider />
@@ -403,7 +398,12 @@ const ReceivablesInformation = (props) => {
         <Typography>Frequency:</Typography>
       </Grid>
       <Grid item xs={12} md={8}>
-        <Typography>{data.company.frequency.frequency}</Typography>
+        <Typography>
+          {
+            company.find((x) => x.id == data.new_data.company).frequency
+              .frequency
+          }
+        </Typography>
       </Grid>
       <Grid item xs={12}>
         <Divider />
@@ -413,7 +413,7 @@ const ReceivablesInformation = (props) => {
       </Grid>
       <Grid item xs={12} md={8}>
         <Typography>
-          {new Date(data.date_hired).toLocaleDateString()}
+          {new Date(data.new_data.date_hired).toLocaleDateString()}
         </Typography>
       </Grid>
       <Grid item xs={12}>
@@ -424,7 +424,11 @@ const ReceivablesInformation = (props) => {
       </Grid>
       <Grid item xs={12} md={8}>
         <Typography>
-          {employmentStatus.find((x) => x.id == data.employment_status).label}
+          {
+            employmentStatus.find(
+              (x) => x.id == data.new_data.employment_status
+            ).label
+          }
         </Typography>
       </Grid>
       <Grid item xs={12}>
@@ -439,7 +443,9 @@ const ReceivablesInformation = (props) => {
         <Typography>Co-maker:</Typography>
       </Grid>
       <Grid item xs={12} md={8}>
-        <Typography>{data.co_maker.first_name}</Typography>
+        <Typography>
+          {user.find((x) => x.id == data.new_data.co_maker).first_name}
+        </Typography>
       </Grid>
       <Grid item xs={12}>
         <Divider />
@@ -448,7 +454,9 @@ const ReceivablesInformation = (props) => {
         <Typography>Agent:</Typography>
       </Grid>
       <Grid item xs={12} md={8}>
-        <Typography>{data.agent.first_name}</Typography>
+        <Typography>
+          {user.find((x) => x.id == data.new_data.agent).first_name}
+        </Typography>
       </Grid>
       <Grid item xs={12}>
         <Divider />
@@ -562,213 +570,236 @@ const ReceivablesInformation = (props) => {
     );
   };
 
-  if (isLoading) return <Loading />;
+  const compareData = () => {
+    const oldData = { ...data.old_data };
+    const newData = { ...data.new_data };
+    let from = {};
+    let to = {};
+    let unmatchedKeys = [];
 
-  if (error) return <Typography>Unable to fetch data!</Typography>;
-
-  return (
-    <Card sx={{ padding: 2, position: "relative", width: 600 }}>
-      <Typography component="h2" variant="h6" color="primary" marginBottom={2}>
-        Receivables Information
-      </Typography>
-      <Grid container spacing={1} mb={2} direction="row" alignItems="end">
-        <Grid item>
-          <Grid container direction="column">
-            <Grid item>
-              <ButtonGroup
-                variant="contained"
-                aria-label="outlined success button group"
-                size="small"
-                disabled={data.under_approval}
-              >
-                {buttons2}
-              </ButtonGroup>
-            </Grid>
-          </Grid>
-        </Grid>
-        <Grid item>
-          <ButtonGroup
-            variant="contained"
-            aria-label="outlined primary button group"
-            size="small"
-            disabled={data.under_approval}
-          >
-            {buttons}
-          </ButtonGroup>
-        </Grid>
-      </Grid>
-      <Stack spacing={1} direction="row">
-        {data.under_approval && <Chip label="For approval" color="warning" />}
-        <Chip
-          label={`Term: ${data.company.frequency.frequency}`}
-          color="secondary"
-        />
-      </Stack>
-      <SwipeableTextMobileStepper />
-    </Card>
-  );
-};
-
-export default function Receivables() {
-  const [open, setOpen] = useState(false);
-  const [options, setOptions] = useState([]);
-  const { data, error, isLoading, mutate } = useSWR("/receivables", fetcher);
-  const [openReceivablesDialog, setOpenReceivablesDialog] = useState(false);
-  const [openLedgerDialog, setOpenLedgerDialog] = useState(false);
-  const [openLendingWindow, setOpenLendingWindow] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
-  const [successText, setSuccessText] = useState("");
-  const [isEditing, setIsEditing] = useState(false);
-  const [editData, setEditData] = useState({});
-  const loading = open && options.length === 0;
-  const [selected, setSelected] = useState(null);
-  const [receivablesInfoMutate, setReceivablesInfoMutate] = useState();
-
-  useEffect(() => {
-    if (!open) {
-      setOptions([]);
-    } else {
-      setOptions(data);
-    }
-  }, [open, data]);
-
-  const search = (
-    <>
-      <Autocomplete
-        freeSolo
-        id="asynchronous-demo"
-        open={open}
-        sx={{ width: 385, mt: 2 }}
-        onOpen={() => {
-          setOpen(true);
-        }}
-        onClose={() => {
-          setOpen(false);
-        }}
-        onChange={(event, newValue) => {
-          console.log(newValue);
-          setSelected(newValue);
-        }}
-        size="small"
-        isOptionEqualToValue={(option, value) =>
-          option.account_name === value.title
+    keys.filter((data) => {
+      if (
+        data.key == "barangay" ||
+        data.key == "company" ||
+        data.key == "bank" ||
+        data.key == "co_maker" ||
+        data.key == "agent"
+      ) {
+        console.log(data.key, oldData[data.key], newData[data.key]);
+        if (oldData[data.key].id != newData[data.key]) {
+          from[data.key] = oldData[data.key].id;
+          to[data.key] = newData[data.key];
+          unmatchedKeys.push(data);
+          return true;
         }
-        getOptionLabel={(option) => option.account_name}
-        options={options}
-        renderOption={(props, option) => {
-          return (
-            <li {...props} key={option.id}>
-              {option.account_name}
-            </li>
-          );
-        }}
-        renderTags={(tagValue, getTagProps) => {
-          return tagValue.map((option, index) => (
-            <Chip {...getTagProps({ index })} key={option} label={option} />
-          ));
-        }}
-        renderInput={(params) => (
-          <TextField
-            {...params}
-            placeholder="Search Account"
-            InputProps={{
-              ...params.InputProps,
-              endAdornment: (
-                <Fragment>
-                  {loading ? (
-                    <CircularProgress color="inherit" size={20} />
-                  ) : (
-                    <SearchIcon color="inherit" size={20} />
-                  )}
-                  {params.InputProps.endAdornment}
-                </Fragment>
-              ),
-            }}
-          />
-        )}
-      />
-    </>
-  );
+        return false;
+      }
+      if (oldData[data.key] != newData[data.key]) {
+        from[data.key] = oldData[data.key];
+        to[data.key] = newData[data.key];
+        unmatchedKeys.push(data);
+        return true;
+      }
+      return false;
+    });
 
-  return (
-    <>
-      <Typography
-        component="h2"
-        variant="h5"
-        color="primary"
-        gutterBottom
-        marginBottom={2}
-      >
-        Receivables Information
-        <Button
-          variant="outlined"
-          startIcon={<AddIcon />}
-          onClick={() => setOpenReceivablesDialog(true)}
+    console.log(from, to, unmatchedKeys);
+
+    return {
+      from,
+      to,
+      unmatchedKeys,
+    };
+  };
+
+  const EditData = ({ data }) => {
+    console.log(data, data.unmatchedKey);
+    let element = (
+      <TableRow>
+        <TableCell>{data.unmatchedKey.label + ":"}</TableCell>
+        <TableCell>{data.from}</TableCell>
+        <TableCell>{data.to}</TableCell>
+      </TableRow>
+    );
+
+    if (data.unmatchedKey.key == "barangay") {
+      element = (
+        <TableRow>
+          <TableCell>{data.unmatchedKey.label + ":"}</TableCell>
+          <TableCell>
+            {barangay.find((x) => x.id == data.from).barangay}
+          </TableCell>
+          <TableCell>
+            {barangay.find((x) => x.id == data.to).barangay}
+          </TableCell>
+        </TableRow>
+      );
+    }
+    if (data.unmatchedKey.key == "bank") {
+      element = (
+        <TableRow>
+          <TableCell>{data.unmatchedKey.label + ":"}</TableCell>
+          <TableCell>{bank.find((x) => x.id == data.from).bank}</TableCell>
+          <TableCell>{bank.find((x) => x.id == data.to).bank}</TableCell>
+        </TableRow>
+      );
+    }
+    if (data.unmatchedKey.key == "co_maker") {
+      element = (
+        <TableRow>
+          <TableCell>{data.unmatchedKey.label + ":"}</TableCell>
+          <TableCell>
+            {user.find((x) => x.id == data.from).first_name}
+          </TableCell>
+          <TableCell>{user.find((x) => x.id == data.to).first_name}</TableCell>
+        </TableRow>
+      );
+    }
+    if (data.unmatchedKey.key == "agent") {
+      element = (
+        <TableRow>
+          <TableCell>{data.unmatchedKey.label + ":"}</TableCell>
+          <TableCell>
+            {user.find((x) => x.id == data.from).first_name}
+          </TableCell>
+          <TableCell>{user.find((x) => x.id == data.to).first_name}</TableCell>
+        </TableRow>
+      );
+    }
+    if (data.unmatchedKey.key == "company") {
+      element = (
+        <TableRow>
+          <TableCell>{data.unmatchedKey.label + ":"}</TableCell>
+          <TableCell>
+            {company.find((x) => x.id == data.from).company}
+          </TableCell>
+          <TableCell>{company.find((x) => x.id == data.to).company}</TableCell>
+        </TableRow>
+      );
+    }
+    if (data.unmatchedKey.key == "account_status") {
+      element = (
+        <TableRow>
+          <TableCell>{data.unmatchedKey.label + ":"}</TableCell>
+          <TableCell>
+            {accountStatus.find((x) => x.id == data.from).label}
+          </TableCell>
+          <TableCell>
+            {accountStatus.find((x) => x.id == data.to).label}
+          </TableCell>
+        </TableRow>
+      );
+    }
+    if (data.unmatchedKey.key == "credit_terms") {
+      element = (
+        <TableRow>
+          <TableCell>{data.unmatchedKey.label + ":"}</TableCell>
+          <TableCell>
+            {creditTerms.find((x) => x.id == data.from).label}
+          </TableCell>
+          <TableCell>
+            {creditTerms.find((x) => x.id == data.to).label}
+          </TableCell>
+        </TableRow>
+      );
+    }
+    if (data.unmatchedKey.key == "employment_status") {
+      element = (
+        <TableRow>
+          <TableCell>{data.unmatchedKey.label + ":"}</TableCell>
+          <TableCell>
+            {employmentStatus.find((x) => x.id == data.from).label}
+          </TableCell>
+          <TableCell>
+            {employmentStatus.find((x) => x.id == data.to).label}
+          </TableCell>
+        </TableRow>
+      );
+    }
+    if (data.unmatchedKey.key == "funds") {
+      element = (
+        <TableRow>
+          <TableCell>{data.unmatchedKey.label + ":"}</TableCell>
+          <TableCell>{funds.find((x) => x.id == data.from).label}</TableCell>
+          <TableCell>{funds.find((x) => x.id == data.to).label}</TableCell>
+        </TableRow>
+      );
+    }
+    if (data.unmatchedKey.key == "account_category") {
+      element = (
+        <TableRow>
+          <TableCell>{data.unmatchedKey.label + ":"}</TableCell>
+          <TableCell>
+            {accountCategory.find((x) => x.id == data.from).label}
+          </TableCell>
+          <TableCell>
+            {accountCategory.find((x) => x.id == data.to).label}
+          </TableCell>
+        </TableRow>
+      );
+    }
+    return element;
+  };
+
+  if (data.approval_type == "Add")
+    return (
+      <Box>
+        <Typography
+          component="h2"
+          variant="h6"
           color="primary"
-          sx={{ marginLeft: 2 }}
+          marginBottom={2}
         >
-          Add
-        </Button>
-        <Button variant="outlined" color="primary" sx={{ ml: 2 }}>
-          Summary
-        </Button>
-      </Typography>
-      {search}
-      <Box elevation={0} sx={{ padding: 2 }}>
-        <Box sx={{ textAlign: "center" }}>
-          <Success
-            isSuccess={isSuccess}
-            setIsSuccess={setIsSuccess}
-            successText={successText}
-          />
-          {selected && (
-            <Fade in={true}>
-              <Box
-                sx={{
-                  padding: 2,
-                  textAlign: "left",
-                  justifyItems: "bottom",
-                }}
-              >
-                <ReceivablesInformation
-                  id={selected.id}
-                  setEditData={setEditData}
-                  setIsEditing={setIsEditing}
-                  setReceivablesInfoMutate={setReceivablesInfoMutate}
-                  setOpenReceivablesDialog={setOpenReceivablesDialog}
-                  setOpenLedgerDialog={setOpenLedgerDialog}
-                  setOpenLendingWindow={setOpenLendingWindow}
-                />
-              </Box>
-            </Fade>
-          )}
-        </Box>
+          {data.approval_type} {data.type}
+        </Typography>
+        <SwipeableTextMobileStepper />
       </Box>
-      <ReceivablesDialog
-        openReceivablesDialog={openReceivablesDialog}
-        setOpenReceivablesDialog={setOpenReceivablesDialog}
-        setIsSuccess={setIsSuccess}
-        setSuccessText={setSuccessText}
-        mutate={!isEditing ? mutate : receivablesInfoMutate}
-        isEditing={isEditing}
-        setIsEditing={setIsEditing}
-        editData={editData}
-      />
-      {selected && (
-        <>
-          <LedgerDialog
-            openLedgerDialog={openLedgerDialog}
-            setOpenLedgerDialog={setOpenLedgerDialog}
-            selected={selected}
-            dialogName="Receivables Ledger"
-          />
-          <LendingWindow
-            openLendingWindow={openLendingWindow}
-            setOpenLendingWindow={setOpenLendingWindow}
-            selected={selected}
-          />
-        </>
-      )}
-    </>
-  );
+    );
+  else
+    return (
+      <Box>
+        <Typography
+          component="h2"
+          variant="h6"
+          color="primary"
+          marginBottom={2}
+        >
+          {data.approval_type} {data.type}
+        </Typography>
+        <TableContainer>
+          <Table aria-label="simple table" size="small">
+            <TableHead>
+              <TableRow>
+                <TableCell></TableCell>
+                <TableCell>From</TableCell>
+                <TableCell>To</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {compareData().unmatchedKeys.length != 0 ? (
+                <>
+                  <TableRow>
+                    <TableCell>Account number:</TableCell>
+                    <TableCell colSpan={2}>{data.account_number}</TableCell>
+                  </TableRow>
+                  {compareData().unmatchedKeys.map((data, index) => {
+                    console.log(data.key);
+                    return (
+                      <EditData
+                        data={{
+                          from: compareData().from[data.key],
+                          to: compareData().to[data.key],
+                          unmatchedKey: data,
+                        }}
+                        key={index}
+                      />
+                    );
+                  })}
+                </>
+              ) : null}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Box>
+    );
 }

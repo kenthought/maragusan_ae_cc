@@ -49,6 +49,7 @@ import BankAccount from "./views/bank_account";
 import Expenses from "./views/expenses";
 import Assets from "./views/assets";
 import Payables from "./views/payables";
+import Receivables from "./views/receivables";
 import { MaskPasswordInput } from "@/app/utils/mask_password_input";
 
 const fetcher = (url) => axiosInstance.get(url).then((res) => res.data);
@@ -257,6 +258,16 @@ const ViewApproval = (props) => {
     error: asset_type_error,
     isLoading: asset_type_isLoading,
   } = useSWR("components/asset_type", fetcher);
+  const {
+    data: users,
+    error: users_error,
+    isLoading: users_isLoading,
+  } = useSWR("users/", fetcher);
+  const {
+    data: company,
+    error: company_error,
+    isLoading: company_isLoading,
+  } = useSWR("components/company", fetcher);
 
   const handleClose = () => {
     setOpenViewApproval(false);
@@ -268,7 +279,9 @@ const ViewApproval = (props) => {
     province_isLoading ||
     bank_isLoading ||
     expenses_category_isLoading ||
-    asset_type_isLoading
+    asset_type_isLoading ||
+    users_isLoading ||
+    company_isLoading
   )
     return;
 
@@ -305,6 +318,15 @@ const ViewApproval = (props) => {
               barangay={barangay}
               municipality={municipality}
               province={province}
+            />
+          )}
+          {data.type == "Receivables" && (
+            <Receivables
+              data={data}
+              barangay={barangay}
+              bank={bank}
+              user={users}
+              company={company}
             />
           )}
         </DialogContent>

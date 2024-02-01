@@ -40,6 +40,8 @@ export default function WorkForm(props) {
               isEditing
                 ? inputData.company
                   ? inputData.company.id
+                    ? inputData.company.id
+                    : inputData.company || ""
                   : ""
                 : inputData.company || ""
             }

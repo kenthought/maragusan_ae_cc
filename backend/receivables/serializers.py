@@ -52,6 +52,7 @@ class ReceivablesViewSerializer(serializers.ModelSerializer):
             "funds_registered_name",
             "funds_account_number",
             "user",
+            "under_approval",
             "created_at",
         ]
 
@@ -92,6 +93,7 @@ class ReceivablesWriteSerializer(serializers.ModelSerializer):
             "send_to",
             "funds_registered_name",
             "funds_account_number",
+            "under_approval",
             "user",
             "created_at",
         ]

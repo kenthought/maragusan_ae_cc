@@ -236,6 +236,8 @@ export default function AccountForm(props) {
               isEditing
                 ? inputData.barangay
                   ? inputData.barangay.id
+                    ? inputData.barangay.id
+                    : inputData.barangay || ""
                   : ""
                 : inputData.barangay || ""
             }
@@ -270,7 +272,9 @@ export default function AccountForm(props) {
             value={
               isEditing
                 ? inputData.co_maker
-                  ? inputData.co_maker // add id
+                  ? inputData.co_maker.id
+                    ? inputData.co_maker.id
+                    : inputData.co_maker || ""
                   : ""
                 : inputData.co_maker || ""
             }
@@ -296,7 +300,9 @@ export default function AccountForm(props) {
             value={
               isEditing
                 ? inputData.agent
-                  ? inputData.agent // add id
+                  ? inputData.agent.id
+                    ? inputData.agent.id
+                    : inputData.agent || ""
                   : ""
                 : inputData.agent || ""
             }

@@ -59,6 +59,7 @@ class Receivables(models.Model):
     send_to = models.IntegerField()
     funds_registered_name = models.CharField(max_length=100)
     funds_account_number = models.CharField(max_length=100)
+    under_approval = models.BooleanField(default=True)
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL, related_name="receivables", on_delete=models.PROTECT
     )

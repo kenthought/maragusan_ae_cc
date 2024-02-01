@@ -4,6 +4,7 @@ from receivables.serializers import (
     ReceivablesWriteSerializer,
 )
 from ledger.serializers import LedgerCodeSerializer
+from approvals.serializers import ApprovalWriteSerializer
 from django.http import Http404
 from django.db.models import F
 from rest_framework.views import APIView
@@ -14,6 +15,15 @@ from rest_framework import status, permissions
 # Create your views here.
 class ReceivablesList(APIView):
     permission_classes = [permissions.IsAuthenticated]
+
+    def add_for_approval(self, data):
+        try:
+            approval_serializer = ApprovalWriteSerializer(data=data)
+            if approval_serializer.is_valid():
+                approval_serializer.save()
+            return "Success"
+        except:
+            raise Http404
 
     def format_account_number(self, id, account_number, user):
         try:
@@ -60,6 +70,16 @@ class ReceivablesList(APIView):
             format_account_number = self.format_account_number(
                 serializer.data["id"], serializer.data["account_number"], request.user
             )
+
+            for_approval = request.data["forApproval"]
+            for_approval["module_id"] = serializer.data["id"]
+            for_approval["account_number"] = format_account_number["account_number"]
+            
+            # Call add_for_approval function
+            add_for_approval = self.add_for_approval(for_approval)
+
+            if add_for_approval != "Success":
+                return Response(add_for_approval)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
