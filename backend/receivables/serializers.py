@@ -108,7 +108,6 @@ class LedgerWriteSerializer(serializers.ModelSerializer):
             "particulars",
             "debit",
             "credit",
-            "control_number",
             "receivables",
             "user",
             "created_at",

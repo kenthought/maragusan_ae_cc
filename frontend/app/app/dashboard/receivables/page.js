@@ -43,6 +43,7 @@ import axiosInstance from "@/app/axios";
 import PropTypes from "prop-types";
 import LendingWindow from "@/app/modals/receivables/lending_window";
 import { Stack } from "@mui/material";
+import SummaryDialog from "@/app/modals/receivables/summary_dialog";
 
 const fetcher = (url) => axiosInstance.get(url).then((res) => res.data);
 
@@ -615,6 +616,7 @@ export default function Receivables() {
   const { data, error, isLoading, mutate } = useSWR("/receivables", fetcher);
   const [openReceivablesDialog, setOpenReceivablesDialog] = useState(false);
   const [openLedgerDialog, setOpenLedgerDialog] = useState(false);
+  const [openSummaryDialog, setOpenSummaryDialog] = useState(false);
   const [openLendingWindow, setOpenLendingWindow] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [successText, setSuccessText] = useState("");
@@ -709,7 +711,12 @@ export default function Receivables() {
         >
           Add
         </Button>
-        <Button variant="outlined" color="primary" sx={{ ml: 2 }}>
+        <Button
+          variant="outlined"
+          color="primary"
+          sx={{ ml: 2 }}
+          onClick={() => setOpenSummaryDialog(true)}
+        >
           Summary
         </Button>
       </Typography>
@@ -753,6 +760,10 @@ export default function Receivables() {
         isEditing={isEditing}
         setIsEditing={setIsEditing}
         editData={editData}
+      />
+      <SummaryDialog
+        openSummaryDialog={openSummaryDialog}
+        setOpenSummaryDialog={setOpenSummaryDialog}
       />
       {selected && (
         <>

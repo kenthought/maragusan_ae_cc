@@ -23,6 +23,8 @@ import { useSession } from "next-auth/react";
 import Typography from "@mui/material/Typography";
 import useSWR from "swr";
 import { ButtonGroup, Divider, Fade } from "@mui/material";
+import { NumericFormatCustom } from "@/app/utils/numberic_format";
+import { MaskControlNumber } from "@/app/utils/mask_control_number";
 
 export default function DebitDialog(props) {
   const {
@@ -33,13 +35,16 @@ export default function DebitDialog(props) {
     mutate,
     setIsSuccess,
     setSuccessText,
+    balance,
   } = props;
   const [post, setPost] = useState();
   const { data: session } = useSession();
   const [isError, setIsError] = useState(false);
   const [errorText, setErrorText] = useState(false);
+  const [controlNumber, setControlNumber] = useState("");
 
   const handleClose = () => {
+    setControlNumber("");
     setOpenDebitAndCreditDialog(false);
   };
 
@@ -54,14 +59,29 @@ export default function DebitDialog(props) {
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log(selected);
+    const amount = parseFloat(data.get("amount").replace(/\,/g, ""), 10);
+
+    if (selected.control_number != controlNumber) {
+      setIsError(true);
+      setErrorText("Invalid control number");
+      return;
+    }
+
+    if (
+      dialog == "Credit" &&
+      parseFloat(balance.replace(/\,/g, ""), 10) < amount
+    ) {
+      setIsError(true);
+      setErrorText("Credit should not be above balance");
+      return;
+    }
+
     const postData = {
       post: post,
       invoice_number: data.get("invoice_number"),
       particulars: data.get("particulars"),
-      credit: dialog == "Credit" ? parseInt(data.get("amount")) : 0,
-      debit: dialog == "Debit" ? parseInt(data.get("amount")) : 0,
-      control_number: selected.control_number,
+      credit: dialog == "Credit" ? amount : 0,
+      debit: dialog == "Debit" ? amount : 0,
       receivables: selected.id,
       user: session.user.name[1],
     };
@@ -82,12 +102,7 @@ export default function DebitDialog(props) {
   if (selected === null) return;
 
   return (
-    <Dialog
-      open={openDebitAndCreditDialog}
-      onClose={handleClose}
-      fullWidth
-      maxWidth="lg"
-    >
+    <Dialog open={openDebitAndCreditDialog} onClose={handleClose} fullWidth>
       <DialogTitle>{dialog}</DialogTitle>
       <Box component="form" onSubmit={handleSubmit}>
         <DialogContent>
@@ -104,6 +119,7 @@ export default function DebitDialog(props) {
                 size="small"
                 value={selected.account_number}
                 readOnly
+                autoComplete="off"
               />
             </Grid>
             <Grid item xs={12}>
@@ -118,6 +134,7 @@ export default function DebitDialog(props) {
                   name="invoice_number"
                   type="text"
                   size="small"
+                  autoComplete="off"
                 />
               </Box>
             </Grid>
@@ -133,6 +150,7 @@ export default function DebitDialog(props) {
                 size="small"
                 multiline
                 rows={2}
+                autoComplete="off"
               />
             </Grid>
             <Grid item xs={6}>
@@ -146,6 +164,8 @@ export default function DebitDialog(props) {
                   name="amount"
                   type="text"
                   size="small"
+                  InputProps={{ inputComponent: NumericFormatCustom }}
+                  autoComplete="off"
                 />
               </Box>
             </Grid>
@@ -159,9 +179,13 @@ export default function DebitDialog(props) {
                   id="control_number"
                   name="control_number"
                   type="text"
-                  value={selected.control_number}
                   size="small"
-                  readOnly
+                  InputProps={{ inputComponent: MaskControlNumber }}
+                  value={controlNumber}
+                  onChange={(event) => {
+                    setControlNumber(event.target.value);
+                  }}
+                  autoComplete="off"
                 />
               </Box>
             </Grid>
@@ -194,4 +218,5 @@ DebitDialog.propTypes = {
   mutate: PropTypes.func.isRequired,
   setIsSuccess: PropTypes.func.isRequired,
   setSuccessText: PropTypes.func.isRequired,
+  balance: PropTypes.string.isRequired,
 };
