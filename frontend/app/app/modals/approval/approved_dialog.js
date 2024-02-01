@@ -90,7 +90,8 @@ const ViewApproval = (props) => {
     bank_isLoading ||
     expenses_category_isLoading ||
     asset_type_isLoading ||
-    company_isLoading
+    company_isLoading ||
+    users_isLoading
   )
     return;
 
