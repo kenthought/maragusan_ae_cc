@@ -51,6 +51,7 @@ import Assets from "./views/assets";
 import Payables from "./views/payables";
 import Receivables from "./views/receivables";
 import { MaskPasswordInput } from "@/app/utils/mask_password_input";
+import Income from "./views/income";
 
 const fetcher = (url) => axiosInstance.get(url).then((res) => res.data);
 
@@ -329,6 +330,7 @@ const ViewApproval = (props) => {
               company={company}
             />
           )}
+          {data.type == "Income" && <Income data={data} />}
         </DialogContent>
         <DialogActions>
           <Button

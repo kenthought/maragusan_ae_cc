@@ -115,6 +115,13 @@ export default function DashboardLayout({ children, window }) {
       icon: <AccountBalanceIcon />,
       access: permissions.admin || permissions.receivables,
     },
+    {
+      id: 6,
+      label: "Income",
+      path: "income",
+      icon: <AccountBalanceIcon />,
+      access: permissions.admin,
+    },
   ];
 
   const componentItems = [
